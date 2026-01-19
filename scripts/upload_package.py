@@ -19,7 +19,7 @@ def upload_package(package_path: Path) -> None:
             "upload",
             "prefix",
             "--url",
-            "https://beta.prefix.dev",
+            "https://prefix.dev",
             "--channel",
             "pixi-gui",
             str(package_path),
