@@ -6,6 +6,7 @@ import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -50,6 +51,9 @@ export function FeatureDialog({
         <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Add New Feature</DialogTitle>
+            <DialogDescription>
+              Add a new feature to your workspace.
+            </DialogDescription>
           </DialogHeader>
 
           <PreferencesGroup nested>
