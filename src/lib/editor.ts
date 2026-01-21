@@ -4,6 +4,7 @@ import { LazyStore } from "@tauri-apps/plugin-store";
 export interface Editor {
   command: string;
   name: string;
+  description: string;
   packageName?: string;
 }
 

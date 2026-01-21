@@ -15,6 +15,7 @@ use crate::{error::Error, utils};
 pub struct Editor {
     pub command: &'static str,
     pub name: &'static str,
+    pub description: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package_name: Option<&'static str>,
 }
@@ -24,51 +25,68 @@ const KNOWN_SYSTEM_EDITORS: &[Editor] = &[
     Editor {
         command: "code",
         name: "Visual Studio Code",
+        description: "Code editing. Redefined.",
         package_name: None,
     },
     Editor {
         command: "cursor",
         name: "Cursor",
+        description: "The AI Code Editor",
         package_name: None,
     },
     Editor {
         command: "zed",
         name: "Zed",
+        description: "Code at the speed of thought",
         package_name: None,
     },
     Editor {
         command: "subl",
         name: "Sublime Text",
+        description: "Text Editing, Done Right",
         package_name: None,
     },
     Editor {
         command: "charm",
         name: "PyCharm",
+        description: "The Python IDE for Professional Developers",
         package_name: None,
     },
     Editor {
         command: "idea",
         name: "IntelliJ IDEA",
+        description: "The IDE for Professional Java Development",
         package_name: None,
     },
     Editor {
         command: "webstorm",
         name: "WebStorm",
+        description: "The JavaScript and TypeScript IDE",
         package_name: None,
     },
     Editor {
         command: "rustrover",
         name: "RustRover",
+        description: "The Rust IDE by JetBrains",
         package_name: None,
     },
 ];
 
 /// Editors that can be installed in an environment via pixi
-const INSTALLABLE_EDITORS: &[Editor] = &[Editor {
-    command: "jupyter lab",
-    name: "Jupyter Lab",
-    package_name: Some("jupyter"),
-}];
+const INSTALLABLE_EDITORS: &[Editor] = &[
+    Editor {
+        command: "jupyter lab",
+        name: "Jupyter Lab",
+        description: "Web-based interactive development environment",
+        package_name: Some("jupyter"),
+    },
+    Editor {
+        command: "spyder -p .",
+        name: "Spyder",
+        description: "The Scientific Python Development Environment",
+        package_name: Some("spyder"),
+    },
+];
 
 /// List all available editors for an environment (system editors + installed tools)
 #[tauri::command]

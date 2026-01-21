@@ -94,7 +94,7 @@ export function EditorDialog({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="flex-1 overflow-y-auto min-h-0 space-y-pfx-m">
               {/* Available Editors Section (system editors + installed editors) */}
               <PreferencesGroup
                 title="Available"
@@ -106,6 +106,7 @@ export function EditorDialog({
                     key={editor.packageName ?? editor.command}
                     prefix={<CircularIcon icon="editor" />}
                     title={editor.name}
+                    subtitle={editor.description}
                     selected={selection?.command === editor.command}
                     onClick={() => setSelection(editor)}
                     variant="single"
@@ -115,12 +116,17 @@ export function EditorDialog({
 
               {/* Installable Section (not yet installed) */}
               {installableEditors.length > 0 && (
-                <PreferencesGroup title="Installable" nested>
+                <PreferencesGroup
+                  title="Installable"
+                  description={`Following editors can be installed to the "${environment}" environment.`}
+                  nested
+                >
                   {installableEditors.map((editor) => (
                     <Row
                       key={editor.packageName}
                       prefix={<CircularIcon icon="package" />}
                       title={editor.name}
+                      subtitle={editor.description}
                       suffix={
                         <Button
                           type="button"
@@ -135,7 +141,7 @@ export function EditorDialog({
                           installingPackage === editor.packageName ? (
                             <LoaderCircleIcon className="animate-spin" />
                           ) : (
-                            "Add to Environment"
+                            "Install"
                           )}
                         </Button>
                       }
