@@ -1,4 +1,4 @@
-import { PackageIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PackageIcon, PencilIcon, SearchIcon, Trash2Icon } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -342,18 +342,13 @@ export function CondaDependencyDialog({
             {!isEditMode && (
               <div className="space-y-pfx-xs">
                 {/* Search Input */}
-                <div className="relative">
-                  <Input
-                    label="Package Search"
-                    value={packageSearch}
-                    onChange={(event) => setPackageSearch(event.target.value)}
-                  />
-                  {isSearching && (
-                    <div className="absolute right-6.5 top-1/2 -translate-y-1/2">
-                      <Spinner />
-                    </div>
-                  )}
-                </div>
+                <Input
+                  placeholder="Search for Conda packages…"
+                  value={packageSearch}
+                  onChange={(event) => setPackageSearch(event.target.value)}
+                  icon={<SearchIcon />}
+                  suffix={isSearching && <Spinner />}
+                />
 
                 {/* Package List */}
                 <div className="h-[450px] max-h-[45vh] overflow-y-auto space-y-pfx-xs pt-pfx-xs">
