@@ -47,7 +47,7 @@ import {
 } from "@/lib/pixi/workspace/task";
 import type { Feature, Workspace } from "@/lib/pixi/workspace/workspace";
 import { listPtys } from "@/lib/pty";
-import { cn, toPixiName } from "@/lib/utils";
+import { toPixiName } from "@/lib/utils";
 
 interface TaskDialogProps {
   open: boolean;
@@ -366,11 +366,7 @@ export function TaskDialog({
             {/* Advanced Settings */}
             <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
               <CollapsibleTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className={cn("my-pfx-s")}
-                >
+                <Button type="button" variant="ghost" className={"my-pfx-s"}>
                   <span>Advanced</span>
                   {isAdvancedOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
                 </Button>
