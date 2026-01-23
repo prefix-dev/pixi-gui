@@ -4,18 +4,28 @@ import { LazyStore } from "@tauri-apps/plugin-store";
 export interface Editor {
   command: string;
   name: string;
+  description: string;
+  packageName?: string;
 }
 
-export async function listAvailableEditors(): Promise<Record<string, string>> {
-  return await invoke<Record<string, string>>("list_available_editors");
-}
-
-export async function openInEditor(
+export async function listAvailableEditors(
   workspace: string,
-  editor: string,
   environment: string,
-): Promise<void> {
-  await invoke("open_in_editor", { workspace, editor: editor, environment });
+): Promise<Editor[]> {
+  return await invoke<Editor[]>("list_available_editors", {
+    workspace,
+    environment,
+  });
+}
+
+export async function listInstallableEditors(
+  workspace: string,
+  environment: string,
+): Promise<Editor[]> {
+  return await invoke<Editor[]>("list_installable_editors", {
+    workspace,
+    environment,
+  });
 }
 
 const store = new LazyStore("editor-preferences.json");

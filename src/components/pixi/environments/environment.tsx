@@ -1,5 +1,5 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { EllipsisVerticalIcon, LoaderCircleIcon, PlayIcon } from "lucide-react";
+import { EllipsisVerticalIcon, PlayIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -10,13 +10,17 @@ import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 
+import { startCommand } from "@/hooks/useProcess";
 import {
   type Editor,
   getEditorPreference,
-  openInEditor as open,
+  listAvailableEditors,
+  listInstallableEditors,
   setEditorPreference,
 } from "@/lib/editor";
 import { subscribe } from "@/lib/event";
+import { addCondaDeps } from "@/lib/pixi/workspace/add";
+import { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 import type { Task } from "@/lib/pixi/workspace/task";
 import { type PtyExitEvent, type PtyStartEvent, listPtys } from "@/lib/pty";
 
@@ -24,31 +28,22 @@ interface EnvironmentProps {
   name: string;
   tasks: Record<string, Task>;
   filter: string;
-  availableEditors: Record<string, string>;
 }
 
-export function Environment({
-  name,
-  tasks,
-  filter,
-  availableEditors,
-}: EnvironmentProps) {
+export function Environment({ name, tasks, filter }: EnvironmentProps) {
   const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
   const navigate = getRouteApi("/workspace/$path").useNavigate();
 
   const [commandInput, setCommandInput] = useState("");
-  const [runningCommands, setRunningCommands] = useState<Map<string, string>>(
-    new Map(),
-  );
+  const [runningCommands, setRunningCommands] = useState<
+    Map<string, { command: string; editor?: Editor }>
+  >(new Map());
 
   // Editor
   const [lastEditor, setLastEditor] = useState<Editor | null>(null);
-  const [isLaunching, setIsLaunching] = useState(false);
   const [editorDialogOpen, setEditorDialogOpen] = useState(false);
-
-  const sortedEditors = Object.entries(availableEditors).sort(([, a], [, b]) =>
-    a.localeCompare(b),
-  );
+  const [availableEditors, setAvailableEditors] = useState<Editor[]>([]);
+  const [installableEditors, setInstallableEditors] = useState<Editor[]>([]);
 
   // Load saved editor preference on mount
   useEffect(() => {
@@ -61,17 +56,38 @@ export function Environment({
     void loadPreference();
   }, [workspace.root, name]);
 
+  // Load available and installable editors for this environment
+  useEffect(() => {
+    const loadEditors = async () => {
+      try {
+        const [available, installable] = await Promise.all([
+          listAvailableEditors(workspace.root, name),
+          listInstallableEditors(workspace.root, name),
+        ]);
+        setAvailableEditors(available);
+        setInstallableEditors(installable);
+      } catch (error) {
+        console.error("Failed to load editors:", error);
+      }
+    };
+    void loadEditors();
+  }, [workspace.root, name]);
+
   // Load running commands on mount and subscribe to pty events to track the running freeform tasks / commands
   useEffect(() => {
     const loadRunningCommands = async () => {
       const ptys = await listPtys();
-      const commands = new Map<string, string>();
+      const commands = new Map<string, { command: string; editor?: Editor }>();
       for (const pty of ptys) {
         if (
           pty.invocation.kind.kind === "command" &&
           pty.invocation.kind.environment === name
         ) {
-          commands.set(pty.id, pty.invocation.kind.command);
+          const cmd = pty.invocation.kind.command;
+          commands.set(pty.id, {
+            command: cmd,
+            editor: availableEditors.find((e) => e.command === cmd),
+          });
         }
       }
       setRunningCommands(commands);
@@ -82,7 +98,12 @@ export function Environment({
     const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
       const { kind } = event.invocation;
       if (kind.kind === "command" && kind.environment === name) {
-        setRunningCommands((prev) => new Map(prev).set(event.id, kind.command));
+        setRunningCommands((prev) =>
+          new Map(prev).set(event.id, {
+            command: kind.command,
+            editor: availableEditors.find((e) => e.command === kind.command),
+          }),
+        );
       }
     });
 
@@ -100,15 +121,18 @@ export function Environment({
       unsubscribeStart();
       unsubscribeExit();
     };
-  }, [name]);
+  }, [name, availableEditors]);
 
   const runFreeformTask = () => {
     if (!commandInput.trim()) return;
+    const command = commandInput.trim();
+    const editor = availableEditors.find((e) => e.command === command);
     navigate({
       to: "./process",
       search: {
         kind: "command",
-        command: commandInput.trim(),
+        command,
+        editor,
         environment: name,
         autoStart: true,
       },
@@ -116,14 +140,48 @@ export function Environment({
     setCommandInput("");
   };
 
-  const openInEditor = async (command: string, editorName: string) => {
+  const launchEditor = async (editor: Editor) => {
+    if (editor.packageName) {
+      navigate({
+        to: "./process",
+        search: {
+          kind: "command",
+          command: editor.command,
+          editor,
+          environment: name,
+          autoStart: true,
+        },
+      });
+    } else {
+      await startCommand(workspace, name, editor.command);
+      toast.info(`Opening ${editor.name}…`);
+    }
+  };
+
+  const handleInstallEditor = async (packageName: string, feature: string) => {
     try {
-      setIsLaunching(true);
-      await open(workspace.root, command, name);
-      setTimeout(() => setIsLaunching(false), 3000);
+      await addCondaDeps(
+        workspace.root,
+        { [packageName]: { name: packageName } },
+        {
+          feature,
+          platforms: [],
+          no_install: false,
+          lock_file_usage: LockFileUsage.Update,
+        },
+      );
+
+      // Refresh editors after successful installation
+      const [available, installable] = await Promise.all([
+        listAvailableEditors(workspace.root, name),
+        listInstallableEditors(workspace.root, name),
+      ]);
+      setAvailableEditors(available);
+      setInstallableEditors(installable);
+
+      toast.success(`Successfully installed ${packageName}`);
     } catch (error) {
-      setIsLaunching(false);
-      toast.error(`Failed to open ${editorName}: ${error}`);
+      toast.error(`Failed to install ${packageName}: ${error}`);
     }
   };
 
@@ -132,13 +190,13 @@ export function Environment({
       setEditorDialogOpen(true);
       return;
     }
-    openInEditor(lastEditor.command, lastEditor.name);
+    void launchEditor(lastEditor);
   };
 
   const handleEditorDialogSubmit = async (editor: Editor) => {
     setLastEditor(editor);
     await setEditorPreference(workspace.root, name, editor);
-    openInEditor(editor.command, editor.name);
+    void launchEditor(editor);
   };
 
   const normalizedFilter = filter.trim().toLowerCase();
@@ -152,10 +210,15 @@ export function Environment({
 
   // Filter and sort running commands
   const filteredCommands = [...runningCommands.entries()]
-    .filter(([, command]) =>
-      command.trim().toLowerCase().includes(normalizedFilter),
-    )
-    .sort(([, a], [, b]) => a.localeCompare(b));
+    .filter(([, { command, editor }]) => {
+      const searchText = editor?.name ?? command;
+      return searchText.trim().toLowerCase().includes(normalizedFilter);
+    })
+    .sort(([, a], [, b]) => {
+      const nameA = a.editor?.name ?? a.command;
+      const nameB = b.editor?.name ?? b.command;
+      return nameA.localeCompare(nameB);
+    });
 
   // Show environment if there's content or no filter is applied
   const hasContent =
@@ -179,14 +242,7 @@ export function Environment({
       }
       headerSuffix={
         <div className="flex flex-wrap gap-pfx-xs">
-          <Badge
-            variant="default"
-            disabled={isLaunching}
-            onClick={handleEditorButtonClick}
-          >
-            {isLaunching && (
-              <LoaderCircleIcon className="size-3 animate-spin" />
-            )}
+          <Badge variant="default" onClick={handleEditorButtonClick}>
             {lastEditor ? `Open in ${lastEditor.name}` : "Open in Editor…"}
           </Badge>
           {lastEditor && (
@@ -217,11 +273,12 @@ export function Environment({
           </Button>
         }
       />
-      {filteredCommands.map(([id, command]) => (
+      {filteredCommands.map(([id, { command, editor }]) => (
         <ProcessRow
           key={id}
           kind="command"
           command={command}
+          editor={editor}
           environment={name}
         />
       ))}
@@ -239,8 +296,10 @@ export function Environment({
         <EditorDialog
           onOpenChange={setEditorDialogOpen}
           environment={name}
-          availableEditors={sortedEditors}
+          availableEditors={availableEditors}
+          installableEditors={installableEditors}
           onSubmit={handleEditorDialogSubmit}
+          onInstallEditor={handleInstallEditor}
         />
       )}
     </PreferencesGroup>

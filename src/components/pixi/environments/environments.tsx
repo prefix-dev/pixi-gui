@@ -1,23 +1,12 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 
 import { Environment } from "@/components/pixi/environments/environment";
 import { Input } from "@/components/shadcn/input";
-
-import { listAvailableEditors } from "@/lib/editor";
 
 export function Environments() {
   const { tasks } = getRouteApi("/workspace/$path").useLoaderData();
   const { search = "" } = getRouteApi("/workspace/$path/").useSearch();
   const navigate = getRouteApi("/workspace/$path").useNavigate();
-
-  const [availableEditors, setAvailableEditors] = useState<
-    Record<string, string>
-  >({});
-
-  useEffect(() => {
-    listAvailableEditors().then(setAvailableEditors).catch(console.error);
-  }, []);
 
   const updateSearch = (value: string) => {
     navigate({
@@ -53,7 +42,6 @@ export function Environments() {
               name={environmentName}
               tasks={envTasks}
               filter={search}
-              availableEditors={availableEditors}
             />
           );
         })}

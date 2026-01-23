@@ -8,6 +8,7 @@ import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
 import { Button } from "@/components/shadcn/button";
 
 import { useProcess } from "@/hooks/useProcess";
+import type { Editor } from "@/lib/editor";
 import {
   type Task,
   taskArguments as getTaskArguments,
@@ -16,7 +17,7 @@ import {
 
 export type ProcessRowProps = { environment: string } & (
   | { kind: "task"; task: Task; taskName: string }
-  | { kind: "command"; command: string }
+  | { kind: "command"; command: string; editor?: Editor }
 );
 
 export function ProcessRow(props: ProcessRowProps) {
@@ -34,12 +35,18 @@ export function ProcessRow(props: ProcessRowProps) {
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
 
   // Icon based on kind
-  const icon = props.kind === "task" ? "task" : "command";
+  const icon =
+    props.kind === "task" ? "task" : props.editor ? "editor" : "command";
 
   // Title and subtitle
-  const title = props.kind === "task" ? props.taskName : props.command;
+  const title =
+    props.kind === "task"
+      ? props.taskName
+      : props.editor?.name ?? props.command;
   const subtitle =
-    props.kind === "task" ? getTaskDescription(props.task) : undefined;
+    props.kind === "task"
+      ? getTaskDescription(props.task)
+      : props.editor?.description;
 
   // Navigate to detail page
   const navigateToProcess = () => {
@@ -59,6 +66,7 @@ export function ProcessRow(props: ProcessRowProps) {
         search: {
           kind: "command",
           command: props.command,
+          editor: props.editor,
           environment: props.environment,
         },
       });

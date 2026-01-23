@@ -13,6 +13,7 @@ import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 
 import { useProcess } from "@/hooks/useProcess";
+import type { Editor } from "@/lib/editor";
 import {
   type Task,
   taskArguments as getTaskArguments,
@@ -24,7 +25,7 @@ import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 
 type RouteSearch = { environment: string; autoStart?: boolean } & (
   | { kind: "task"; task: Task; taskName: string }
-  | { kind: "command"; command: string }
+  | { kind: "command"; command: string; editor?: Editor }
 );
 
 export const Route = createFileRoute("/workspace/$path/process")({
@@ -118,8 +119,9 @@ function ProcessComponent() {
   const onBack = () => router.history.back();
 
   // Header title and subtitle
-  const title = isTask ? taskName : command;
-  const subtitle = isTask ? description : undefined;
+  const editor = search.kind === "command" ? search.editor : undefined;
+  const title = isTask ? taskName : editor?.name ?? command;
+  const subtitle = isTask ? description : editor?.description;
 
   return (
     <div className="flex h-screen w-full flex-col">

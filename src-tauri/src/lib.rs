@@ -84,7 +84,7 @@ pub fn run(workspace_path: Option<String>) {
             watcher::unwatch_manifest,
             window::open_new_window,
             editor::list_available_editors,
-            editor::open_in_editor,
+            editor::list_installable_editors,
         ])
         .setup(move |app| {
             // On Linux and Windows, file associations launch a new process with the file path in CLI args
