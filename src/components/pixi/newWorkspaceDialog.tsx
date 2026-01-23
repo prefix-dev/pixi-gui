@@ -54,12 +54,6 @@ export function NewWorkspaceDialog({
   const [isSelectingPlatforms, setIsSelectingPlatforms] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
-  useEffect(() => {
-    if (open && !location) {
-      documentDir().then(setLocation).catch(console.error);
-    }
-  }, [open, location]);
-
   const [fullPath, setFullPath] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,6 +68,7 @@ export function NewWorkspaceDialog({
       const selectedPath = await openDialog({
         directory: true,
         canCreateDirectories: true,
+        defaultPath: await documentDir(),
       });
 
       if (selectedPath) {
