@@ -1,5 +1,5 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { PencilIcon, PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CircularIcon } from "@/components/common/circularIcon";
@@ -96,16 +96,6 @@ export function Manifest() {
           title="Channels"
           subtitle={(channels.default ?? []).join(", ")}
           onClick={() => setIsEditingChannels(true)}
-          suffix={
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              onClick={() => setIsEditingChannels(true)}
-            >
-              <PencilIcon />
-            </Button>
-          }
           property
         />
         <Row
@@ -115,16 +105,6 @@ export function Manifest() {
             .map(getPlatformName)
             .join(", ")}
           onClick={() => setIsEditingPlatforms(true)}
-          suffix={
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              onClick={() => setIsEditingPlatforms(true)}
-            >
-              <PencilIcon />
-            </Button>
-          }
           property
         />
       </PreferencesGroup>
