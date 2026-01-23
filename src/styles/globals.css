@@ -5,7 +5,7 @@
 @theme inline {
   --radius-sm: .25rem;
   --radius-md: .375rem;
-  --radius-lg: var(--radius);
+  --radius-lg: .5rem;
   --radius-xl: .75rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

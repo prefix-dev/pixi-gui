@@ -193,7 +193,9 @@ export function Manifest() {
                   prefix={<CircularIcon icon="environment" />}
                   suffix={env.features.map((feature) => (
                     <Badge
+                      variant="nested"
                       key={feature}
+                      icon="feature"
                       onClick={(e) => {
                         e.stopPropagation();
                         document

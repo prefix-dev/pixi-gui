@@ -242,11 +242,12 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       }
       headerSuffix={
         <div className="flex flex-wrap gap-pfx-xs">
-          <Badge variant="default" onClick={handleEditorButtonClick}>
+          <Badge onClick={handleEditorButtonClick}>
+            <PlayIcon />{" "}
             {lastEditor ? `Open in ${lastEditor.name}` : "Open in Editor…"}
           </Badge>
           {lastEditor && (
-            <Badge variant="default" onClick={() => setEditorDialogOpen(true)}>
+            <Badge onClick={() => setEditorDialogOpen(true)}>
               <EllipsisVerticalIcon />
             </Badge>
           )}

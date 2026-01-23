@@ -75,6 +75,7 @@ export function Feature({
     <FeatureSection
       title="Conda Dependencies"
       inline={inline}
+      icon="package"
       items={condaDependencies}
       onItemClick={(name) =>
         setIsEditingCondaDependency([name, feature.dependencies[name][0]])
@@ -89,6 +90,7 @@ export function Feature({
     <FeatureSection
       title="PyPI Dependencies"
       inline={inline}
+      icon="package"
       items={pypiDependencies}
       onItemClick={(name) =>
         setIsEditingPypiDependency([name, feature.pypiDependencies[name][0]])
@@ -103,6 +105,7 @@ export function Feature({
     <FeatureSection
       title="Tasks"
       inline={inline}
+      icon="task"
       items={tasks}
       onItemClick={(name) =>
         setIsEditingTask({ name, task: feature.tasks[name] })
@@ -224,6 +227,7 @@ interface FeatureSectionProps {
   onAdd: () => void;
   addTitle: string;
   placeholder: string;
+  icon: "package" | "task";
 }
 
 function FeatureSection({
@@ -234,6 +238,7 @@ function FeatureSection({
   onAdd,
   addTitle,
   placeholder,
+  icon,
 }: FeatureSectionProps) {
   return (
     <PreferencesGroup
@@ -259,7 +264,9 @@ function FeatureSection({
         >
           {items.map((item) => (
             <Badge
+              variant="nested"
               key={item.key}
+              icon={icon}
               title={`Edit ${title.replace(/s$/, "")}`}
               onClick={() => onItemClick(item.key)}
             >
@@ -267,8 +274,8 @@ function FeatureSection({
             </Badge>
           ))}
           {!inline && (
-            <Badge title={addTitle} onClick={onAdd}>
-              +
+            <Badge variant="nested" title={addTitle} onClick={onAdd}>
+              <PlusIcon />
             </Badge>
           )}
         </div>

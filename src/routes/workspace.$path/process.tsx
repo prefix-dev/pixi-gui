@@ -120,7 +120,7 @@ function ProcessComponent() {
 
   // Header title and subtitle
   const editor = search.kind === "command" ? search.editor : undefined;
-  const title = isTask ? taskName : editor?.name ?? command;
+  const title = isTask ? taskName : (editor?.name ?? command);
   const subtitle = isTask ? description : editor?.description;
 
   return (
@@ -185,7 +185,7 @@ function ProcessComponent() {
             </p>
             <div className="flex flex-wrap gap-pfx-xs">
               {dependencies.map((dependency) => (
-                <Badge key={dependency.task_name} variant="outline">
+                <Badge key={dependency.task_name} icon="task">
                   {dependency.task_name}
                 </Badge>
               ))}
