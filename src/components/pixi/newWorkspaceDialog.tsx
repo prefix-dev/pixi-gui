@@ -144,7 +144,7 @@ export function NewWorkspaceDialog({
                 <PreferencesGroup nested>
                   {/* Platforms */}
                   <Row
-                    title="Supported Platforms"
+                    title="Platforms"
                     subtitle={
                       platforms.length > 0
                         ? [...platforms].sort().map(getPlatformName).join(", ")

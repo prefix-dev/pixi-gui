@@ -4,6 +4,7 @@ channels = ["https://prefix.dev/conda-forge"]
 name = "pixi-gui"
 platforms = ["osx-arm64", "linux-64", "win-64", "osx-64"]
 preview = ["pixi-build"]
+description = "Package Management Made Easy!"
 
 [workspace.target.win.build-variants]
 c_compiler = ["vs2019"]

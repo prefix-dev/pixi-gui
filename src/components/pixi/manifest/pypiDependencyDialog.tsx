@@ -252,7 +252,7 @@ export function PypiDependencyDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={!packageName.trim()}>
-                {isEditMode ? "Save Changes" : "Add Dependency"}
+                {isEditMode ? "Edit Dependency" : "Add Dependency"}
               </Button>
             </DialogFooter>
           </form>

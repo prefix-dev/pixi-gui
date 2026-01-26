@@ -118,7 +118,7 @@ export function PlatformDialog({
             className="flex flex-col overflow-hidden"
           >
             <DialogHeader>
-              <DialogTitle>Edit Supported Platforms</DialogTitle>
+              <DialogTitle>Edit Platforms</DialogTitle>
               <DialogDescription>
                 Select the target platforms of the workspace.
               </DialogDescription>
@@ -188,7 +188,7 @@ export function PlatformDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">Edit Platforms</Button>
             </DialogFooter>
           </form>
         )}

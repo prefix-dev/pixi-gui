@@ -130,7 +130,7 @@ export function EditorDialog({
                       suffix={
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() =>
                             handleInstallClick(editor.packageName ?? "")

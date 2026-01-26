@@ -1,5 +1,5 @@
-import { getRouteApi } from "@tanstack/react-router";
-import { EllipsisVerticalIcon, PlayIcon } from "lucide-react";
+import { Link, getRouteApi } from "@tanstack/react-router";
+import { EllipsisVerticalIcon, PlayIcon, TerminalIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -7,7 +7,12 @@ import { PreferencesGroup } from "@/components/common/preferencesGroup";
 import { EditorDialog } from "@/components/pixi/process/editorDialog";
 import { ProcessRow } from "@/components/pixi/process/processRow";
 import { Badge } from "@/components/shadcn/badge";
-import { Button } from "@/components/shadcn/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/shadcn/empty";
 import { Input } from "@/components/shadcn/input";
 
 import { startCommand } from "@/hooks/useProcess";
@@ -234,7 +239,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     <PreferencesGroup
       title={
         <span className="flex items-baseline gap-pfx-s">
-          <span className="inline-flex items-center rounded-full border px-2 py-0.5 font-bold text-base">
+          <span className="inline-flex items-center rounded-full border-2 px-2 border-pfxgsl-300 dark:border-pfxgsl-600 py-0.5 font-bold text-base">
             <code>{name}</code>
           </span>
           <span>Environment</span>
@@ -242,11 +247,12 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       }
       headerSuffix={
         <div className="flex flex-wrap gap-pfx-xs">
-          <Badge variant="default" onClick={handleEditorButtonClick}>
+          <Badge onClick={handleEditorButtonClick}>
+            <PlayIcon />{" "}
             {lastEditor ? `Open in ${lastEditor.name}` : "Open in Editor…"}
           </Badge>
           {lastEditor && (
-            <Badge variant="default" onClick={() => setEditorDialogOpen(true)}>
+            <Badge onClick={() => setEditorDialogOpen(true)}>
               <EllipsisVerticalIcon />
             </Badge>
           )}
@@ -255,23 +261,11 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       stickyHeader
     >
       <Input
-        label="Enter a task or command to run…"
+        placeholder="Enter a task or command to run…"
         value={commandInput}
         onChange={(e) => setCommandInput(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && runFreeformTask()}
-        suffix={
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            title="Run command"
-            disabled={!commandInput.trim()}
-            onClick={runFreeformTask}
-            className="mr-0.5"
-          >
-            <PlayIcon className="text-pfx-good" />
-          </Button>
-        }
+        icon={<TerminalIcon className="size-4" />}
       />
       {filteredCommands.map(([id, { command, editor }]) => (
         <ProcessRow
@@ -291,6 +285,21 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
           environment={name}
         />
       ))}
+      {Object.keys(tasks).length === 0 && (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyTitle>No tasks available</EmptyTitle>
+            <EmptyDescription>
+              This environment has no tasks. You can add tasks or dependencies
+              to this environment by{" "}
+              <Link to="." search={{ tab: "manifest" }}>
+                editing the Pixi manifest
+              </Link>
+              .
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
 
       {editorDialogOpen && (
         <EditorDialog

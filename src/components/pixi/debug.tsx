@@ -77,11 +77,7 @@ export function Debug() {
                 message(JSON.stringify(pty, null, 2), { title: "PTY Details" })
               }
               suffix={
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleKill(pty.id)}
-                >
+                <Button size="sm" onClick={() => handleKill(pty.id)}>
                   Kill
                 </Button>
               }

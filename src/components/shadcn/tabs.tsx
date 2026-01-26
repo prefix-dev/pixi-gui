@@ -23,7 +23,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      className={cn("flex flex-wrap gap-pfx-s", className)}
+      className={cn("flex gap-pfx-s overflow-x-auto", className)}
       {...props}
     />
   );

@@ -109,7 +109,7 @@ export function PreferencesGroup({
         {/* Placeholder */}
         {!hasChildren ? (
           <div className="w-full rounded-pfx-s border border-pfxl-card-border bg-white py-pfx-s dark:border-pfxd-card-border dark:bg-pfxgsd-700">
-            <p className="my-pfx-m px-pfx-m py-pfx-s text-center text-pfx-body-s text-pfxgsl-400  dark:text-pfxgsl-400">
+            <p className="px-pfx-m py-pfx-s text-center text-pfx-body-s text-pfxgsl-400  dark:text-pfxgsl-400">
               {placeholder}
             </p>
           </div>

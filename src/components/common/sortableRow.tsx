@@ -40,14 +40,13 @@ export function SortableRow({
       subtitle={subtitle}
       prefix={
         <>
-          <button
-            type="button"
+          <div
             className="-ms-pfx-xs me-pfx-xs cursor-grab rounded-full p-1 outline-none active:cursor-grabbing focus-visible:bg-pfxgsl-200 dark:focus-visible:bg-pfxgsd-600"
             {...attributes}
             {...listeners}
           >
             <GripVerticalIcon className="text-pfxgsl-400" />
-          </button>
+          </div>
           {prefix}
         </>
       }

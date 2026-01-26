@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-const presetIcons = {
+export const presetIcons = {
   task: GalleryVerticalEndIcon,
   feature: PuzzleIcon,
   environment: BoxIcon,
@@ -23,7 +23,7 @@ const presetIcons = {
   command: TerminalIcon,
 } as const;
 
-type PresetIcon = keyof typeof presetIcons;
+export type PresetIcon = keyof typeof presetIcons;
 
 interface CircularIconProps {
   children?: ReactNode;

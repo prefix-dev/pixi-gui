@@ -257,7 +257,7 @@ export function ChannelDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">Edit Channels</Button>
             </DialogFooter>
           </form>
         )}

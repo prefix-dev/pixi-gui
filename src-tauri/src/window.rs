@@ -18,7 +18,7 @@ pub fn create_window<R: Runtime, M: Manager<R>>(manager: &M, path: &str) {
     let url = tauri::WebviewUrl::App(path.trim_start_matches('/').into());
 
     let builder = WebviewWindowBuilder::new(manager, &label, url)
-        .inner_size(800.0, 600.0)
+        .inner_size(900.0, 700.0)
         .min_inner_size(500.0, 400.0)
         .title("Pixi GUI");
 

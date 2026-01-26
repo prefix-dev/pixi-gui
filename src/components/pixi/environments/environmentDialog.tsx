@@ -131,7 +131,7 @@ export function EnvironmentDialog({
         <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>
-              {isEditMode ? "Edit Environment" : "Add New Environment"}
+              {isEditMode ? "Edit Environment" : "Add Environment"}
             </DialogTitle>
             <DialogDescription>
               {isEditMode
@@ -149,53 +149,57 @@ export function EnvironmentDialog({
               required
               disabled={isEditMode && editEnvironment.name === "default"}
             />
-            {/* Solve Group */}
-            <Input
-              label="Solve Group"
-              value={solveGroup}
-              onChange={(e) => setSolveGroup(e.target.value)}
-            />
-
-            {/* Features */}
-            <PreferencesGroup
-              title="Features"
-              description="Select the features that will make up the environment."
-              nested
-            >
-              {/* Default Feature */}
-              <SelectableRow
-                title="default"
-                prefix={<CircularIcon icon="feature" />}
-                selected={!noDefaultFeature}
-                onClick={() => setNoDefaultFeature(!noDefaultFeature)}
-                selectLabel="Include Default Feature"
-                unselectLabel="Exclude Default Feature"
+            {/* Solve Group - only show when there are multiple features */}
+            {features.length > 1 && (
+              <Input
+                label="Solve Group"
+                value={solveGroup}
+                onChange={(e) => setSolveGroup(e.target.value)}
               />
-              {/* Other Features */}
-              {[...features]
-                .filter((f) => f.name !== "default")
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((feature) => {
-                  const isSelected = selectedFeatures.includes(feature.name);
-                  return (
-                    <SelectableRow
-                      key={feature.name}
-                      title={feature.name}
-                      prefix={<CircularIcon icon="feature" />}
-                      selected={isSelected}
-                      onClick={() => {
-                        if (isSelected) {
-                          handleUnselectFeature(feature.name);
-                        } else {
-                          handleSelectFeature(feature.name);
-                        }
-                      }}
-                      selectLabel="Select Feature"
-                      unselectLabel="Unselect Feature"
-                    />
-                  );
-                })}
-            </PreferencesGroup>
+            )}
+
+            {/* Features - only show when there are multiple features */}
+            {features.length > 1 && (
+              <PreferencesGroup
+                title="Features"
+                description="Select the features that will make up the environment."
+                nested
+              >
+                {/* Default Feature */}
+                <SelectableRow
+                  title="default"
+                  prefix={<CircularIcon icon="feature" />}
+                  selected={!noDefaultFeature}
+                  onClick={() => setNoDefaultFeature(!noDefaultFeature)}
+                  selectLabel="Include Default Feature"
+                  unselectLabel="Exclude Default Feature"
+                />
+                {/* Other Features */}
+                {[...features]
+                  .filter((f) => f.name !== "default")
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((feature) => {
+                    const isSelected = selectedFeatures.includes(feature.name);
+                    return (
+                      <SelectableRow
+                        key={feature.name}
+                        title={feature.name}
+                        prefix={<CircularIcon icon="feature" />}
+                        selected={isSelected}
+                        onClick={() => {
+                          if (isSelected) {
+                            handleUnselectFeature(feature.name);
+                          } else {
+                            handleSelectFeature(feature.name);
+                          }
+                        }}
+                        selectLabel="Select Feature"
+                        unselectLabel="Unselect Feature"
+                      />
+                    );
+                  })}
+              </PreferencesGroup>
+            )}
 
             {submitError && (
               <div className="text-destructive text">{submitError}</div>
@@ -233,7 +237,7 @@ export function EnvironmentDialog({
                 (noDefaultFeature && selectedFeatures.length === 0)
               }
             >
-              {isEditMode ? "Save Changes" : "Add Environment"}
+              {isEditMode ? "Edit Environment" : "Add Environment"}
             </Button>
           </DialogFooter>
         </form>

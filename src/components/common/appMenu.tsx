@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { EllipsisVerticalIcon } from "lucide-react";
+import { openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
+import {
+  AppWindowIcon,
+  BookOpenTextIcon,
+  BoxesIcon,
+  EllipsisVerticalIcon,
+  FolderOpenIcon,
+  InfoIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 import { AboutDialog } from "@/components/common/aboutDialog";
@@ -8,6 +16,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
 
@@ -15,9 +24,13 @@ import { openNewWindow } from "@/lib/window";
 
 interface AppMenuProps {
   showChangeWorkspace?: boolean;
+  manifestPath?: string;
 }
 
-export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
+export function AppMenu({
+  showChangeWorkspace = false,
+  manifestPath,
+}: AppMenuProps) {
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
 
   const handleNewWindow = async () => {
@@ -25,6 +38,23 @@ export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
       await openNewWindow();
     } catch (error) {
       console.error("Failed to open new window:", error);
+    }
+  };
+
+  const handleShowInExplorer = async () => {
+    if (!manifestPath) return;
+    try {
+      await revealItemInDir(manifestPath);
+    } catch (error) {
+      console.error("Failed to reveal workspace in file explorer:", error);
+    }
+  };
+
+  const handleDocumentation = async () => {
+    try {
+      await openUrl("https://pixi.prefix.dev/");
+    } catch (error) {
+      console.error("Failed to open help URL:", error);
     }
   };
 
@@ -36,16 +66,27 @@ export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {showChangeWorkspace && (
-          <DropdownMenuItem asChild>
-            <Link to={"/"}>Change Workspace</Link>
+        {manifestPath && (
+          <DropdownMenuItem onClick={handleShowInExplorer}>
+            <FolderOpenIcon /> Show in File Explorer
           </DropdownMenuItem>
         )}
+        {showChangeWorkspace && (
+          <DropdownMenuItem asChild>
+            <Link to={"/"}>
+              <BoxesIcon /> Change Workspace
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {(manifestPath || showChangeWorkspace) && <DropdownMenuSeparator />}
         <DropdownMenuItem onClick={handleNewWindow}>
-          New Window
+          <AppWindowIcon /> New Window
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDocumentation}>
+          <BookOpenTextIcon /> Documentation
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setIsAboutDialogOpen(true)}>
-          About Pixi GUI
+          <InfoIcon /> About Pixi GUI
         </DropdownMenuItem>
       </DropdownMenuContent>
 

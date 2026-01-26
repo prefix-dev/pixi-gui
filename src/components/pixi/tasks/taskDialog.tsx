@@ -641,7 +641,7 @@ export function TaskDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isTaskRunning}>
-              {isEditMode ? "Save Changes" : "Add Task"}
+              {isEditMode ? "Edit Task" : "Add Task"}
             </Button>
           </DialogFooter>
         </form>
