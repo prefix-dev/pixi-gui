@@ -239,7 +239,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     <PreferencesGroup
       title={
         <span className="flex items-baseline gap-pfx-s">
-          <span className="inline-flex items-center rounded-full border px-2 py-0.5 font-bold text-base">
+          <span className="inline-flex items-center rounded-pfx-xs border-2 px-2 border-pfxgsl-300 dark:border-pfxgsl-600 py-0.5 font-bold text-base">
             <code>{name}</code>
           </span>
           <span>Environment</span>
