@@ -1,9 +1,9 @@
 import os
+import shutil
 import subprocess
+import tomllib
 from datetime import datetime
 from pathlib import Path
-
-import tomllib
 
 
 def get_version_from_cargo() -> str:
@@ -42,7 +42,25 @@ def build() -> None:
     env = os.environ.copy()
     env["PIXI_GUI_VERSION"] = pixi_gui_version
 
-    subprocess.run(["pixi", "build", "--verbose"], env=env, check=True)
+    output_dir = Path("output")
+    bld_dir = output_dir.joinpath("bld")
+    if bld_dir.is_dir():
+        shutil.rmtree(bld_dir)
+
+    subprocess.run(
+        [
+            "rattler-build",
+            "build",
+            "--no-build-id",
+            "--recipe-dir",
+            "recipe",
+            "--output-dir",
+            output_dir,
+            "--keep-build",
+        ],
+        env=env,
+        check=True,
+    )
     print("Build completed successfully")
 
 

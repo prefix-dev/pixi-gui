@@ -6,7 +6,7 @@ from typing import Generator
 
 
 def find_packages() -> Generator[Path, None, None]:
-    yield from Path(".").glob("*.conda")
+    yield from Path("output").glob("**/*.conda")
 
 
 def upload_package(package_path: Path) -> None:

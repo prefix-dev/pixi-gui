@@ -102,8 +102,8 @@ lint-slow = { cmd = "lefthook run pre-push --all-files --force", description = "
 #
 
 [feature.packaging.dependencies]
-python = ">=3.14,<3.15"
-rattler-build = ">=0.55,<0.56"
+python = ">=3.14.2,<3.15"
+rattler-build = ">=0.55.1,<0.56"
 
 [feature.packaging.tasks]
 build-package = "python scripts/build_package.py"
