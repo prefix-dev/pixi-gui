@@ -80,6 +80,6 @@ requirements:
         - gtk3
         - libsoup
         - pango
-        - webkit2gtk4.1
+        - webkit2gtk4.1 >=2.48.5
         - xorg-xorgproto
         - zlib
