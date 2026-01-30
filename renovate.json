@@ -5,6 +5,7 @@
   "enabledManagers": ["github-actions", "pixi", "cargo", "npm"],
   "commitMessagePrefix": "chore(ci):",
   "automerge": true,
+  "minimumReleaseAge": "14 days",
   "packageRules": [
     {
       "groupName": "GitHub Actions",
