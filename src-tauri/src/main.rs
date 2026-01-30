@@ -7,7 +7,6 @@
 #[used]
 static STACK_SIZE: [u8; 23] = *b" /STACK:8388608,8388608";
 
-
 use std::{env, path::PathBuf};
 
 use clap::Parser;
@@ -20,8 +19,8 @@ struct Cli {
     #[arg()]
     workspace: Option<PathBuf>,
 
-    #[cfg(all(target_os = "macos", not(debug_assertions)))]
-    /// Disables automatic app relaunch using macOS LaunchServices
+    #[cfg(not(debug_assertions))]
+    /// Disables automatic app relaunch (detaches from terminal)
     #[arg(long)]
     no_relaunch: bool,
 }
@@ -50,12 +49,23 @@ fn main() {
         }
     });
 
-    #[cfg(all(target_os = "macos", not(debug_assertions)))]
-    if pixi_gui_lib::utils::launched_via_terminal()
-        && !cli.no_relaunch
-        && pixi_gui_lib::platform::osx::relaunch_via_launchd(workspace.as_deref())
-    {
-        return;
+    // Relaunch as detached process when started from terminal (like VSCode does)
+    #[cfg(not(debug_assertions))]
+    if pixi_gui_lib::utils::launched_via_terminal() && !cli.no_relaunch {
+        #[cfg(target_os = "macos")]
+        if pixi_gui_lib::platform::osx::relaunch_via_launchd(workspace.as_deref()) {
+            return;
+        }
+
+        #[cfg(target_os = "linux")]
+        if pixi_gui_lib::platform::linux::relaunch_detached(workspace.as_deref()) {
+            return;
+        }
+
+        #[cfg(target_os = "windows")]
+        if pixi_gui_lib::platform::windows::relaunch_detached(workspace.as_deref()) {
+            return;
+        }
     }
 
     pixi_gui_lib::run(workspace)
