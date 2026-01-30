@@ -13,13 +13,58 @@ pub mod window;
 
 pub use tauri_interface::TauriInterface;
 
+use std::path::PathBuf;
+
 use crate::state::AppState;
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(version = option_env!("PIXI_GUI_VERSION").unwrap_or(env!("CARGO_PKG_VERSION")))]
+#[command(about = env!("CARGO_PKG_DESCRIPTION"))]
+pub struct Cli {
+    /// Path to the Pixi workspace directory
+    #[arg()]
+    pub workspace: Option<PathBuf>,
+
+    #[cfg(not(debug_assertions))]
+    /// Disables automatic app relaunch (detaches from terminal)
+    #[arg(long)]
+    pub no_relaunch: bool,
+}
+
+impl Cli {
+    pub fn absolute_workspace_path(&self, cwd: Option<&str>) -> Option<PathBuf> {
+        self.workspace.as_ref().map(|path| {
+            if path.is_absolute() {
+                path.clone()
+            } else {
+                let base = cwd
+                    .map(PathBuf::from)
+                    .or_else(|| std::env::current_dir().ok())
+                    .unwrap_or_else(|| PathBuf::from("."));
+                dunce::canonicalize(base.join(path)).unwrap_or_else(|_| path.clone())
+            }
+        })
+    }
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run(workspace_path: Option<String>) {
     let app = tauri::Builder::default();
 
     app.manage(AppState::default())
+        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+            // When a second instance is launched, this callback receives its CLI arguments
+            let Ok(cli) = Cli::try_parse_from(args) else {
+                return;
+            };
+
+            if let Some(workspace) = cli.absolute_workspace_path(Some(&cwd)) {
+                window::ensure_workspace_window(app, &workspace);
+            } else {
+                window::create_default_window(app);
+            }
+        }))
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level(if cfg!(debug_assertions) {
@@ -89,7 +134,7 @@ pub fn run(workspace_path: Option<String>) {
         .setup(move |app| {
             // On Linux and Windows, file associations launch a new process with the file path in CLI args
             if let Some(workspace) = &workspace_path {
-                window::create_workspace_window(app.handle(), &std::path::PathBuf::from(workspace));
+                window::ensure_workspace_window(app.handle(), &std::path::PathBuf::from(workspace));
             } else if cfg!(target_os = "linux") || cfg!(target_os = "windows") {
                 // No files were opened -> Open default window
                 window::create_default_window(app.handle());
@@ -104,20 +149,19 @@ pub fn run(workspace_path: Option<String>) {
             #[cfg(target_os = "macos")]
             match event {
                 tauri::RunEvent::Opened { urls } => {
-                    let files = urls
-                        .into_iter()
-                        .filter_map(|url| url.to_file_path().ok())
-                        .collect::<Vec<_>>();
-
-                    for file in files {
-                        window::create_workspace_window(app, &file);
+                    log::info!("Received RunEvent::Opened with {} URL(s)", urls.len());
+                    for url in urls {
+                        if let Ok(path) = url.to_file_path() {
+                            log::info!("Opening workspace from URL: {}", path.display());
+                            window::ensure_workspace_window(app, &path);
+                        }
                     }
                 }
                 tauri::RunEvent::Ready => {
                     use tauri::Manager;
-
-                    // No files were opened -> Open default window
+                    log::info!("Received RunEvent::Ready");
                     if app.webview_windows().is_empty() {
+                        log::info!("No windows open, creating default window");
                         window::create_default_window(app);
                     }
                 }

@@ -7,47 +7,21 @@
 #[used]
 static STACK_SIZE: [u8; 23] = *b" /STACK:8388608,8388608";
 
-use std::{env, path::PathBuf};
-
 use clap::Parser;
-
-#[derive(Parser)]
-#[command(version = option_env!("PIXI_GUI_VERSION").unwrap_or(env!("CARGO_PKG_VERSION")))]
-#[command(about = env!("CARGO_PKG_DESCRIPTION"))]
-struct Cli {
-    /// Path to the Pixi workspace directory
-    #[arg()]
-    workspace: Option<PathBuf>,
-
-    #[cfg(not(debug_assertions))]
-    /// Disables automatic app relaunch (detaches from terminal)
-    #[arg(long)]
-    no_relaunch: bool,
-}
+use pixi_gui_lib::Cli;
 
 fn main() {
     // Disable DMA-BUF renderer for WebKit on Linux to avoid graphics glitches with AMDGPU drivers
     #[cfg(target_os = "linux")]
     unsafe {
         // Called before any threads are spawned and only set once -> safe.
-        env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     }
 
     let cli = Cli::parse();
-
-    // Ensure that workspace path is always absolute
-    let workspace = cli.workspace.map(|path| {
-        if path.is_absolute() {
-            path.to_string_lossy().to_string()
-        } else {
-            let cwd = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-            let absolute = cwd.join(&path);
-            dunce::canonicalize(&absolute)
-                .unwrap_or(absolute)
-                .to_string_lossy()
-                .to_string()
-        }
-    });
+    let workspace = cli
+        .absolute_workspace_path(None)
+        .map(|p| p.to_string_lossy().to_string());
 
     // Relaunch as detached process when started from terminal (like VSCode does)
     #[cfg(not(debug_assertions))]
