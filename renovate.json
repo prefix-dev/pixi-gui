@@ -4,6 +4,7 @@
   "schedule": ["on tuesday"],
   "enabledManagers": ["github-actions", "pixi", "cargo", "npm"],
   "commitMessagePrefix": "chore(ci):",
+  "automerge": true,
   "packageRules": [
     {
       "groupName": "GitHub Actions",
