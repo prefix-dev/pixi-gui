@@ -1,7 +1,10 @@
 import { getName } from "@tauri-apps/api/app";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { BugIcon, ExternalLinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Row } from "@/components/common/row";
+import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +61,16 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
             <Row title={`${appName} Version`} subtitle={appVersion} property />
             <Row title="Pixi API Version" subtitle={pixiVersion} property />
           </div>
+
+          <Button
+            variant="ghost"
+            className="mt-pfx-m"
+            onClick={() =>
+              openUrl("https://github.com/prefix-dev/pixi-gui/issues")
+            }
+          >
+            Report Issue <ExternalLinkIcon />
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
