@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   AppWindowIcon,
   BookOpenTextIcon,
   BoxesIcon,
   EllipsisVerticalIcon,
-  FolderOpenIcon,
   InfoIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -24,13 +23,9 @@ import { openNewWindow } from "@/lib/window";
 
 interface AppMenuProps {
   showChangeWorkspace?: boolean;
-  manifestPath?: string;
 }
 
-export function AppMenu({
-  showChangeWorkspace = false,
-  manifestPath,
-}: AppMenuProps) {
+export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
 
   const handleNewWindow = async () => {
@@ -38,15 +33,6 @@ export function AppMenu({
       await openNewWindow();
     } catch (error) {
       console.error("Failed to open new window:", error);
-    }
-  };
-
-  const handleShowInExplorer = async () => {
-    if (!manifestPath) return;
-    try {
-      await revealItemInDir(manifestPath);
-    } catch (error) {
-      console.error("Failed to reveal workspace in file explorer:", error);
     }
   };
 
@@ -66,11 +52,6 @@ export function AppMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {manifestPath && (
-          <DropdownMenuItem onClick={handleShowInExplorer}>
-            <FolderOpenIcon /> Show in File Explorer
-          </DropdownMenuItem>
-        )}
         {showChangeWorkspace && (
           <DropdownMenuItem asChild>
             <Link to={"/"}>
@@ -78,7 +59,7 @@ export function AppMenu({
             </Link>
           </DropdownMenuItem>
         )}
-        {(manifestPath || showChangeWorkspace) && <DropdownMenuSeparator />}
+        {showChangeWorkspace && <DropdownMenuSeparator />}
         <DropdownMenuItem onClick={handleNewWindow}>
           <AppWindowIcon /> New Window
         </DropdownMenuItem>
