@@ -1,13 +1,56 @@
-# Pixi GUI
+<h2>
+  <a href="https://github.com/prefix-dev/pixi-gui/">
+  </a>
+</h2>
+
+<h2 align="center">
+
+![License][license-badge]
+[![Project Chat][chat-badge]][chat-url]
+[![Pixi Badge][pixi-badge]][pixi-url]
+
+[license-badge]: https://img.shields.io/badge/license-FSL--1.1--MIT-blue?style=flat-square
+[chat-badge]: https://img.shields.io/discord/1082332781146800168.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square
+[chat-url]: https://discord.gg/kKV8ZxyzY4
+[pixi-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json&style=flat-square
+[pixi-url]: https://pixi.sh
+
+</h2>
+
+# Pixi GUI (Preview)
+
+A graphical user interface for [Pixi](https://pixi.sh), the cross-platform package manager built on the conda ecosystem. Developed with love at [prefix.dev](https://prefix.dev).
+
+## Installation
 
 Install from our conda channel:
 
 ```shell
-pixi global install --channel https://prefix.dev/pixi-gui --channel https://prefix.dev/conda-forge pixi-gui
+pixi global install pixi-gui --channel https://prefix.dev/pixi-gui
 ```
 
-Install from source:
+## Development
+
+### Prerequisites
+
+- [pixi](https://pixi.sh) installed on your system
+
+### Running the App
 
 ```shell
-pixi global install --path .
+pixi run app
 ```
+
+This will install frontend dependencies and start the Tauri development server.
+
+### Linting
+
+```shell
+pixi run lint
+```
+
+## Contributing
+
+We would absolutely love for you to contribute to Pixi GUI! Whether you want to start an issue, fix a bug you encountered, or suggest an improvement, every contribution is greatly appreciated.
+
+Got questions or ideas, or just want to chat? Join our lively conversations on Discord. We're very active and would be happy to welcome you to our community. [Join our Discord server today!][chat-url]
