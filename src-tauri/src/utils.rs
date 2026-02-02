@@ -54,5 +54,17 @@ pub fn strip_ansi_escapes(str: &str) -> String {
 
 /// Checks whether this process was started using a terminal
 pub fn launched_via_terminal() -> bool {
-    std::io::stdin().is_terminal() || std::io::stdout().is_terminal()
+    // Check if stdin/stdout are connected to a terminal
+    let is_tty = std::io::stdin().is_terminal() || std::io::stdout().is_terminal();
+
+    // On Windows, also check for shell environment variables.
+    // The trampoline may not forward the TTY, but forwards env vars.
+    #[cfg(target_os = "windows")]
+    let has_shell_env = std::env::var("PROMPT").is_ok() // CMD
+        || std::env::var("PSModulePath").is_ok(); // PowerShell
+
+    #[cfg(not(target_os = "windows"))]
+    let has_shell_env = false;
+
+    is_tty || has_shell_env
 }
