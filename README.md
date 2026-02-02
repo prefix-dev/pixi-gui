@@ -30,7 +30,7 @@ For more information checkout the Pixi GUI [announcement blog post at prefix.dev
 Pixi GUI is available for Windows, macOS (Intel + Apple Silicon) and Linux. Install from our [pixi-gui prefix.dev channel](https://prefix.dev/channels/pixi-gui/packages/pixi-gui):
 
 ```shell
-pixi global install pixi-gui --channel https://prefix.dev/pixi-gui
+pixi global install pixi-gui --channel https://prefix.dev/pixi-gui -channel https://prefix.dev/conda-forge
 ```
 
 Alternatively you can install Pixi GUI from source:
