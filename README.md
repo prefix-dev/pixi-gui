@@ -21,6 +21,8 @@
 
 A graphical user interface for [Pixi](https://pixi.sh), the cross-platform package manager built on the conda ecosystem. Developed with love at [prefix.dev](https://prefix.dev).
 
+For more information checkout the Pixi GUI [announcement blog post at prefix.dev](https://prefix.dev/blog/introducing-pixi-gui-preview)!
+
 ## Installation
 
 Install from our conda channel:
@@ -31,23 +33,29 @@ pixi global install pixi-gui --channel https://prefix.dev/pixi-gui
 
 ## Development
 
-### Prerequisites
-
-- [pixi](https://pixi.sh) installed on your system
-
-### Running the App
+### Running
 
 ```shell
 pixi run app
 ```
 
-This will install frontend dependencies and start the Tauri development server.
+This will install all frontend dependencies via pnpm and start the Tauri development server.
 
 ### Linting
 
 ```shell
 pixi run lint
 ```
+
+Runs all linters and formatters for both backend (`clippy`, `rustfmt`) and frontend (`eslint`, `prettier`), plus additional checks like taplo, `ruff`, and `typos`.
+
+### Packaging
+
+```shell
+pixi run build-package
+```
+
+Builds a conda package using rattler-build. The resulting package can be uploaded to a conda channel for distribution.
 
 ## Contributing
 
