@@ -65,8 +65,5 @@ pixi run build-package
 
 Builds a installable conda package using rattler-build.
 
-## Contributing
-
-We would absolutely love for you to contribute to Pixi GUI! Whether you want to start an issue, fix a bug you encountered, or suggest an improvement, every contribution is greatly appreciated.
 
 Got questions or ideas, or just want to chat? Join our lively conversations on Discord. We're very active and would be happy to welcome you to our community. [Join our Discord server today!][chat-url]
