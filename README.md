@@ -33,6 +33,12 @@ Pixi GUI is available for Windows, macOS (Intel + Apple Silicon) and Linux. Inst
 pixi global install pixi-gui --channel https://prefix.dev/pixi-gui
 ```
 
+Alternatively you can install Pixi GUI from source:
+
+```shell
+pixi global install --path .
+```
+
 ## Development
 
 ### Running
