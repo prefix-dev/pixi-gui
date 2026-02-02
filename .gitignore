@@ -57,6 +57,7 @@ output
 # misc
 .DS_Store
 *.pem
+media
 
 # debug
 npm-debug.log*

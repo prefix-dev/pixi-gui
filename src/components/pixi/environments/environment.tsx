@@ -85,6 +85,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       const commands = new Map<string, { command: string; editor?: Editor }>();
       for (const pty of ptys) {
         if (
+          pty.invocation.cwd === workspace.root &&
           pty.invocation.kind.kind === "command" &&
           pty.invocation.kind.environment === name
         ) {
@@ -101,8 +102,12 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     void loadRunningCommands();
 
     const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
-      const { kind } = event.invocation;
-      if (kind.kind === "command" && kind.environment === name) {
+      const { kind, cwd } = event.invocation;
+      if (
+        cwd === workspace.root &&
+        kind.kind === "command" &&
+        kind.environment === name
+      ) {
         setRunningCommands((prev) =>
           new Map(prev).set(event.id, {
             command: kind.command,
@@ -126,7 +131,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       unsubscribeStart();
       unsubscribeExit();
     };
-  }, [name, availableEditors]);
+  }, [name, availableEditors, workspace.root]);
 
   const runFreeformTask = () => {
     if (!commandInput.trim()) return;

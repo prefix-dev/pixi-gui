@@ -275,7 +275,8 @@ pub async fn pty_create<R: Runtime>(
     let restored_buffer = state.add_pty(id.clone(), pty.clone()).await;
 
     window
-        .emit(
+        .emit_to(
+            &window_label,
             "pty-start",
             PtyStartEvent {
                 id: id.clone(),

@@ -169,7 +169,11 @@ function WorkspaceLayout() {
   // Before closing a workspace, ensure that it has no active PTYs anymore
   const closeWorkspace = async (): Promise<boolean> => {
     const handles = await listPtys();
-    if (handles.length === 0) {
+    const workspaceHandles = handles.filter(
+      (handle) => handle.invocation.cwd === workspace.root,
+    );
+
+    if (workspaceHandles.length === 0) {
       return true;
     }
 
@@ -186,7 +190,9 @@ function WorkspaceLayout() {
       return false;
     }
 
-    await Promise.allSettled(handles.map((handle) => killPty(handle.id)));
+    await Promise.allSettled(
+      workspaceHandles.map((handle) => killPty(handle.id)),
+    );
 
     return true;
   };

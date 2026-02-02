@@ -43,7 +43,8 @@ impl Watcher {
                     if manifest_modified {
                         debug!("Manifest changed: {:?}", manifest_path_clone);
                         if let Some(window) = app.get_webview_window(&window_label_clone)
-                            && let Err(e) = window.emit("manifest-changed", ())
+                            && let Err(e) =
+                                window.emit_to(&window_label_clone, "manifest-changed", ())
                         {
                             error!("Failed to emit manifest-changed event: {}", e);
                         }
