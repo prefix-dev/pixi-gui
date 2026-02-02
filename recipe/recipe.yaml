@@ -50,7 +50,7 @@ build:
         - cmd /c "pnpm install"
         - cmd /c "pnpm run tauri build --no-bundle"
         - cmd /c "if not exist %PREFIX%\bin\ mkdir %PREFIX%\bin\"
-        - cp %CARGO_TARGET_DIR%\release\pixi-gui.exe %PREFIX%\bin
+        - copy /Y %CARGO_TARGET_DIR%\release\pixi-gui.exe %PREFIX%\bin
         - cd %SRC_DIR%\src-tauri && cargo-bundle-licenses --format yaml --output ../THIRDPARTY.yml
 
         # menuinst
