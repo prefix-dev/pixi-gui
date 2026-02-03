@@ -17,13 +17,13 @@
 
 </h2>
 
-# Pixi GUI (Preview)
+# Pixi GUI
 
 A graphical user interface for [Pixi](https://pixi.sh), the cross-platform package manager built on the conda ecosystem. Developed with love at [prefix.dev](https://prefix.dev).
 
 <img width="1316" height="844" alt="pixi_gui_task_overview" src="https://github.com/user-attachments/assets/d6e8bdc4-93a9-4bc8-a313-a0528038b4e0" />
 
-For more information checkout the Pixi GUI [announcement blog post at prefix.dev](https://prefix.dev/blog/introducing-pixi-gui-preview)!
+For more information checkout the Pixi GUI [announcement blog post at prefix.dev](https://prefix.dev/blog/introducing-pixi-gui)!
 
 ## Installation
 
