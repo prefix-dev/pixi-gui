@@ -110,7 +110,6 @@ export function DependencyVersionPicker({
       {/* Choose Automatically */}
       <SelectableRow
         title="Choose Automatically"
-        subtitle="Set version specifier to the highest compatible version"
         selected={packageVersion.type === "auto"}
         onClick={() => onVersionChange({ type: "auto" })}
         variant="single"
