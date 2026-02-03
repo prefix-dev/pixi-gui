@@ -183,7 +183,7 @@ export function PypiDependencyDialog({
                     subtitle={
                       packageVersion.type === "specific"
                         ? packageVersion.value
-                        : "Use highest compatible version"
+                        : "Choose version automatically"
                     }
                     onClick={
                       packageName.trim()
