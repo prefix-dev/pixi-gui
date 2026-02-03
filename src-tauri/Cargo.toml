@@ -43,6 +43,9 @@ which = "8.0.0"
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.61", features = ["Win32_System_Threading"] }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+tao = { version = "0.34", features = ["tokio"] }
+
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
 
@@ -51,6 +54,8 @@ tauri-plugin-single-instance = "2"
 reqwest-middleware = { git = "https://github.com/astral-sh/reqwest-middleware", rev = "7650ed76215a962a96d94a79be71c27bffde7ab2" }
 reqwest-retry = { git = "https://github.com/astral-sh/reqwest-middleware", rev = "7650ed76215a962a96d94a79be71c27bffde7ab2" }
 version-ranges = { git = "https://github.com/astral-sh/pubgrub", rev = "d8efd77673c9a90792da9da31b6c0da7ea8a324b" }
+# Tauri/Tao fork with xdg-desktop-portal color scheme support on Linux (https://github.com/tauri-apps/tao/pull/1141)
+tao = { git = "https://github.com/haecker-felix/tao.git", branch = "color-scheme" }
 
 # Enable a small amount of optimization in the dev profile.
 [profile.dev]
