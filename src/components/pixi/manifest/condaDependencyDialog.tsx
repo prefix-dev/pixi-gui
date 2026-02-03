@@ -361,7 +361,11 @@ export function CondaDependencyDialog({
               </div>
             )}
 
-            {error && <div className="text-destructive text">{error}</div>}
+            {error && (
+              <div className="text-destructive whitespace-pre-wrap wrap-break-word text-sm">
+                {error}
+              </div>
+            )}
 
             <DialogFooter>
               {isEditMode && (
