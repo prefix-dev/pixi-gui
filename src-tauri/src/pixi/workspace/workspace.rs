@@ -261,12 +261,13 @@ pub async fn remove_feature<R: Runtime>(
     window: Window<R>,
     workspace: PathBuf,
     name: &str,
-) -> Result<(), Error> {
-    utils::workspace_context(window, workspace)?
-        .remove_feature(&FeatureName::from_str(name).unwrap())
-        .await?;
+) -> Result<bool, Error> {
+    let context = utils::workspace_context(window, workspace)?;
+    let feature_name = FeatureName::from_str(name).unwrap();
 
-    Ok(())
+    context.remove_feature(&feature_name).await?;
+
+    Ok(!context.list_features().await.contains_key(&feature_name))
 }
 
 #[tauri::command]

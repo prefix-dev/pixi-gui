@@ -3,12 +3,12 @@ import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { CircularIcon } from "@/components/common/circularIcon";
-import { Row } from "@/components/common/row";
 import { SelectableRow } from "@/components/common/selectableRow";
+import { DependencyVersionDialog } from "@/components/pixi/manifest/dependencyVersionDialog";
 import {
-  DependencyVersionDialog,
+  DependencyVersionPicker,
   type PackageVersion,
-} from "@/components/pixi/manifest/dependencyVersionDialog";
+} from "@/components/pixi/manifest/dependencyVersionPicker";
 import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
@@ -44,7 +44,6 @@ import {
   type Feature,
   type PixiSpec,
   type Workspace,
-  formatPixiSpec,
 } from "@/lib/pixi/workspace/workspace";
 
 interface CondaDependencyDialogProps {
@@ -310,33 +309,15 @@ export function CondaDependencyDialog({
             </DialogHeader>
 
             {isEditMode && editDependency && (
-              <Row
-                title={editDependency}
-                subtitle={
-                  packageVersionSpec.type === "non-editable"
-                    ? formatPixiSpec(editDependencySpec!)
-                    : packageVersionSpec.type === "auto"
-                      ? "Use highest compatible version"
-                      : packageVersionSpec.value
-                }
-                prefix={<CircularIcon icon="package" />}
-                suffix={
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => {
-                      handleEditPackageVersion(editDependency);
-                    }}
-                    disabled={packageVersionSpec.type === "non-editable"}
-                  >
-                    <PencilIcon />
-                  </Button>
-                }
-                onClick={() => {
-                  handleEditPackageVersion(editDependency);
-                }}
-              />
+              <div className="max-h-[45vh] overflow-y-auto">
+                <DependencyVersionPicker
+                  workspaceRoot={workspace.root}
+                  packageName={editDependency}
+                  packageVersion={packageVersionSpec}
+                  packageType="conda"
+                  onVersionChange={setPackageVersionSpec}
+                />
+              </div>
             )}
 
             {!isEditMode && (
@@ -351,7 +332,7 @@ export function CondaDependencyDialog({
                 />
 
                 {/* Package List */}
-                <div className="h-[450px] max-h-[45vh] overflow-y-auto space-y-pfx-xs pt-pfx-xs">
+                <div className="h-112.5 max-h-[45vh] overflow-y-auto space-y-pfx-xs pt-pfx-xs">
                   {selectedPackages.length === 0 &&
                     searchResults.length === 0 && (
                       <Empty className="h-full border border-dashed">

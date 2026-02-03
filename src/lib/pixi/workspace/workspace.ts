@@ -218,8 +218,8 @@ export async function featureByTask(
 export async function removeFeature(
   workspace: string,
   name: string,
-): Promise<void> {
-  await invoke("remove_feature", { workspace, name });
+): Promise<boolean> {
+  return invoke<boolean>("remove_feature", { workspace, name });
 }
 
 export interface Environment {
