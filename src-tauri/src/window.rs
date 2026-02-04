@@ -26,7 +26,10 @@ pub fn ensure_workspace_window<R: Runtime>(app: &AppHandle<R>, path: &std::path:
             let decoded_url = decoded_url.trim_end_matches('/');
 
             if window_path == decoded_url {
-                info!("Focusing existing window for workspace: {}", workspace.display());
+                info!(
+                    "Focusing existing window for workspace: {}",
+                    workspace.display()
+                );
                 let _ = window.set_focus();
                 return;
             }
