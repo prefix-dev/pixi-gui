@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::{collections::VecDeque, ffi::OsString, io::Write};
 
@@ -9,6 +10,52 @@ use tauri::{Emitter, Runtime, Window};
 use tokio::sync::Mutex;
 
 use crate::{error::Error, state::AppState};
+
+/// Find the pixi binary with fallback locations.
+///
+/// Search order:
+/// 1. System PATH (using `which`)
+/// 2. `$PIXI_HOME/bin/pixi` if PIXI_HOME is set
+/// 3. `~/.pixi/bin/pixi` as last resort
+///
+/// Returns the full path if found, otherwise falls back to "pixi" for PATH resolution.
+fn find_pixi_binary() -> String {
+    // 1. Check PATH first
+    if let Ok(path) = which::which("pixi") {
+        return path.to_string_lossy().into_owned();
+    }
+
+    // 2. Check $PIXI_HOME/bin/pixi if PIXI_HOME is set
+    if let Ok(pixi_home) = std::env::var("PIXI_HOME") {
+        let pixi_path = PathBuf::from(&pixi_home).join("bin").join("pixi");
+        if pixi_path.is_file() {
+            return pixi_path.to_string_lossy().into_owned();
+        }
+    }
+
+    // 3. Try ~/.pixi/bin/pixi as last resort
+    if let Some(home) = home_dir() {
+        let pixi_path = home.join(".pixi").join("bin").join("pixi");
+        if pixi_path.is_file() {
+            return pixi_path.to_string_lossy().into_owned();
+        }
+    }
+
+    // Fall back to "pixi" and let the system resolve it
+    "pixi".into()
+}
+
+/// Get the user's home directory.
+fn home_dir() -> Option<PathBuf> {
+    #[cfg(windows)]
+    {
+        std::env::var("USERPROFILE").ok().map(PathBuf::from)
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var("HOME").ok().map(PathBuf::from)
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PtyInvocation {
@@ -45,21 +92,21 @@ pub struct PtyCommandInvocation {
 
 impl PtyInvocation {
     pub fn argv(&self) -> Vec<String> {
+        let pixi = find_pixi_binary();
         match &self.kind {
             PtyInvocationKind::Shell(data) => {
-                let argv = vec![
-                    "pixi".into(),
+                vec![
+                    pixi,
                     "shell".into(),
                     "--manifest-path".into(),
                     self.manifest.clone(),
                     "--environment".into(),
                     data.environment.clone(),
-                ];
-                argv
+                ]
             }
             PtyInvocationKind::Task(data) => {
                 let mut argv = vec![
-                    "pixi".into(),
+                    pixi,
                     "run".into(),
                     "--manifest-path".into(),
                     self.manifest.clone(),
@@ -73,16 +120,15 @@ impl PtyInvocation {
                 argv
             }
             PtyInvocationKind::Command(data) => {
-                let argv = vec![
-                    "pixi".into(),
+                vec![
+                    pixi,
                     "run".into(),
                     "--manifest-path".into(),
                     self.manifest.clone(),
                     "--environment".into(),
                     data.environment.clone(),
                     data.command.clone(),
-                ];
-                argv
+                ]
             }
         }
     }
