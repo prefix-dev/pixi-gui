@@ -330,8 +330,8 @@ export function TaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
-        <form onSubmit={handleSubmit}>
+      <DialogContent className="max-h-[90vh] flex flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <DialogHeader>
             <DialogTitle>
               {isEditMode ? "Edit Task" : "Add New Task"}
@@ -343,7 +343,8 @@ export function TaskDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <PreferencesGroup nested>
+          <div className="overflow-y-auto flex-1">
+            <PreferencesGroup nested>
             {/* Name */}
             <Input
               label="Name"
@@ -619,7 +620,8 @@ export function TaskDialog({
             {submitError && (
               <div className="text-destructive text">{submitError}</div>
             )}
-          </PreferencesGroup>
+            </PreferencesGroup>
+          </div>
 
           <DialogFooter>
             {isEditMode && (
