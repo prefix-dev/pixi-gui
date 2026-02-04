@@ -196,7 +196,7 @@ function ProcessComponent() {
         <div className="flex flex-1 flex-col space-y-pfx-xs overflow-hidden">
           <p className="text-muted-foreground text-sm font-bold">Terminal</p>
           <div className="flex flex-1 overflow-hidden">
-            <Terminal id={ptyId} />
+            <Terminal id={ptyId} isRunning={isRunning} />
           </div>
         </div>
       </div>

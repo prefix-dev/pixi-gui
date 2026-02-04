@@ -4,7 +4,6 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { useEffect, useRef } from "react";
 import { useXTerm } from "react-xtermjs";
 
-import { usePty } from "@/hooks/usePty";
 import { subscribe } from "@/lib/event";
 import {
   type PtyDataEvent,
@@ -15,9 +14,10 @@ import {
 
 interface TerminalProps {
   id: string;
+  isRunning: boolean;
 }
 
-export function Terminal({ id }: TerminalProps) {
+export function Terminal({ id, isRunning }: TerminalProps) {
   const { instance, ref } = useXTerm({
     options: {
       theme: { background: "#000000" },
@@ -27,7 +27,6 @@ export function Terminal({ id }: TerminalProps) {
   });
   const restoredBuffer = useRef(false);
 
-  const { isRunning } = usePty({ id });
   const isRunningRef = useRef(isRunning);
 
   useEffect(() => {
