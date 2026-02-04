@@ -71,6 +71,16 @@ function WorkspaceLayout() {
   const router = useRouter();
   const { workspace } = Route.useLoaderData();
 
+  // Set window title to workspace name
+  useEffect(() => {
+    const window = getCurrentWebviewWindow();
+    window.setTitle(`${workspace.name} - Pixi GUI`);
+
+    return () => {
+      window.setTitle("Pixi GUI");
+    };
+  }, [workspace.name]);
+
   // Auto refresh when manifest changes
   useEffect(() => {
     watchManifest(workspace.manifest).catch((error) => {
