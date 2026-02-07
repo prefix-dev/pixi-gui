@@ -54,12 +54,17 @@ pub fn create_window<R: Runtime, M: Manager<R>>(manager: &M, path: &str) {
     #[cfg(target_os = "macos")]
     let builder = builder.title_bar_style(tauri::TitleBarStyle::Transparent);
 
-    builder.build().expect("Unable to create Tauri webview");
+    match builder.build() {
+        Ok(_) => {}
+        Err(e) => log::error!("Failed to create window: {}", e),
+    }
 }
 
 #[tauri::command]
 pub fn open_new_window(app: AppHandle) {
-    create_default_window(&app);
+    tauri::async_runtime::spawn(async move {
+        create_default_window(&app);
+    });
 }
 
 fn workspace_url(file: &std::path::Path) -> String {
