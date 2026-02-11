@@ -42,7 +42,10 @@ uuid = { version = "1.18", features = ["v4"] }
 which = "8.0.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading"] }
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_System_Threading",
+] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 tao = { version = "0.34", features = ["tokio"] }
