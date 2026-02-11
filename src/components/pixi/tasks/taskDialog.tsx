@@ -345,281 +345,284 @@ export function TaskDialog({
 
           <div className="overflow-y-auto flex-1">
             <PreferencesGroup nested>
-            {/* Name */}
-            <Input
-              label="Name"
-              value={name}
-              onChange={(e) => setName(toPixiName(e.target.value))}
-              required
-            />
+              {/* Name */}
+              <Input
+                label="Name"
+                value={name}
+                onChange={(e) => setName(toPixiName(e.target.value))}
+                required
+              />
 
-            {/* Description */}
-            <Input
-              label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+              {/* Description */}
+              <Input
+                label="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
 
-            {/* Command */}
-            <Input
-              label="Command"
-              value={command}
-              onChange={(e) => setCommand(e.target.value)}
-              required
-            />
+              {/* Command */}
+              <Input
+                label="Command"
+                value={command}
+                onChange={(e) => setCommand(e.target.value)}
+                required
+              />
 
-            {/* Advanced Settings */}
-            <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
-              <CollapsibleTrigger asChild>
-                <Button type="button" variant="ghost" className={"my-pfx-s"}>
-                  <span>Advanced</span>
-                  {isAdvancedOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-pfx-m mt-pfx-m">
-                {/* Dependencies */}
-                <PreferencesGroup title="Dependencies" nested>
-                  {dependencies.map((dep, index) => (
-                    <div key={index} className="flex items-center gap-pfx-s">
-                      <Input value={dep} readOnly className="flex-1" />
+              {/* Advanced Settings */}
+              <Collapsible
+                open={isAdvancedOpen}
+                onOpenChange={setIsAdvancedOpen}
+              >
+                <CollapsibleTrigger asChild>
+                  <Button type="button" variant="ghost" className={"my-pfx-s"}>
+                    <span>Advanced</span>
+                    {isAdvancedOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-pfx-m mt-pfx-m">
+                  {/* Dependencies */}
+                  <PreferencesGroup title="Dependencies" nested>
+                    {dependencies.map((dep, index) => (
+                      <div key={index} className="flex items-center gap-pfx-s">
+                        <Input value={dep} readOnly className="flex-1" />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeDependency(index)}
+                        >
+                          <CircleMinusIcon className="text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-pfx-s">
+                      <Select
+                        value={newDependency}
+                        onValueChange={setNewDependency}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Add dependency..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableTasks
+                            .filter((task) => !dependencies.includes(task))
+                            .map((task) => (
+                              <SelectItem key={task} value={task}>
+                                {task}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
-                        onClick={() => removeDependency(index)}
+                        onClick={addDependency}
+                        disabled={!newDependency}
                       >
-                        <CircleMinusIcon className="text-destructive" />
+                        <CirclePlusIcon />
                       </Button>
                     </div>
-                  ))}
-                  <div className="flex items-center gap-pfx-s">
-                    <Select
-                      value={newDependency}
-                      onValueChange={setNewDependency}
-                    >
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Add dependency..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableTasks
-                          .filter((task) => !dependencies.includes(task))
-                          .map((task) => (
-                            <SelectItem key={task} value={task}>
-                              {task}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={addDependency}
-                      disabled={!newDependency}
-                    >
-                      <CirclePlusIcon />
-                    </Button>
-                  </div>
-                </PreferencesGroup>
+                  </PreferencesGroup>
 
-                {/* Task Arguments */}
-                <PreferencesGroup
-                  title="Arguments"
-                  description="Add arguments to the command with {{ name }}."
-                  nested
-                >
-                  {taskArguments.map((arg, index) => (
-                    <div key={index} className="flex items-center gap-pfx-s">
+                  {/* Task Arguments */}
+                  <PreferencesGroup
+                    title="Arguments"
+                    description="Add arguments to the command with {{ name }}."
+                    nested
+                  >
+                    {taskArguments.map((arg, index) => (
+                      <div key={index} className="flex items-center gap-pfx-s">
+                        <Input
+                          value={arg.name}
+                          readOnly
+                          placeholder="Name"
+                          className="flex-1"
+                        />
+                        <Input
+                          value={arg.default ?? ""}
+                          readOnly
+                          placeholder="Default"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeTaskArgument(index)}
+                        >
+                          <CircleMinusIcon className="text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-pfx-s">
                       <Input
-                        value={arg.name}
-                        readOnly
-                        placeholder="Name"
+                        value={newArgName}
+                        onChange={(e) => setNewArgName(e.target.value)}
+                        label="Argument Name"
                         className="flex-1"
                       />
                       <Input
-                        value={arg.default ?? ""}
-                        readOnly
-                        placeholder="Default"
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeTaskArgument(index)}
-                      >
-                        <CircleMinusIcon className="text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-pfx-s">
-                    <Input
-                      value={newArgName}
-                      onChange={(e) => setNewArgName(e.target.value)}
-                      label="Argument Name"
-                      className="flex-1"
-                    />
-                    <Input
-                      value={newArgDefault}
-                      onChange={(e) => setNewArgDefault(e.target.value)}
-                      label="Default Value"
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={addTaskArgument}
-                      disabled={!newArgName.trim()}
-                    >
-                      <CirclePlusIcon />
-                    </Button>
-                  </div>
-                </PreferencesGroup>
-
-                {/* Caching */}
-                <PreferencesGroup
-                  title="Caching"
-                  description="When you specify inputs and/or outputs to a task, Pixi will reuse the result of the task. Inputs and outputs can be specified as globs, which will be expanded to all matching files."
-                  nested
-                >
-                  <p className="text-muted-foreground text-sm font-bold">
-                    Inputs
-                  </p>
-                  {inputs.map((input, index) => (
-                    <div key={index} className="flex items-center gap-pfx-s">
-                      <Input value={input} readOnly className="flex-1" />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeInput(index)}
-                      >
-                        <CircleMinusIcon className="text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-pfx-s">
-                    <Input
-                      value={newInput}
-                      onChange={(e) => setNewInput(e.target.value)}
-                      label="Add Input"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addInput();
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={addInput}
-                      disabled={!newInput.trim()}
-                    >
-                      <CirclePlusIcon />
-                    </Button>
-                  </div>
-
-                  <p className="text-muted-foreground text-sm font-bold">
-                    Outputs
-                  </p>
-                  {outputs.map((output, index) => (
-                    <div key={index} className="flex items-center gap-pfx-s">
-                      <Input value={output} readOnly className="flex-1" />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeOutput(index)}
-                      >
-                        <CircleMinusIcon className="text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-pfx-s">
-                    <Input
-                      value={newOutput}
-                      onChange={(e) => setNewOutput(e.target.value)}
-                      label="Add Output"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addOutput();
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={addOutput}
-                      disabled={!newOutput.trim()}
-                    >
-                      <CirclePlusIcon />
-                    </Button>
-                  </div>
-                </PreferencesGroup>
-
-                {/* Environment Variables */}
-                <PreferencesGroup title="Environment Variables" nested>
-                  {envVars.map((envVar, index) => (
-                    <div key={index} className="flex items-center gap-pfx-s">
-                      <Input
-                        value={envVar.key}
-                        readOnly
-                        placeholder="KEY"
-                        className="flex-1"
-                      />
-                      <Input
-                        value={envVar.value}
-                        readOnly
-                        placeholder="value"
+                        value={newArgDefault}
+                        onChange={(e) => setNewArgDefault(e.target.value)}
+                        label="Default Value"
                         className="flex-1"
                       />
                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
-                        onClick={() => removeEnvVar(index)}
+                        onClick={addTaskArgument}
+                        disabled={!newArgName.trim()}
                       >
-                        <CircleMinusIcon className="text-destructive" />
+                        <CirclePlusIcon />
                       </Button>
                     </div>
-                  ))}
-                  <div className="flex items-center gap-pfx-s">
-                    <Input
-                      value={newEnvKey}
-                      onChange={(e) => setNewEnvKey(e.target.value)}
-                      label="Key"
-                      className="flex-1"
-                    />
-                    <Input
-                      value={newEnvValue}
-                      onChange={(e) => setNewEnvValue(e.target.value)}
-                      label="Value"
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={addEnvVar}
-                      disabled={!(newEnvKey.trim() && newEnvValue.trim())}
-                    >
-                      <CirclePlusIcon />
-                    </Button>
-                  </div>
-                </PreferencesGroup>
-              </CollapsibleContent>
-            </Collapsible>
+                  </PreferencesGroup>
 
-            {submitError && (
-              <div className="text-destructive text">{submitError}</div>
-            )}
+                  {/* Caching */}
+                  <PreferencesGroup
+                    title="Caching"
+                    description="When you specify inputs and/or outputs to a task, Pixi will reuse the result of the task. Inputs and outputs can be specified as globs, which will be expanded to all matching files."
+                    nested
+                  >
+                    <p className="text-muted-foreground text-sm font-bold">
+                      Inputs
+                    </p>
+                    {inputs.map((input, index) => (
+                      <div key={index} className="flex items-center gap-pfx-s">
+                        <Input value={input} readOnly className="flex-1" />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeInput(index)}
+                        >
+                          <CircleMinusIcon className="text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-pfx-s">
+                      <Input
+                        value={newInput}
+                        onChange={(e) => setNewInput(e.target.value)}
+                        label="Add Input"
+                        className="flex-1"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addInput();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={addInput}
+                        disabled={!newInput.trim()}
+                      >
+                        <CirclePlusIcon />
+                      </Button>
+                    </div>
+
+                    <p className="text-muted-foreground text-sm font-bold">
+                      Outputs
+                    </p>
+                    {outputs.map((output, index) => (
+                      <div key={index} className="flex items-center gap-pfx-s">
+                        <Input value={output} readOnly className="flex-1" />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeOutput(index)}
+                        >
+                          <CircleMinusIcon className="text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-pfx-s">
+                      <Input
+                        value={newOutput}
+                        onChange={(e) => setNewOutput(e.target.value)}
+                        label="Add Output"
+                        className="flex-1"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addOutput();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={addOutput}
+                        disabled={!newOutput.trim()}
+                      >
+                        <CirclePlusIcon />
+                      </Button>
+                    </div>
+                  </PreferencesGroup>
+
+                  {/* Environment Variables */}
+                  <PreferencesGroup title="Environment Variables" nested>
+                    {envVars.map((envVar, index) => (
+                      <div key={index} className="flex items-center gap-pfx-s">
+                        <Input
+                          value={envVar.key}
+                          readOnly
+                          placeholder="KEY"
+                          className="flex-1"
+                        />
+                        <Input
+                          value={envVar.value}
+                          readOnly
+                          placeholder="value"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeEnvVar(index)}
+                        >
+                          <CircleMinusIcon className="text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-pfx-s">
+                      <Input
+                        value={newEnvKey}
+                        onChange={(e) => setNewEnvKey(e.target.value)}
+                        label="Key"
+                        className="flex-1"
+                      />
+                      <Input
+                        value={newEnvValue}
+                        onChange={(e) => setNewEnvValue(e.target.value)}
+                        label="Value"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={addEnvVar}
+                        disabled={!(newEnvKey.trim() && newEnvValue.trim())}
+                      >
+                        <CirclePlusIcon />
+                      </Button>
+                    </div>
+                  </PreferencesGroup>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {submitError && (
+                <div className="text-destructive text">{submitError}</div>
+              )}
             </PreferencesGroup>
           </div>
 

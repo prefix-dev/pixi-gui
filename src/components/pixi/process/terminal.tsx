@@ -1,5 +1,6 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { FitAddon } from "@xterm/addon-fit";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { useEffect, useRef } from "react";
 import { useXTerm } from "react-xtermjs";
@@ -15,48 +16,81 @@ import {
 interface TerminalProps {
   id: string;
   isRunning: boolean;
+  onDimensionsChange?: (cols: number, rows: number) => void;
 }
 
-export function Terminal({ id, isRunning }: TerminalProps) {
+export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
   const { instance, ref } = useXTerm({
     options: {
       theme: { background: "#000000" },
       cursorBlink: true,
       cursorStyle: "block",
+      allowProposedApi: true,
     },
+    addons: [
+      {
+        activate(terminal: import("@xterm/xterm").Terminal) {
+          const inner = new Unicode11Addon();
+          inner.activate(terminal);
+          terminal.unicode.activeVersion = "11";
+        },
+        dispose() {},
+      },
+    ],
   });
-  const restoredBuffer = useRef(false);
-
   const isRunningRef = useRef(isRunning);
+  const onDimensionsChangeRef = useRef(onDimensionsChange);
+  const bufferLoaded = useRef(false);
+  const pendingData = useRef<string[]>([]);
 
   useEffect(() => {
     isRunningRef.current = isRunning;
   }, [isRunning]);
 
   useEffect(() => {
+    onDimensionsChangeRef.current = onDimensionsChange;
+  }, [onDimensionsChange]);
+
+  useEffect(() => {
     if (!instance) return;
 
-    // Restore terminal buffer
-    if (!restoredBuffer.current) {
-      getPtyBuffer(id)
-        .then((buffer) => {
-          if (!restoredBuffer.current && buffer) {
-            instance.reset();
-            instance.write(buffer);
-          }
-          restoredBuffer.current = true;
-        })
-        .catch((error) => {
-          console.error("Failed to load PTY buffer:", error);
-          restoredBuffer.current = true;
-        });
-    }
+    bufferLoaded.current = false;
+    pendingData.current = [];
+
+    // Restore terminal buffer. Events are queued until the buffer
+    // is loaded to prevent mixing stale and fresh output.
+    getPtyBuffer(id)
+      .then((buffer) => {
+        if (bufferLoaded.current) return;
+        bufferLoaded.current = true;
+        if (buffer) instance.write(buffer);
+        for (const data of pendingData.current) instance.write(data);
+        pendingData.current = [];
+      })
+      .catch((error) => {
+        if (bufferLoaded.current) return;
+        bufferLoaded.current = true;
+        console.error("Failed to load PTY buffer:", error);
+        for (const data of pendingData.current) instance.write(data);
+        pendingData.current = [];
+      });
+
+    // Reset terminal when a new PTY session starts
+    const unsubscribeStart = subscribe<{ id: string }>("pty-start", (event) => {
+      if (id !== event.id) return;
+      instance.reset();
+      bufferLoaded.current = true;
+      pendingData.current = [];
+    });
 
     // PTY Data -> Terminal
     const unsubscribeData = subscribe<PtyDataEvent>("pty-data", (event) => {
       if (id !== event.id) return;
+      if (!bufferLoaded.current) {
+        pendingData.current.push(event.data);
+        return;
+      }
       instance.write(event.data);
-      restoredBuffer.current = true;
     });
 
     // Terminal Input -> Write PTY
@@ -76,6 +110,7 @@ export function Terminal({ id, isRunning }: TerminalProps) {
     window.addEventListener("resize", applyFit);
 
     const onResizeDispose = instance.onResize(({ cols, rows }) => {
+      onDimensionsChangeRef.current?.(cols, rows);
       if (!isRunningRef.current) return;
       resizePty(id, cols, rows).catch((error) => {
         console.error("Failed to resize PTY:", error);
@@ -104,6 +139,7 @@ export function Terminal({ id, isRunning }: TerminalProps) {
 
     // Set initial PTY size
     applyFit();
+    onDimensionsChangeRef.current?.(instance.cols, instance.rows);
     if (isRunningRef.current) {
       resizePty(id, instance.cols, instance.rows).catch((error) => {
         console.error("Failed to resize PTY:", error);
@@ -111,6 +147,7 @@ export function Terminal({ id, isRunning }: TerminalProps) {
     }
 
     return () => {
+      unsubscribeStart();
       unsubscribeData();
       onDataDispose.dispose();
       onResizeDispose.dispose();

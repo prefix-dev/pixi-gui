@@ -138,7 +138,10 @@ export function Feature({
                 title="Remove Feature"
                 onClick={async () => {
                   try {
-                    const removed = await removeFeature(workspace.manifest, feature.name);
+                    const removed = await removeFeature(
+                      workspace.manifest,
+                      feature.name,
+                    );
                     if (removed) {
                       onRemove?.();
                     }

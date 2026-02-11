@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use log::warn;
 use tokio::sync::Mutex;
 
 use crate::pty::{PtyExitEvent, PtyHandle};
@@ -21,13 +22,16 @@ impl AppState {
         self.ptys.lock().await.values().cloned().collect()
     }
 
-    pub async fn add_pty(&self, id: String, pty: Arc<PtyHandle>) -> Option<String> {
-        self.ptys.lock().await.insert(id.clone(), pty);
-        self.exited_ptys
-            .lock()
-            .await
-            .remove(&id)
-            .map(|exit_event| exit_event.buffer)
+    pub async fn add_pty(&self, id: String, pty: Arc<PtyHandle>) {
+        let mut ptys = self.ptys.lock().await;
+        if ptys.contains_key(&id) {
+            warn!("A PTY with that id is already registered: {id} ");
+            return;
+        }
+        ptys.insert(id.clone(), pty);
+
+        // Clear any saved exit event from a previous run
+        self.exited_ptys.lock().await.remove(&id);
     }
 
     pub async fn remove_pty(&self, id: &str, exit_event: PtyExitEvent) -> Option<Arc<PtyHandle>> {
