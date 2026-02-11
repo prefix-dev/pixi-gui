@@ -1,4 +1,4 @@
-import { documentDir, join } from "@tauri-apps/api/path";
+import { documentDir, homeDir, join } from "@tauri-apps/api/path";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { ChevronDownIcon, ChevronUpIcon, PencilIcon } from "lucide-react";
 import type { FormEvent } from "react";
@@ -68,7 +68,7 @@ export function NewWorkspaceDialog({
       const selectedPath = await openDialog({
         directory: true,
         canCreateDirectories: true,
-        defaultPath: await documentDir(),
+        defaultPath: await documentDir().catch(() => homeDir()),
       });
 
       if (selectedPath) {
