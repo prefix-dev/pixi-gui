@@ -42,7 +42,7 @@ export function ProcessRow(props: ProcessRowProps) {
   const title =
     props.kind === "task"
       ? props.taskName
-      : props.editor?.name ?? props.command;
+      : (props.editor?.name ?? props.command);
   const subtitle =
     props.kind === "task"
       ? getTaskDescription(props.task)
