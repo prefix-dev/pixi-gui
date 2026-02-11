@@ -24,7 +24,7 @@ libc = "0.2"
 log = "0.4"
 miette = "7"
 notify = "8"
-notify-debouncer-full = "0.6"
+notify-debouncer-full = "0.7"
 percent-encoding = "2"
 pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi", rev = "ce8654e0a401024dda627bc550059a89fb4add0a" }
 portable-pty = "0.9"
