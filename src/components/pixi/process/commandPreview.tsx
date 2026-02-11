@@ -23,7 +23,7 @@ export function CommandPreview({
   const trimmedExtra = extraArgs.trim();
 
   return (
-    <div className="rounded-pfx-s border border-pfxl-card-border bg-pfxgsl-200 dark:border-pfxd-card-border dark:bg-pfxgsd-600">
+    <div className="rounded-pfx-s bg-pfxgsl-200 dark:bg-pfxgsd-600">
       <code className="flex min-h-12 flex-wrap items-center gap-y-1 px-pfx-m py-pfx-s text-xs">
         {parts.map((part, index) => {
           if (part.kind === "text") {
