@@ -1,5 +1,6 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { FitAddon } from "@xterm/addon-fit";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { useEffect, useRef } from "react";
 import { useXTerm } from "react-xtermjs";
@@ -24,7 +25,18 @@ export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
       theme: { background: "#000000" },
       cursorBlink: true,
       cursorStyle: "block",
+      allowProposedApi: true,
     },
+    addons: [
+      {
+        activate(terminal: import("@xterm/xterm").Terminal) {
+          const inner = new Unicode11Addon();
+          inner.activate(terminal);
+          terminal.unicode.activeVersion = "11";
+        },
+        dispose() {},
+      },
+    ],
   });
   const isRunningRef = useRef(isRunning);
   const onDimensionsChangeRef = useRef(onDimensionsChange);
