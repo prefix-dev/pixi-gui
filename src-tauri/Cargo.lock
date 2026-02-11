@@ -5757,6 +5757,7 @@ dependencies = [
  "clap",
  "dunce",
  "indexmap 2.13.0",
+ "libc",
  "log",
  "miette 7.6.0",
  "notify",

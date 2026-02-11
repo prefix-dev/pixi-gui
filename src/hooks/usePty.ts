@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { subscribe } from "@/lib/event";
 import {
@@ -31,27 +31,35 @@ export function usePty(options: {
   const [isStarting, setIsStarting] = useState(false);
   const [isKilling, setIsKilling] = useState(false);
 
-  const start = async (invocation: PtyInvocation) => {
-    if (isStarting || isRunning) return;
+  // Refs for synchronous guards against concurrent calls
+  const startingRef = useRef(false);
+  const killingRef = useRef(false);
 
+  const start = async (invocation: PtyInvocation) => {
+    if (startingRef.current || isRunning) return;
+
+    startingRef.current = true;
     setIsStarting(true);
     try {
       await createPty(id, invocation);
       setIsRunning(true);
     } catch (error) {
       console.error("Failed to start PTY:", error);
+      startingRef.current = false;
       setIsStarting(false);
     }
   };
 
   const kill = async () => {
-    if (isKilling || !isRunning) return;
+    if (killingRef.current || !isRunning) return;
 
+    killingRef.current = true;
     setIsKilling(true);
     try {
       await killPty(id);
     } catch (error) {
       console.error("Failed to kill PTY:", error);
+      killingRef.current = false;
       setIsKilling(false);
     }
   };
@@ -59,6 +67,8 @@ export function usePty(options: {
   useEffect(() => {
     const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
       if (event.id !== id) return;
+      startingRef.current = false;
+      killingRef.current = false;
       setIsRunning(true);
       setIsStarting(false);
       setIsKilling(false);
@@ -67,6 +77,8 @@ export function usePty(options: {
 
     const unsubscribeExit = subscribe<PtyExitEvent>("pty-exit", (event) => {
       if (event.id !== id) return;
+      startingRef.current = false;
+      killingRef.current = false;
       setIsRunning(false);
       setIsStarting(false);
       setIsKilling(false);

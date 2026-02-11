@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 use std::{collections::VecDeque, ffi::OsString, io::Write};
 
 use log::warn;
@@ -8,6 +9,8 @@ use portable_pty::{Child, CommandBuilder, MasterPty, PtySize, native_pty_system}
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Runtime, Window};
 use tokio::sync::Mutex;
+use tokio::sync::watch;
+use tokio::time::timeout;
 
 use crate::{error::Error, state::AppState};
 
@@ -139,11 +142,15 @@ pub struct PtyHandle {
     pub id: String,
     pub invocation: PtyInvocation,
     #[serde(skip)]
-    child: std::sync::Mutex<Box<dyn Child + Send>>,
+    process_id: Option<u32>,
     #[serde(skip)]
-    master: Mutex<Box<dyn MasterPty + Send>>,
+    exit_tx: std::sync::Mutex<Option<watch::Sender<bool>>>,
     #[serde(skip)]
-    writer: Mutex<Box<dyn Write + Send>>,
+    exit_rx: watch::Receiver<bool>,
+    #[serde(skip)]
+    master: Mutex<Option<Box<dyn MasterPty + Send>>>,
+    #[serde(skip)]
+    writer: Mutex<Option<Box<dyn Write + Send>>>,
     #[serde(skip)]
     reader: std::sync::Mutex<Box<dyn std::io::Read + Send>>,
     #[serde(skip)]
@@ -181,7 +188,7 @@ struct PtyBuffer {
 impl PtyHandle {
     const MAX_BUFFER_BYTES: usize = 1024 * 1024;
 
-    pub fn new(id: String, invocation: PtyInvocation) -> Result<Self> {
+    pub fn new(id: String, invocation: PtyInvocation) -> Result<(Self, Box<dyn Child + Send>)> {
         let pty_system = native_pty_system();
         let size = PtySize {
             rows: 24,
@@ -204,29 +211,41 @@ impl PtyHandle {
             .spawn_command(command)
             .map_err(|err| miette::miette!("failed to spawn PTY command: {err}"))?;
 
+        let process_id = child.process_id();
         let master = pair.master;
 
         let writer = master
             .take_writer()
             .map_err(|err| miette::miette!("failed to acquire PTY writer: {err}"))?;
-
         let reader = master
             .try_clone_reader()
             .map_err(|err| miette::miette!("failed to clone PTY reader: {err}"))?;
+        drop(pair.slave);
 
-        Ok(Self {
-            id,
-            invocation,
-            child: std::sync::Mutex::new(child),
-            writer: Mutex::new(writer),
-            master: Mutex::new(master),
-            reader: std::sync::Mutex::new(reader),
-            buffer: std::sync::Mutex::default(),
-        })
+        let (exit_tx, exit_rx) = watch::channel(false);
+
+        Ok((
+            Self {
+                id,
+                invocation,
+                process_id,
+                exit_tx: std::sync::Mutex::new(Some(exit_tx)),
+                exit_rx,
+                writer: Mutex::new(Some(writer)),
+                master: Mutex::new(Some(master)),
+                reader: std::sync::Mutex::new(reader),
+                buffer: std::sync::Mutex::default(),
+            },
+            child,
+        ))
     }
 
     pub async fn write(&self, data: String) -> Result<()> {
-        let mut writer = self.writer.lock().await;
+        let mut writer_guard = self.writer.lock().await;
+
+        let writer = writer_guard
+            .as_mut()
+            .ok_or_else(|| miette::miette!("PTY writer closed"))?;
 
         writer.write_all(data.as_bytes()).into_diagnostic()?;
         writer.flush().into_diagnostic()?;
@@ -276,7 +295,11 @@ impl PtyHandle {
     }
 
     pub async fn resize(&self, cols: u16, rows: u16) -> Result<()> {
-        let master = self.master.lock().await;
+        let master_guard = self.master.lock().await;
+
+        let master = master_guard
+            .as_ref()
+            .ok_or_else(|| miette::miette!("PTY master closed"))?;
 
         master
             .resize(PtySize {
@@ -291,14 +314,43 @@ impl PtyHandle {
     }
 
     pub async fn kill(&self) -> Result<()> {
-        let mut child = self.child.lock().unwrap();
-        child.kill().into_diagnostic()?;
+        // First, try graceful shutdown by sending Ctrl+C (ETX, 0x03) to the PTY.
+        let write_result = self.write("\x03".into()).await;
+
+        // Wait for the process to exit gracefully.
+        let mut rx = self.exit_rx.clone();
+        if timeout(Duration::from_secs(5), rx.wait_for(|&exited| exited))
+            .await
+            .is_err()
+        {
+            // Process didn't exit gracefully, force kill it by PID.
+            if let Some(pid) = self.process_id {
+                #[cfg(unix)]
+                unsafe {
+                    libc::kill(pid as i32, libc::SIGKILL);
+                }
+                #[cfg(windows)]
+                unsafe {
+                    use windows_sys::Win32::Foundation::CloseHandle;
+                    use windows_sys::Win32::System::Threading::{
+                        OpenProcess, PROCESS_TERMINATE, TerminateProcess,
+                    };
+                    let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
+                    if !handle.is_null() {
+                        TerminateProcess(handle, 1);
+                        CloseHandle(handle);
+                    }
+                }
+            }
+            // Wait for the exit watcher to complete cleanup.
+            let _ = rx.wait_for(|&exited| exited).await;
+        }
+
         Ok(())
     }
 
-    pub async fn is_running(&self) -> Result<bool> {
-        let mut child = self.child.lock().unwrap();
-        Ok(child.try_wait().into_diagnostic()?.is_none())
+    pub fn is_running(&self) -> bool {
+        !*self.exit_rx.borrow()
     }
 }
 
@@ -309,16 +361,15 @@ pub async fn pty_create<R: Runtime>(
     id: String,
     invocation: PtyInvocation,
 ) -> Result<(), Error> {
-    if state.pty(&id).await.is_some() {
-        return Err(Error(miette::miette!("PTY already exists")));
-    }
-
     let window_label = window.label().to_string();
     let app_state = state.inner().clone();
     let id_clone = id.clone();
 
-    let pty = Arc::new(PtyHandle::new(id.clone(), invocation.clone())?);
-    let restored_buffer = state.add_pty(id.clone(), pty.clone()).await;
+    let (handle, child) = PtyHandle::new(id.clone(), invocation.clone())?;
+    let exit_tx = handle.exit_tx.lock().unwrap().take().unwrap();
+    let pty = Arc::new(handle);
+
+    state.add_pty(id.clone(), pty.clone()).await;
 
     window
         .emit_to(
@@ -331,40 +382,53 @@ pub async fn pty_create<R: Runtime>(
         )
         .into_diagnostic()?;
 
-    if let Some(buffer) = restored_buffer {
-        // If available, restore buffer from previous invocation.
-        // Only store it in the PTY buffer - frontend fetches it via pty_get_buffer.
-        pty.store_chunk(buffer);
-    }
+    // Channel for the reader thread to signal it has finished reading all data.
+    let (reader_done_tx, reader_done_rx) = std::sync::mpsc::channel::<()>();
 
+    // Reader thread: reads PTY output and emits pty-data events.
+    let pty_reader = pty.clone();
+    let window_reader = window.clone();
+    let window_label_reader = window_label.clone();
+    let id_reader = id.clone();
     tauri::async_runtime::spawn_blocking(move || {
         while let Some(data) = {
-            match pty.read() {
+            match pty_reader.read() {
                 Ok(Some(data)) => Some(data),
                 Ok(None) => None,
                 Err(err) => {
-                    warn!("Error reading PTY output: {}", err);
+                    warn!("Reader error ({}): {}", err, id_reader);
                     None
                 }
             }
         } {
             let data_event = PtyDataEvent {
-                id: id.clone(),
+                id: id_reader.clone(),
                 data,
             };
-            window
-                .emit_to(&window_label, "pty-data", data_event)
+            window_reader
+                .emit_to(&window_label_reader, "pty-data", data_event)
                 .unwrap();
         }
+        let _ = reader_done_tx.send(());
+    });
 
-        // No data to read anymore -> child exited / got killed
-        let mut child = pty.child.lock().unwrap();
-        let exit_status = match child.try_wait().unwrap() {
-            Some(status) => status,
-            None => child.wait().into_diagnostic().unwrap(),
-        };
+    // Exit watcher thread: blocks on child.wait() until the process exits,
+    // then closes PTY handles to unblock the reader and emits the exit event.
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut child = child;
+        let exit_status = child.wait().expect("failed to wait for PTY child");
 
-        let terminated_msg = "\r\n\n[Process exited]\n\n\r".to_string();
+        // Close PTY streams to unblock the reader thread.
+        tauri::async_runtime::block_on(async {
+            *pty.writer.lock().await = None;
+            *pty.master.lock().await = None;
+        });
+
+        // Wait for the reader to finish processing any remaining buffered data.
+        let reader_wait_start = std::time::Instant::now();
+        let _ = reader_done_rx.recv();
+
+        let terminated_msg = "\r\n\n[Process stopped]\n\n\r".to_string();
         pty.store_chunk(terminated_msg.clone());
         let data_event = PtyDataEvent {
             id: id.clone(),
@@ -383,13 +447,16 @@ pub async fn pty_create<R: Runtime>(
             success: exit_status.success(),
         };
 
+        tauri::async_runtime::block_on(async {
+            app_state.remove_pty(&id_clone, exit_event.clone()).await;
+        });
+
         window
             .emit_to(&window_label, "pty-exit", &exit_event)
             .unwrap();
 
-        tauri::async_runtime::block_on(async {
-            app_state.remove_pty(&id_clone, exit_event).await;
-        });
+        // Signal that the process has fully exited and cleanup is complete.
+        let _ = exit_tx.send(true);
     });
 
     Ok(())
@@ -457,7 +524,7 @@ pub async fn pty_is_running(state: tauri::State<'_, AppState>, id: String) -> Re
     let Some(pty) = state.pty(&id).await else {
         return Ok(false);
     };
-    Ok(pty.is_running().await?)
+    Ok(pty.is_running())
 }
 
 #[tauri::command]
