@@ -189,7 +189,7 @@ struct PtyBuffer {
 /// The caller must ensure `pid` still refers to the child process we spawned.
 #[cfg(unix)]
 unsafe fn force_kill(pid: u32) {
-    libc::kill(pid as i32, libc::SIGKILL);
+    unsafe { libc::kill(pid as i32, libc::SIGKILL) };
 }
 
 /// # Safety
@@ -199,10 +199,12 @@ unsafe fn force_kill(pid: u32) {
     use windows_sys::Win32::Foundation::CloseHandle;
     use windows_sys::Win32::System::Threading::{OpenProcess, PROCESS_TERMINATE, TerminateProcess};
 
-    let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
-    if !handle.is_null() {
-        TerminateProcess(handle, 1);
-        CloseHandle(handle);
+    unsafe {
+        let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
+        if !handle.is_null() {
+            TerminateProcess(handle, 1);
+            CloseHandle(handle);
+        }
     }
 }
 
