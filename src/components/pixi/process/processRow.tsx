@@ -1,5 +1,5 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { PlayIcon, Square } from "lucide-react";
+import { PencilLineIcon, PlayIcon, Square } from "lucide-react";
 import { useState } from "react";
 
 import { CircularIcon } from "@/components/common/circularIcon";
@@ -12,6 +12,7 @@ import type { Editor } from "@/lib/editor";
 import {
   type Task,
   taskArguments as getTaskArguments,
+  command as getTaskCommand,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
 
@@ -32,6 +33,8 @@ export function ProcessRow(props: ProcessRowProps) {
 
   // Task arguments dialog (only for tasks)
   const args = props.kind === "task" ? getTaskArguments(props.task) : [];
+  const taskCommand =
+    props.kind === "task" ? getTaskCommand(props.task) : undefined;
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
 
   // Icon based on kind
@@ -99,27 +102,41 @@ export function ProcessRow(props: ProcessRowProps) {
         onClick={() => navigateToProcess()}
         suffix={
           props.kind === "task" ? (
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              title={isRunning ? "Stop task" : "Run task"}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (isRunning) {
-                  handleKill();
-                } else {
-                  handleStart();
-                }
-              }}
-              disabled={isBusy}
-            >
-              {isRunning ? (
-                <Square className="text-destructive" />
-              ) : (
-                <PlayIcon />
-              )}
-            </Button>
+            <>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                title="Set Task Arguments"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setArgsDialogOpen(true);
+                }}
+              >
+                <PencilLineIcon />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                title={isRunning ? "Stop task" : "Run task"}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (isRunning) {
+                    handleKill();
+                  } else {
+                    handleStart();
+                  }
+                }}
+                disabled={isBusy}
+              >
+                {isRunning ? (
+                  <Square className="text-destructive" />
+                ) : (
+                  <PlayIcon />
+                )}
+              </Button>
+            </>
           ) : (
             <Button
               type="button"
@@ -142,6 +159,7 @@ export function ProcessRow(props: ProcessRowProps) {
           open={true}
           onOpenChange={(open) => !open && setArgsDialogOpen(false)}
           taskName={props.taskName}
+          taskCommand={taskCommand}
           taskArguments={args}
           onSubmit={handleStartWithArgs}
         />
