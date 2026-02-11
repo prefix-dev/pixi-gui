@@ -188,11 +188,16 @@ struct PtyBuffer {
 impl PtyHandle {
     const MAX_BUFFER_BYTES: usize = 1024 * 1024;
 
-    pub fn new(id: String, invocation: PtyInvocation) -> Result<(Self, Box<dyn Child + Send>)> {
+    pub fn new(
+        id: String,
+        invocation: PtyInvocation,
+        cols: u16,
+        rows: u16,
+    ) -> Result<(Self, Box<dyn Child + Send>)> {
         let pty_system = native_pty_system();
         let size = PtySize {
-            rows: 24,
-            cols: 80,
+            rows,
+            cols,
             pixel_width: 0,
             pixel_height: 0,
         };
@@ -360,12 +365,14 @@ pub async fn pty_create<R: Runtime>(
     state: tauri::State<'_, AppState>,
     id: String,
     invocation: PtyInvocation,
+    cols: u16,
+    rows: u16,
 ) -> Result<(), Error> {
     let window_label = window.label().to_string();
     let app_state = state.inner().clone();
     let id_clone = id.clone();
 
-    let (handle, child) = PtyHandle::new(id.clone(), invocation.clone())?;
+    let (handle, child) = PtyHandle::new(id.clone(), invocation.clone(), cols, rows)?;
     let exit_tx = handle.exit_tx.lock().unwrap().take().unwrap();
     let pty = Arc::new(handle);
 

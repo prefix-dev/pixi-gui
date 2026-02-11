@@ -24,7 +24,7 @@ export function ProcessRow(props: ProcessRowProps) {
   const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
   const navigate = getRouteApi("/workspace/$path").useNavigate();
 
-  const { isRunning, isBusy, start, kill } = useProcess(
+  const { isRunning, isBusy, kill } = useProcess(
     props.kind === "task"
       ? { workspace, environment: props.environment, taskName: props.taskName }
       : { workspace, environment: props.environment, command: props.command },
@@ -48,47 +48,40 @@ export function ProcessRow(props: ProcessRowProps) {
       ? getTaskDescription(props.task)
       : props.editor?.description;
 
-  // Navigate to detail page
-  const navigateToProcess = () => {
-    if (props.kind === "task") {
-      navigate({
-        to: "./process",
-        search: {
-          kind: "task",
-          taskName: props.taskName,
-          task: props.task,
-          environment: props.environment,
-        },
-      });
-    } else {
-      navigate({
-        to: "./process",
-        search: {
-          kind: "command",
-          command: props.command,
-          editor: props.editor,
-          environment: props.environment,
-        },
-      });
-    }
+  const navigateToProcess = (autoStart?: boolean, autoStartArgs?: string[]) => {
+    const search =
+      props.kind === "task"
+        ? {
+            kind: "task" as const,
+            taskName: props.taskName,
+            task: props.task,
+            environment: props.environment,
+          }
+        : {
+            kind: "command" as const,
+            command: props.command,
+            editor: props.editor,
+            environment: props.environment,
+          };
+    navigate({
+      to: "./process",
+      search: { ...search, autoStart, autoStartArgs },
+    });
   };
 
   const handleStart = () => {
     if (props.kind === "task") {
       if (args.length === 0) {
-        navigateToProcess();
-        void start([]);
+        navigateToProcess(true);
       } else {
         setArgsDialogOpen(true);
       }
     }
-    // Commands cannot be started from here (they are already running)
   };
 
   const handleStartWithArgs = (taskArgs: string[]) => {
     setArgsDialogOpen(false);
-    navigateToProcess();
-    void start(taskArgs);
+    navigateToProcess(true, taskArgs);
   };
 
   const handleKill = () => {
@@ -103,7 +96,7 @@ export function ProcessRow(props: ProcessRowProps) {
         title={title}
         subtitle={subtitle}
         prefix={<CircularIcon icon={icon} />}
-        onClick={navigateToProcess}
+        onClick={() => navigateToProcess()}
         suffix={
           props.kind === "task" ? (
             <Button

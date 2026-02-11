@@ -53,10 +53,14 @@ export interface PtyExitEvent {
 export async function createPty(
   id: string,
   invocation: PtyInvocation,
+  cols: number,
+  rows: number,
 ): Promise<void> {
   await invoke<void>("pty_create", {
     id,
     invocation,
+    cols,
+    rows,
   });
 }
 

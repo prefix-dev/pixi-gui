@@ -15,9 +15,10 @@ import {
 interface TerminalProps {
   id: string;
   isRunning: boolean;
+  onDimensionsChange?: (cols: number, rows: number) => void;
 }
 
-export function Terminal({ id, isRunning }: TerminalProps) {
+export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
   const { instance, ref } = useXTerm({
     options: {
       theme: { background: "#000000" },
@@ -26,12 +27,17 @@ export function Terminal({ id, isRunning }: TerminalProps) {
     },
   });
   const isRunningRef = useRef(isRunning);
+  const onDimensionsChangeRef = useRef(onDimensionsChange);
   const bufferLoaded = useRef(false);
   const pendingData = useRef<string[]>([]);
 
   useEffect(() => {
     isRunningRef.current = isRunning;
   }, [isRunning]);
+
+  useEffect(() => {
+    onDimensionsChangeRef.current = onDimensionsChange;
+  }, [onDimensionsChange]);
 
   useEffect(() => {
     if (!instance) return;
@@ -92,6 +98,7 @@ export function Terminal({ id, isRunning }: TerminalProps) {
     window.addEventListener("resize", applyFit);
 
     const onResizeDispose = instance.onResize(({ cols, rows }) => {
+      onDimensionsChangeRef.current?.(cols, rows);
       if (!isRunningRef.current) return;
       resizePty(id, cols, rows).catch((error) => {
         console.error("Failed to resize PTY:", error);
@@ -120,6 +127,7 @@ export function Terminal({ id, isRunning }: TerminalProps) {
 
     // Set initial PTY size
     applyFit();
+    onDimensionsChangeRef.current?.(instance.cols, instance.rows);
     if (isRunningRef.current) {
       resizePty(id, instance.cols, instance.rows).catch((error) => {
         console.error("Failed to resize PTY:", error);

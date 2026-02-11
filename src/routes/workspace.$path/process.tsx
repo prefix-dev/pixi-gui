@@ -4,7 +4,7 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { ChevronLeftIcon, PencilIcon, PlayIcon, Square } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Terminal } from "@/components/pixi/process/terminal";
 import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
@@ -23,7 +23,11 @@ import {
 } from "@/lib/pixi/workspace/task";
 import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 
-type RouteSearch = { environment: string; autoStart?: boolean } & (
+type RouteSearch = {
+  environment: string;
+  autoStart?: boolean;
+  autoStartArgs?: string[];
+} & (
   | { kind: "task"; task: Task; taskName: string }
   | { kind: "command"; command: string; editor?: Editor }
 );
@@ -39,7 +43,7 @@ function ProcessComponent() {
   const search = Route.useSearch();
   const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
 
-  const { environment, autoStart } = search;
+  const { environment, autoStart, autoStartArgs } = search;
 
   const isTask = search.kind === "task";
 
@@ -59,6 +63,17 @@ function ProcessComponent() {
     null,
   );
 
+  // Track terminal dimensions so we can pass them when creating a PTY
+  const [terminalDims, setTerminalDims] = useState<{
+    cols: number;
+    rows: number;
+  } | null>(null);
+  const terminalDimsRef = useRef(terminalDims);
+  terminalDimsRef.current = terminalDims;
+  const onDimensionsChange = useCallback((cols: number, rows: number) => {
+    setTerminalDims({ cols, rows });
+  }, []);
+
   // PTY handling
   const { isRunning, isBusy, start, kill, ptyId } = useProcess(
     search.kind === "task"
@@ -66,22 +81,37 @@ function ProcessComponent() {
       : { workspace, environment, command: search.command },
   );
 
-  // Auto-start when navigating with autoStart flag
+  // Auto-start when navigating with autoStart flag.
+  // Wait for terminal dimensions to be available before starting.
   useEffect(() => {
-    if (autoStart && !isRunning && !isBusy) {
-      void start();
+    if (!autoStart || isRunning || isBusy || !terminalDims) return;
 
-      // Remove autoStart from URL to prevent re-triggering
-      void navigate({
-        search: { ...search, autoStart: undefined },
-        replace: true,
-      });
-    }
-  }, [autoStart, isRunning, isBusy, start, navigate, search]);
+    void start(autoStartArgs ?? [], terminalDims.cols, terminalDims.rows);
+
+    // Remove autoStart from URL to prevent re-triggering
+    void navigate({
+      search: {
+        ...search,
+        autoStart: undefined,
+        autoStartArgs: undefined,
+      },
+      replace: true,
+    });
+  }, [
+    autoStart,
+    autoStartArgs,
+    isRunning,
+    isBusy,
+    terminalDims,
+    start,
+    navigate,
+    search,
+  ]);
 
   const handleStart = () => {
     if (args.length === 0) {
-      void start([]);
+      const dims = terminalDimsRef.current!;
+      void start([], dims.cols, dims.rows);
     } else {
       setArgsDialogOpen(true);
     }
@@ -89,7 +119,8 @@ function ProcessComponent() {
 
   const handleStartWithArgs = (taskArgs: string[]) => {
     setArgsDialogOpen(false);
-    void start(taskArgs);
+    const dims = terminalDimsRef.current!;
+    void start(taskArgs, dims.cols, dims.rows);
   };
 
   const handleKill = () => {
@@ -196,7 +227,11 @@ function ProcessComponent() {
         <div className="flex flex-1 flex-col space-y-pfx-xs overflow-hidden">
           <p className="text-muted-foreground text-sm font-bold">Terminal</p>
           <div className="flex flex-1 overflow-hidden">
-            <Terminal id={ptyId} isRunning={isRunning} />
+            <Terminal
+              id={ptyId}
+              isRunning={isRunning}
+              onDimensionsChange={onDimensionsChange}
+            />
           </div>
         </div>
       </div>

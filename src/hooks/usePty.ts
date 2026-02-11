@@ -15,7 +15,11 @@ export interface PtyState {
   isStarting: boolean;
   isKilling: boolean;
   isBusy: boolean;
-  start: (invocation: PtyInvocation) => Promise<void>;
+  start: (
+    invocation: PtyInvocation,
+    cols: number,
+    rows: number,
+  ) => Promise<void>;
   kill: () => Promise<void>;
   id: string;
 }
@@ -35,13 +39,17 @@ export function usePty(options: {
   const startingRef = useRef(false);
   const killingRef = useRef(false);
 
-  const start = async (invocation: PtyInvocation) => {
+  const start = async (
+    invocation: PtyInvocation,
+    cols: number,
+    rows: number,
+  ) => {
     if (startingRef.current || isRunning) return;
 
     startingRef.current = true;
     setIsStarting(true);
     try {
-      await createPty(id, invocation);
+      await createPty(id, invocation, cols, rows);
       setIsRunning(true);
     } catch (error) {
       console.error("Failed to start PTY:", error);
