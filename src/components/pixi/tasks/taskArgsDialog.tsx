@@ -1,7 +1,7 @@
-import type { FormEvent } from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
+import { CommandPreview } from "@/components/pixi/process/commandPreview";
 import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
@@ -19,6 +19,7 @@ interface TaskArgumentsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskName: string;
+  taskCommand?: string;
   taskArguments: TaskArgument[];
   onSubmit: (values: string[]) => void;
 }
@@ -27,6 +28,7 @@ export function TaskArgumentsDialog({
   open,
   onOpenChange,
   taskName,
+  taskCommand,
   taskArguments,
   onSubmit,
 }: TaskArgumentsDialogProps) {
@@ -34,10 +36,13 @@ export function TaskArgumentsDialog({
   const [argValues, setArgValues] = useState<string[]>(() =>
     taskArguments.map((argument) => argument.default ?? ""),
   );
+  const [extraArgs, setExtraArgs] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit(argValues);
+    const extra = extraArgs.trim();
+    const extraParts = extra ? extra.split(/\s+/) : [];
+    onSubmit([...argValues, ...extraParts]);
   };
 
   return (
@@ -45,14 +50,23 @@ export function TaskArgumentsDialog({
       <DialogContent>
         <form className="space-y-pfx-m" onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Run Task</DialogTitle>
+            <DialogTitle>Set Task Arguments</DialogTitle>
             <DialogDescription>
-              The task &quot;{taskName}&quot; requires arguments in order to be
-              executed.
+              Define with which arguments the &quot;{taskName}&quot; task should
+              be executed.
             </DialogDescription>
           </DialogHeader>
 
           <PreferencesGroup>
+            {taskCommand && (
+              <CommandPreview
+                command={taskCommand}
+                taskArguments={taskArguments}
+                argValues={argValues}
+                extraArgs={extraArgs}
+              />
+            )}
+
             {taskArguments.map((argument, index) => {
               return (
                 <Input
@@ -70,6 +84,11 @@ export function TaskArgumentsDialog({
                 />
               );
             })}
+            <Input
+              label="Extra Arguments"
+              value={extraArgs}
+              onChange={(event) => setExtraArgs(event.target.value)}
+            />
           </PreferencesGroup>
 
           <DialogFooter>
@@ -82,7 +101,12 @@ export function TaskArgumentsDialog({
             >
               Cancel
             </Button>
-            <Button type="submit">Run</Button>
+            <Button
+              type="submit"
+              disabled={argValues.some((v) => v.trim() === "")}
+            >
+              Run
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -3,12 +3,17 @@ import {
   getRouteApi,
   useRouter,
 } from "@tanstack/react-router";
-import { ChevronLeftIcon, PencilIcon, PlayIcon, Square } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  PencilLineIcon,
+  PlayIcon,
+  Square,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { CommandPreview } from "@/components/pixi/process/commandPreview";
 import { Terminal } from "@/components/pixi/process/terminal";
 import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
-import { TaskDialog } from "@/components/pixi/tasks/taskDialog";
 import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 
@@ -21,7 +26,6 @@ import {
   dependsOn as getTaskDependencies,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
-import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 
 type RouteSearch = {
   environment: string;
@@ -59,10 +63,6 @@ function ProcessComponent() {
     search.kind === "task" ? getTaskCommand(search.task) : search.command;
 
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
-  const [isEditingFeature, setIsEditingFeature] = useState<Feature | null>(
-    null,
-  );
-
   // Track terminal dimensions so we can pass them when creating a PTY
   const [terminalDims, setTerminalDims] = useState<{
     cols: number;
@@ -129,24 +129,6 @@ function ProcessComponent() {
     }
   };
 
-  const handleEdit = async () => {
-    if (!taskName) return;
-    try {
-      const feature = await featureByTask(
-        workspace.manifest,
-        taskName,
-        environment,
-      );
-      if (feature) {
-        setIsEditingFeature(feature);
-      } else {
-        console.error("Could not find feature for task:", taskName);
-      }
-    } catch (err) {
-      console.error("Failed to get feature for task:", err);
-    }
-  };
-
   const onBack = () => router.history.back();
 
   // Header title and subtitle
@@ -177,10 +159,10 @@ function ProcessComponent() {
               type="button"
               variant="ghost"
               size="icon"
-              title="Edit Task"
-              onClick={handleEdit}
+              title="Set Task Arguments"
+              onClick={() => setArgsDialogOpen(true)}
             >
-              <PencilIcon />
+              <PencilLineIcon />
             </Button>
           )}
           <Button
@@ -203,9 +185,7 @@ function ProcessComponent() {
         {command && (
           <div className="space-y-pfx-xs">
             <p className="text-muted-foreground text-sm font-bold">Command</p>
-            <code className="block rounded-pfx-s bg-pfxgsl-200 p-pfx-sm text-pfxgsl-900 text-xs dark:bg-pfxgsd-600 dark:text-pfxgsl-50">
-              {command}
-            </code>
+            <CommandPreview command={command} />
           </div>
         )}
 
@@ -241,31 +221,9 @@ function ProcessComponent() {
           open={true}
           onOpenChange={(open) => !open && setArgsDialogOpen(false)}
           taskName={taskName}
+          taskCommand={command}
           taskArguments={args}
           onSubmit={handleStartWithArgs}
-        />
-      )}
-
-      {isEditingFeature && task && taskName && (
-        <TaskDialog
-          open={true}
-          onOpenChange={(open) => !open && setIsEditingFeature(null)}
-          workspace={workspace}
-          feature={isEditingFeature}
-          editTask={task}
-          editTaskName={taskName}
-          onSuccess={(newTask, newTaskName) => {
-            void navigate({
-              search: {
-                kind: "task",
-                task: newTask,
-                taskName: newTaskName,
-                environment,
-              },
-              replace: true,
-            });
-          }}
-          onDelete={onBack}
         />
       )}
     </div>
