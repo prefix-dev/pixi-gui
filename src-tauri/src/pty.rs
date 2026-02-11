@@ -185,6 +185,31 @@ struct PtyBuffer {
     total_bytes: usize,
 }
 
+/// # Safety
+/// Uses raw OS calls with a PID that must still refer to the child we spawned.
+/// Only called right after a graceful-shutdown timeout, so the PID is still valid.
+#[cfg(unix)]
+fn force_kill(pid: u32) {
+    unsafe {
+        libc::kill(pid as i32, libc::SIGKILL);
+    }
+}
+
+/// See unix `force_kill` above for safety rationale.
+#[cfg(windows)]
+fn force_kill(pid: u32) {
+    use windows_sys::Win32::Foundation::CloseHandle;
+    use windows_sys::Win32::System::Threading::{OpenProcess, PROCESS_TERMINATE, TerminateProcess};
+
+    unsafe {
+        let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
+        if !handle.is_null() {
+            TerminateProcess(handle, 1);
+            CloseHandle(handle);
+        }
+    }
+}
+
 impl PtyHandle {
     const MAX_BUFFER_BYTES: usize = 1024 * 1024;
 
@@ -330,22 +355,7 @@ impl PtyHandle {
         {
             // Process didn't exit gracefully, force kill it by PID.
             if let Some(pid) = self.process_id {
-                #[cfg(unix)]
-                unsafe {
-                    libc::kill(pid as i32, libc::SIGKILL);
-                }
-                #[cfg(windows)]
-                unsafe {
-                    use windows_sys::Win32::Foundation::CloseHandle;
-                    use windows_sys::Win32::System::Threading::{
-                        OpenProcess, PROCESS_TERMINATE, TerminateProcess,
-                    };
-                    let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
-                    if !handle.is_null() {
-                        TerminateProcess(handle, 1);
-                        CloseHandle(handle);
-                    }
-                }
+                force_kill(pid);
             }
             // Wait for the exit watcher to complete cleanup.
             let _ = rx.wait_for(|&exited| exited).await;
