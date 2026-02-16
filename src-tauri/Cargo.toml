@@ -19,6 +19,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
 dunce = "1.0"
+humantime = "2.3.0"
 indexmap = "2"
 libc = "0.2"
 log = "0.4"
