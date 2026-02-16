@@ -105,8 +105,14 @@ export function ProcessRow(props: ProcessRowProps) {
   const handleStart = () => {
     if (props.kind !== "task") return;
 
-    // Show dialog if there are arguments without defaults and no saved values
-    if (!savedArgValues && args.some((a) => !a.default?.trim())) {
+    // Show dialog if any required argument is missing a value
+    const hasRequiredArgWithoutValue = args.some((a) => {
+      if (a.default?.trim()) return false;
+      if (!savedArgValues || !("values" in savedArgValues)) return true;
+      return !savedArgValues.values[a.name]?.trim();
+    });
+
+    if (hasRequiredArgWithoutValue) {
       setArgsDialogOpen(true);
       return;
     }
