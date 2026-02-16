@@ -1,4 +1,5 @@
-import { PencilIcon } from "lucide-react";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { FolderOpenIcon, PencilIcon } from "lucide-react";
 import React, { useState } from "react";
 
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
@@ -15,7 +16,11 @@ import {
 import { Input } from "@/components/shadcn/input";
 
 import type { TaskArgument } from "@/lib/pixi/workspace/task";
-import type { TaskArgumentValues } from "@/lib/taskArgs";
+import {
+  type TaskArgumentValues,
+  isDirectoryArgument,
+  isPathArgument,
+} from "@/lib/taskArgs";
 
 interface TaskArgumentsDialogProps {
   open: boolean;
@@ -86,23 +91,53 @@ export function TaskArgumentsDialog({
             )}
 
             {"values" in values ? (
-              taskArguments.map((argument) => (
-                <Input
-                  key={argument.name}
-                  id={`arg-${argument.name}`}
-                  label={argument.name}
-                  placeholder={argument.default}
-                  value={values.values[argument.name] ?? ""}
-                  onChange={(event) =>
-                    setValues({
-                      values: {
-                        ...values.values,
-                        [argument.name]: event.target.value,
-                      },
-                    })
-                  }
-                />
-              ))
+              taskArguments.map((argument) => {
+                const isPath = isPathArgument(argument.name);
+                const isDirectory = isDirectoryArgument(argument.name);
+
+                return (
+                  <Input
+                    key={argument.name}
+                    id={`arg-${argument.name}`}
+                    label={argument.name}
+                    placeholder={argument.default}
+                    value={values.values[argument.name] ?? ""}
+                    onChange={(event) =>
+                      setValues({
+                        values: {
+                          ...values.values,
+                          [argument.name]: event.target.value,
+                        },
+                      })
+                    }
+                    suffix={
+                      isPath ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          title={isDirectory ? "Select folder" : "Select file"}
+                          onClick={async () => {
+                            const selected = await openDialog({
+                              directory: isDirectory,
+                            });
+                            if (selected) {
+                              setValues({
+                                values: {
+                                  ...values.values,
+                                  [argument.name]: selected,
+                                },
+                              });
+                            }
+                          }}
+                        >
+                          <FolderOpenIcon />
+                        </Button>
+                      ) : undefined
+                    }
+                  />
+                );
+              })
             ) : (
               <Input
                 label="Arguments"

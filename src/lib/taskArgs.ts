@@ -6,6 +6,21 @@ export type TaskArgumentValues =
   | { values: Record<string, string> } // Argument name + Argument value
   | { appended: string };
 
+export function isPathArgument(name: string): boolean {
+  const lower = name.toLowerCase();
+  return (
+    lower.includes("path") ||
+    lower.includes("file") ||
+    lower.includes("dir") ||
+    lower.includes("folder")
+  );
+}
+
+export function isDirectoryArgument(name: string): boolean {
+  const lower = name.toLowerCase();
+  return lower.includes("dir") || lower.includes("folder");
+}
+
 export function resolveTaskArgs(
   taskArgumentValues: TaskArgumentValues,
   args: TaskArgument[],
