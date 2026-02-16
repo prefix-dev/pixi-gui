@@ -76,6 +76,9 @@ export function TaskArgumentsDialog({
                 command={taskCommand}
                 args={taskArguments}
                 values={values}
+                onArgumentClick={(name) =>
+                  document.getElementById(`arg-${name}`)?.focus()
+                }
               />
             )}
 
@@ -83,6 +86,7 @@ export function TaskArgumentsDialog({
               taskArguments.map((argument) => (
                 <Input
                   key={argument.name}
+                  id={`arg-${argument.name}`}
                   label={argument.name}
                   placeholder={argument.default}
                   value={values.values[argument.name] ?? ""}

@@ -5,9 +5,15 @@ interface CommandPreviewProps {
   command: string;
   args: TaskArgument[];
   values?: TaskArgumentValues;
+  onArgumentClick?: (name: string) => void;
 }
 
-export function CommandPreview({ command, args, values }: CommandPreviewProps) {
+export function CommandPreview({
+  command,
+  args,
+  values,
+  onArgumentClick,
+}: CommandPreviewProps) {
   const argValues = values && "values" in values ? values.values : {};
   const appended = values && "appended" in values ? values.appended : "";
 
@@ -25,11 +31,17 @@ export function CommandPreview({ command, args, values }: CommandPreviewProps) {
             );
           }
 
+          const handleClick = onArgumentClick
+            ? () => onArgumentClick(part.name)
+            : undefined;
+
           if (part.resolved) {
             return (
               <span
                 key={index}
-                className="inline-block break-all rounded bg-pfx-good/90 px-0.5 font-bold text-black"
+                role={handleClick ? "button" : undefined}
+                className={`inline-block break-all rounded bg-pfx-good/90 px-0.5 font-bold text-black ${handleClick ? "cursor-pointer" : ""}`}
+                onClick={handleClick}
               >
                 {part.resolved}
               </span>
@@ -39,7 +51,9 @@ export function CommandPreview({ command, args, values }: CommandPreviewProps) {
           return (
             <span
               key={index}
-              className="inline-block break-all rounded bg-orange-400/85 px-0.5 font-bold text-black"
+              role={handleClick ? "button" : undefined}
+              className={`inline-block break-all rounded bg-orange-400/85 px-0.5 font-bold text-black ${handleClick ? "cursor-pointer" : ""}`}
+              onClick={handleClick}
             >
               {"{{ "}
               {part.name}
