@@ -1,26 +1,17 @@
-import { useMemo } from "react";
-
 import type { TaskArgument } from "@/lib/pixi/workspace/task";
+import type { TaskArgumentValues } from "@/lib/taskArgs";
 
 interface CommandPreviewProps {
   command: string;
-  taskArguments?: TaskArgument[];
-  argValues?: string[];
-  extraArgs?: string;
+  args: TaskArgument[];
+  values?: TaskArgumentValues;
 }
 
-export function CommandPreview({
-  command,
-  taskArguments = [],
-  argValues = [],
-  extraArgs = "",
-}: CommandPreviewProps) {
-  const parts = useMemo(
-    () => parseCommand(command, taskArguments, argValues),
-    [command, taskArguments, argValues],
-  );
+export function CommandPreview({ command, args, values }: CommandPreviewProps) {
+  const argValues = values && "values" in values ? values.values : {};
+  const appended = values && "appended" in values ? values.appended : "";
 
-  const trimmedExtra = extraArgs.trim();
+  const parts = parseCommand(command, argValues, args);
 
   return (
     <div className="rounded-pfx-s bg-pfxgsl-200 dark:bg-pfxgsd-600">
@@ -56,11 +47,11 @@ export function CommandPreview({
             </span>
           );
         })}
-        {trimmedExtra && (
+        {appended.trim() && (
           <>
             <span className="whitespace-pre"> </span>
             <span className="inline-block break-all rounded bg-pfx-good/90 px-0.5 font-bold text-black">
-              {trimmedExtra}
+              {appended.trim()}
             </span>
           </>
         )}
@@ -75,8 +66,8 @@ type CommandPart =
 
 function parseCommand(
   command: string,
-  taskArguments: TaskArgument[],
-  argValues: string[],
+  argValues: Record<string, string>,
+  args: TaskArgument[],
 ): CommandPart[] {
   const parts: CommandPart[] = [];
   const regex = /\{\{\s*(\w+)\s*\}\}/g;
@@ -92,13 +83,15 @@ function parseCommand(
     }
 
     const varName = match[1];
-    const argIndex = taskArguments.findIndex((arg) => arg.name === varName);
-    const resolved = argIndex !== -1 ? argValues[argIndex] : undefined;
+    const value = argValues[varName];
+    const fallback = args.find((a) => a.name === varName)?.default;
+    const resolved =
+      value && value.trim() !== "" ? value : (fallback ?? undefined);
 
     parts.push({
       kind: "variable",
       name: varName,
-      resolved: resolved && resolved.trim() !== "" ? resolved : undefined,
+      resolved,
     });
 
     lastIndex = regex.lastIndex;

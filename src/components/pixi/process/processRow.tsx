@@ -1,6 +1,6 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { PencilLineIcon, PlayIcon, Square } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CircularIcon } from "@/components/common/circularIcon";
 import { Row } from "@/components/common/row";
@@ -15,6 +15,12 @@ import {
   command as getTaskCommand,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
+import {
+  type TaskArgumentValues,
+  getTaskArgs,
+  resolveTaskArgs,
+  saveTaskArgs,
+} from "@/lib/taskArgs";
 
 export type ProcessRowProps = { environment: string } & (
   | { kind: "task"; task: Task; taskName: string }
@@ -36,6 +42,17 @@ export function ProcessRow(props: ProcessRowProps) {
   const taskCommand =
     props.kind === "task" ? getTaskCommand(props.task) : undefined;
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
+
+  // Saved task arguments
+  const [savedArgValues, setSavedArgValues] =
+    useState<TaskArgumentValues | null>(null);
+  const taskName = props.kind === "task" ? props.taskName : undefined;
+  useEffect(() => {
+    if (!taskName) return;
+    void getTaskArgs(workspace.root, props.environment, taskName).then(
+      setSavedArgValues,
+    );
+  }, [workspace.root, props.environment, taskName]);
 
   // Icon based on kind
   const icon =
@@ -73,18 +90,31 @@ export function ProcessRow(props: ProcessRowProps) {
   };
 
   const handleStart = () => {
-    if (props.kind === "task") {
-      if (args.length === 0) {
-        navigateToProcess(true);
-      } else {
-        setArgsDialogOpen(true);
-      }
+    if (props.kind !== "task") return;
+
+    // Show dialog if there are arguments without defaults and no saved values
+    if (!savedArgValues && args.some((a) => !a.default?.trim())) {
+      setArgsDialogOpen(true);
+      return;
     }
+
+    navigateToProcess(
+      true,
+      resolveTaskArgs(savedArgValues ?? { values: {} }, args),
+    );
   };
 
-  const handleStartWithArgs = (taskArgs: string[]) => {
+  const handleStartWithArgs = async (values: TaskArgumentValues) => {
+    if (props.kind !== "task") return;
     setArgsDialogOpen(false);
-    navigateToProcess(true, taskArgs);
+    setSavedArgValues(values);
+    await saveTaskArgs(
+      workspace.root,
+      props.environment,
+      props.taskName,
+      values,
+    );
+    navigateToProcess(true, resolveTaskArgs(values, args));
   };
 
   const handleKill = () => {
@@ -161,6 +191,7 @@ export function ProcessRow(props: ProcessRowProps) {
           taskName={props.taskName}
           taskCommand={taskCommand}
           taskArguments={args}
+          initialValues={savedArgValues ?? undefined}
           onSubmit={handleStartWithArgs}
         />
       )}

@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/shadcn/input";
 
 import type { TaskArgument } from "@/lib/pixi/workspace/task";
+import type { TaskArgumentValues } from "@/lib/taskArgs";
 
 interface TaskArgumentsDialogProps {
   open: boolean;
@@ -21,7 +22,8 @@ interface TaskArgumentsDialogProps {
   taskName: string;
   taskCommand?: string;
   taskArguments: TaskArgument[];
-  onSubmit: (values: string[]) => void;
+  initialValues?: TaskArgumentValues;
+  onSubmit: (values: TaskArgumentValues) => void;
 }
 
 export function TaskArgumentsDialog({
@@ -30,19 +32,30 @@ export function TaskArgumentsDialog({
   taskName,
   taskCommand,
   taskArguments,
+  initialValues,
   onSubmit,
 }: TaskArgumentsDialogProps) {
-  // Initialize arg values with default values
-  const [argValues, setArgValues] = useState<string[]>(() =>
-    taskArguments.map((argument) => argument.default ?? ""),
-  );
-  const [extraArgs, setExtraArgs] = useState("");
+  const [values, setValues] = useState<TaskArgumentValues>(() => {
+    if (taskArguments.length > 0) {
+      const initial =
+        initialValues && "values" in initialValues ? initialValues.values : {};
+      const vals: Record<string, string> = {};
+      for (const argument of taskArguments) {
+        vals[argument.name] = initial[argument.name] ?? "";
+      }
+      return { values: vals };
+    }
+    return {
+      appended:
+        initialValues && "appended" in initialValues
+          ? initialValues.appended
+          : "",
+    };
+  });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const extra = extraArgs.trim();
-    const extraParts = extra ? extra.split(/\s+/) : [];
-    onSubmit([...argValues, ...extraParts]);
+    onSubmit(values);
   };
 
   return (
@@ -61,34 +74,37 @@ export function TaskArgumentsDialog({
             {taskCommand && (
               <CommandPreview
                 command={taskCommand}
-                taskArguments={taskArguments}
-                argValues={argValues}
-                extraArgs={extraArgs}
+                args={taskArguments}
+                values={values}
               />
             )}
 
-            {taskArguments.map((argument, index) => {
-              return (
+            {"values" in values ? (
+              taskArguments.map((argument) => (
                 <Input
                   key={argument.name}
                   label={argument.name}
-                  value={argValues[index] ?? ""}
-                  onChange={(event) => {
-                    const { value } = event.target;
-                    setArgValues((previous) => {
-                      const updated = [...previous];
-                      updated[index] = value;
-                      return updated;
-                    });
-                  }}
+                  placeholder={argument.default}
+                  value={values.values[argument.name] ?? ""}
+                  onChange={(event) =>
+                    setValues({
+                      values: {
+                        ...values.values,
+                        [argument.name]: event.target.value,
+                      },
+                    })
+                  }
                 />
-              );
-            })}
-            <Input
-              label="Extra Arguments"
-              value={extraArgs}
-              onChange={(event) => setExtraArgs(event.target.value)}
-            />
+              ))
+            ) : (
+              <Input
+                label="Arguments"
+                value={values.appended}
+                onChange={(event) =>
+                  setValues({ appended: event.target.value })
+                }
+              />
+            )}
           </PreferencesGroup>
 
           <DialogFooter>
@@ -103,7 +119,13 @@ export function TaskArgumentsDialog({
             </Button>
             <Button
               type="submit"
-              disabled={argValues.some((v) => v.trim() === "")}
+              disabled={
+                "values" in values &&
+                taskArguments.some(
+                  (a) =>
+                    (values.values[a.name] ?? "").trim() === "" && !a.default,
+                )
+              }
             >
               Run
             </Button>

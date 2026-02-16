@@ -26,6 +26,12 @@ import {
   dependsOn as getTaskDependencies,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
+import {
+  type TaskArgumentValues,
+  getTaskArgs,
+  resolveTaskArgs,
+  saveTaskArgs,
+} from "@/lib/taskArgs";
 
 type RouteSearch = {
   environment: string;
@@ -74,6 +80,16 @@ function ProcessComponent() {
     setTerminalDims({ cols, rows });
   }, []);
 
+  // Saved task arguments
+  const [savedArgValues, setSavedArgValues] =
+    useState<TaskArgumentValues | null>(null);
+  useEffect(() => {
+    if (!isTask || !taskName) return;
+    void getTaskArgs(workspace.root, environment, taskName).then(
+      setSavedArgValues,
+    );
+  }, [isTask, workspace.root, environment, taskName]);
+
   // PTY handling
   const { isRunning, isBusy, start, kill, ptyId } = useProcess(
     search.kind === "task"
@@ -109,18 +125,27 @@ function ProcessComponent() {
   ]);
 
   const handleStart = () => {
-    if (args.length === 0) {
-      const dims = terminalDimsRef.current!;
-      void start([], dims.cols, dims.rows);
-    } else {
+    // Show dialog if there are arguments without defaults and no saved values
+    if (!savedArgValues && args.some((a) => !a.default?.trim())) {
       setArgsDialogOpen(true);
+      return;
     }
+
+    const dims = terminalDimsRef.current!;
+    void start(
+      resolveTaskArgs(savedArgValues ?? { values: {} }, args),
+      dims.cols,
+      dims.rows,
+    );
   };
 
-  const handleStartWithArgs = (taskArgs: string[]) => {
+  const handleStartWithArgs = async (values: TaskArgumentValues) => {
+    if (!taskName) return;
     setArgsDialogOpen(false);
+    setSavedArgValues(values);
+    await saveTaskArgs(workspace.root, environment, taskName, values);
     const dims = terminalDimsRef.current!;
-    void start(taskArgs, dims.cols, dims.rows);
+    void start(resolveTaskArgs(values, args), dims.cols, dims.rows);
   };
 
   const handleKill = () => {
@@ -185,7 +210,11 @@ function ProcessComponent() {
         {command && (
           <div className="space-y-pfx-xs">
             <p className="text-muted-foreground text-sm font-bold">Command</p>
-            <CommandPreview command={command} />
+            <CommandPreview
+              command={command}
+              args={args}
+              values={savedArgValues ?? undefined}
+            />
           </div>
         )}
 
@@ -223,6 +252,7 @@ function ProcessComponent() {
           taskName={taskName}
           taskCommand={command}
           taskArguments={args}
+          initialValues={savedArgValues ?? undefined}
           onSubmit={handleStartWithArgs}
         />
       )}
