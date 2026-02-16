@@ -1,3 +1,4 @@
+import { PencilIcon } from "lucide-react";
 import React, { useState } from "react";
 
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
@@ -24,6 +25,7 @@ interface TaskArgumentsDialogProps {
   taskArguments: TaskArgument[];
   initialValues?: TaskArgumentValues;
   onSubmit: (values: TaskArgumentValues) => void;
+  onEdit?: () => void;
 }
 
 export function TaskArgumentsDialog({
@@ -34,6 +36,7 @@ export function TaskArgumentsDialog({
   taskArguments,
   initialValues,
   onSubmit,
+  onEdit,
 }: TaskArgumentsDialogProps) {
   const [values, setValues] = useState<TaskArgumentValues>(() => {
     if (taskArguments.length > 0) {
@@ -112,6 +115,18 @@ export function TaskArgumentsDialog({
           </PreferencesGroup>
 
           <DialogFooter>
+            {onEdit && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                title="Edit Task"
+                className="mr-auto"
+                onClick={onEdit}
+              >
+                <PencilIcon />
+              </Button>
+            )}
             <Button
               type="button"
               variant="ghost"

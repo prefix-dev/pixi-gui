@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CircularIcon } from "@/components/common/circularIcon";
 import { Row } from "@/components/common/row";
 import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
+import { TaskDialog } from "@/components/pixi/tasks/taskDialog";
 import { Button } from "@/components/shadcn/button";
 
 import { useProcess } from "@/hooks/useProcess";
@@ -15,6 +16,7 @@ import {
   command as getTaskCommand,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
+import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 import {
   type TaskArgumentValues,
   getTaskArgs,
@@ -42,6 +44,17 @@ export function ProcessRow(props: ProcessRowProps) {
   const taskCommand =
     props.kind === "task" ? getTaskCommand(props.task) : undefined;
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
+  const [feature, setFeature] = useState<Feature | null>(null);
+
+  const handleEditTask = async () => {
+    if (props.kind !== "task") return;
+    const f = await featureByTask(
+      workspace.root,
+      props.taskName,
+      props.environment,
+    );
+    if (f) setFeature(f);
+  };
 
   // Saved task arguments
   const [savedArgValues, setSavedArgValues] =
@@ -194,6 +207,18 @@ export function ProcessRow(props: ProcessRowProps) {
           taskArguments={args}
           initialValues={savedArgValues ?? undefined}
           onSubmit={handleStartWithArgs}
+          onEdit={handleEditTask}
+        />
+      )}
+
+      {feature && props.kind === "task" && (
+        <TaskDialog
+          open={true}
+          onOpenChange={(o) => !o && setFeature(null)}
+          workspace={workspace}
+          feature={feature}
+          editTask={props.task}
+          editTaskName={props.taskName}
         />
       )}
     </>

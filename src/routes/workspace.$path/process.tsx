@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CommandPreview } from "@/components/pixi/process/commandPreview";
 import { Terminal } from "@/components/pixi/process/terminal";
 import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
+import { TaskDialog } from "@/components/pixi/tasks/taskDialog";
 import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 
@@ -26,6 +27,7 @@ import {
   dependsOn as getTaskDependencies,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
+import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 import {
   type TaskArgumentValues,
   getTaskArgs,
@@ -69,6 +71,27 @@ function ProcessComponent() {
     search.kind === "task" ? getTaskCommand(search.task) : search.command;
 
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
+  const [feature, setFeature] = useState<Feature | null>(null);
+
+  const handleEditTask = async () => {
+    if (!taskName) return;
+    const f = await featureByTask(workspace.root, taskName, environment);
+    if (f) setFeature(f);
+  };
+
+  const handleTaskEdited = (editedTask: Task, editedTaskName: string) => {
+    setFeature(null);
+    // Update search params with the new task data
+    void navigate({
+      search: {
+        ...search,
+        kind: "task",
+        task: editedTask,
+        taskName: editedTaskName,
+      },
+      replace: true,
+    });
+  };
   // Track terminal dimensions so we can pass them when creating a PTY
   const [terminalDims, setTerminalDims] = useState<{
     cols: number;
@@ -251,7 +274,7 @@ function ProcessComponent() {
         </div>
       </div>
 
-      {argsDialogOpen && taskName && (
+      {argsDialogOpen && taskName && task && (
         <TaskArgumentsDialog
           open={true}
           onOpenChange={(open) => !open && setArgsDialogOpen(false)}
@@ -260,6 +283,19 @@ function ProcessComponent() {
           taskArguments={args}
           initialValues={savedArgValues ?? undefined}
           onSubmit={handleStartWithArgs}
+          onEdit={handleEditTask}
+        />
+      )}
+
+      {feature && task && taskName && (
+        <TaskDialog
+          open={true}
+          onOpenChange={(o) => !o && setFeature(null)}
+          workspace={workspace}
+          feature={feature}
+          editTask={task}
+          editTaskName={taskName}
+          onSuccess={handleTaskEdited}
         />
       )}
     </div>
