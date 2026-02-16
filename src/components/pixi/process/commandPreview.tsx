@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import type { TaskArgument } from "@/lib/pixi/workspace/task";
 import type { TaskArgumentValues } from "@/lib/taskArgs";
 
@@ -6,6 +8,7 @@ interface CommandPreviewProps {
   args: TaskArgument[];
   values?: TaskArgumentValues;
   onArgumentClick?: (name: string) => void;
+  suffix?: ReactNode;
 }
 
 export function CommandPreview({
@@ -13,6 +16,7 @@ export function CommandPreview({
   args,
   values,
   onArgumentClick,
+  suffix,
 }: CommandPreviewProps) {
   const argValues = values && "values" in values ? values.values : {};
   const appended = values && "appended" in values ? values.appended : "";
@@ -20,7 +24,7 @@ export function CommandPreview({
   const parts = parseCommand(command, argValues, args);
 
   return (
-    <div className="rounded-pfx-s bg-pfxgsl-200 dark:bg-pfxgsd-600">
+    <div className="grid grid-cols-[1fr_auto] items-center rounded-pfx-s bg-pfxgsl-200 dark:bg-pfxgsd-600">
       <code className="flex min-h-12 flex-wrap items-center gap-y-1 px-pfx-m py-pfx-s text-xs">
         {parts.map((part, index) => {
           if (part.kind === "text") {
@@ -70,6 +74,9 @@ export function CommandPreview({
           </>
         )}
       </code>
+      {suffix && (
+        <div className="flex items-center gap-1 px-pfx-xs">{suffix}</div>
+      )}
     </div>
   );
 }

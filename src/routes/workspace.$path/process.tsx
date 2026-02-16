@@ -178,34 +178,6 @@ function ProcessComponent() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-pfx-sm">
-          {isTask && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              title="Set Task Arguments"
-              disabled={isRunning}
-              onClick={() => setArgsDialogOpen(true)}
-            >
-              <PencilLineIcon />
-            </Button>
-          )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            title={isRunning ? "Stop" : "Run"}
-            onClick={isRunning ? handleKill : handleStart}
-            disabled={isBusy}
-          >
-            {isRunning ? (
-              <Square className="text-destructive" />
-            ) : (
-              <PlayIcon className="text-pfx-good" />
-            )}
-          </Button>
-        </div>
       </div>
       <div className="flex flex-1 flex-col space-y-pfx-m overflow-hidden px-pfx-ml pt-pfx-sm pb-pfx-ml">
         {command && (
@@ -215,6 +187,39 @@ function ProcessComponent() {
               command={command}
               args={args}
               values={savedArgValues ?? undefined}
+              onArgumentClick={
+                isRunning ? undefined : () => setArgsDialogOpen(true)
+              }
+              suffix={
+                <>
+                  {isTask && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      title="Set Task Arguments"
+                      disabled={isRunning}
+                      onClick={() => setArgsDialogOpen(true)}
+                    >
+                      <PencilLineIcon />
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    title={isRunning ? "Stop" : "Run"}
+                    onClick={isRunning ? handleKill : handleStart}
+                    disabled={isBusy}
+                  >
+                    {isRunning ? (
+                      <Square className="text-destructive" />
+                    ) : (
+                      <PlayIcon className="text-pfx-good" />
+                    )}
+                  </Button>
+                </>
+              }
             />
           </div>
         )}
