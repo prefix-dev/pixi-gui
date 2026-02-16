@@ -381,8 +381,21 @@ export function TaskDialog({
                         const input = commandInputRef.current;
                         if (!input) return;
 
-                        const selStart = input.selectionStart ?? command.length;
-                        const selEnd = input.selectionEnd ?? selStart;
+                        let selStart = input.selectionStart ?? command.length;
+                        let selEnd = input.selectionEnd ?? selStart;
+
+                        // If cursor is inside a {{ }} block, move insertion point after it
+                        for (const match of command.matchAll(
+                          /\{\{[^}]*\}\}/g,
+                        )) {
+                          const matchEnd = match.index + match[0].length;
+                          if (selStart > match.index && selStart < matchEnd) {
+                            selStart = matchEnd;
+                            selEnd = matchEnd;
+                            break;
+                          }
+                        }
+
                         const selected = command.slice(selStart, selEnd);
                         const argName = selected.trim() || "variable";
                         const insertion = `{{ ${argName} }}`;
