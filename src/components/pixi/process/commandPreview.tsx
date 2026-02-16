@@ -39,7 +39,7 @@ export function CommandPreview({ command, args, values }: CommandPreviewProps) {
           return (
             <span
               key={index}
-              className="inline-block break-all rounded bg-pfx-bad/90 px-0.5 font-bold text-black"
+              className="inline-block break-all rounded bg-orange-400/85 px-0.5 font-bold text-black"
             >
               {"{{ "}
               {part.name}
