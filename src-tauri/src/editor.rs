@@ -29,6 +29,18 @@ const KNOWN_SYSTEM_EDITORS: &[Editor] = &[
         package_name: None,
     },
     Editor {
+        command: "codium .",
+        name: "VSCodium",
+        description: "Free/Libre Open Source Software Binaries of VS Code",
+        package_name: None,
+    },
+    Editor {
+        command: "positron .",
+        name: "Positron",
+        description: "A next-generation data science IDE",
+        package_name: None,
+    },
+    Editor {
         command: "cursor .",
         name: "Cursor",
         description: "The AI Code Editor",
