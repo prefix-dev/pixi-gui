@@ -185,6 +185,7 @@ function ProcessComponent() {
               variant="ghost"
               size="icon"
               title="Set Task Arguments"
+              disabled={isRunning}
               onClick={() => setArgsDialogOpen(true)}
             >
               <PencilLineIcon />

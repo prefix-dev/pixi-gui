@@ -138,6 +138,7 @@ export function ProcessRow(props: ProcessRowProps) {
                 size="icon"
                 variant="ghost"
                 title="Set Task Arguments"
+                disabled={isRunning}
                 onClick={(event) => {
                   event.stopPropagation();
                   setArgsDialogOpen(true);
