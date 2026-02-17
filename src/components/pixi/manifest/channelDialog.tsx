@@ -36,6 +36,16 @@ import { Spinner } from "@/components/shadcn/spinner";
 import { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 import { type Workspace, setChannels } from "@/lib/pixi/workspace/workspace";
 
+/** Normalize channel by stripping the prefix.dev mirror URL */
+function normalizeChannel(channel: string): string {
+  return channel.replace(/^https:\/\/prefix\.dev\//, "");
+}
+
+function channelIncluded(channels: string[], channel: string): boolean {
+  const normalized = normalizeChannel(channel);
+  return channels.some((ch) => normalizeChannel(ch) === normalized);
+}
+
 const PRESET_CHANNELS = [
   {
     name: "conda-forge",
@@ -95,17 +105,20 @@ export function ChannelDialog({
 
   const handleAddChannel = (channel: string) => {
     const trimmed = channel.trim();
-    if (!trimmed || selectedChannels.includes(trimmed)) return;
+    if (!trimmed || channelIncluded(selectedChannels, trimmed)) return;
     setSelectedChannels([...selectedChannels, trimmed]);
     setNewCustomChannel("");
   };
 
   const handleRemoveChannel = (channel: string) => {
-    setSelectedChannels(selectedChannels.filter((ch) => ch !== channel));
+    const normalized = normalizeChannel(channel);
+    setSelectedChannels(
+      selectedChannels.filter((ch) => normalizeChannel(ch) !== normalized),
+    );
   };
 
   const handleTogglePreset = (channel: string) => {
-    if (selectedChannels.includes(channel)) {
+    if (channelIncluded(selectedChannels, channel)) {
       handleRemoveChannel(channel);
     } else {
       setSelectedChannels([...selectedChannels, channel]);
@@ -145,7 +158,7 @@ export function ChannelDialog({
 
   // Unselected preset channels (for the "Add Channel" section)
   const unselectedPresets = PRESET_CHANNELS.filter(
-    (preset) => !selectedChannels.includes(preset.url),
+    (preset) => !channelIncluded(selectedChannels, preset.url),
   );
 
   return (
@@ -180,7 +193,9 @@ export function ChannelDialog({
                     >
                       {selectedChannels.map((channelUrl) => {
                         const preset = PRESET_CHANNELS.find(
-                          (p) => p.url === channelUrl,
+                          (p) =>
+                            normalizeChannel(p.url) ===
+                            normalizeChannel(channelUrl),
                         );
                         return (
                           <SortableRow
@@ -210,20 +225,6 @@ export function ChannelDialog({
 
               {/* Add channel section */}
               <PreferencesGroup title="Add Channel" nested>
-                {/* Unselected preset channels */}
-                {unselectedPresets.map((preset) => (
-                  <SelectableRow
-                    key={preset.url}
-                    title={preset.name}
-                    subtitle={preset.description}
-                    prefix={<CircularIcon icon="channel" />}
-                    selected={false}
-                    onClick={() => handleTogglePreset(preset.url)}
-                    selectLabel="Add Channel"
-                    unselectLabel="Remove Channel"
-                  />
-                ))}
-
                 {/* Custom channel input */}
                 <Input
                   label="Custom Channel"
@@ -242,6 +243,20 @@ export function ChannelDialog({
                     </Button>
                   }
                 />
+
+                {/* Unselected preset channels */}
+                {unselectedPresets.map((preset) => (
+                  <SelectableRow
+                    key={preset.url}
+                    title={preset.name}
+                    subtitle={preset.description}
+                    prefix={<CircularIcon icon="channel" />}
+                    selected={false}
+                    onClick={() => handleTogglePreset(preset.url)}
+                    selectLabel="Add Channel"
+                    unselectLabel="Remove Channel"
+                  />
+                ))}
               </PreferencesGroup>
             </div>
 

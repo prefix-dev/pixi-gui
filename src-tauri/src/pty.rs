@@ -14,6 +14,17 @@ use tokio::time::timeout;
 
 use crate::{error::Error, state::AppState};
 
+/// How the PTY process was terminated.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TerminationKind {
+    /// Process exited on its own.
+    Finished,
+    /// Process was stopped via Ctrl+C (graceful).
+    Stopped,
+    /// Process had to be force-killed (SIGKILL).
+    Killed,
+}
+
 /// Find the pixi binary with fallback locations.
 ///
 /// Search order:
@@ -155,6 +166,10 @@ pub struct PtyHandle {
     reader: std::sync::Mutex<Box<dyn std::io::Read + Send>>,
     #[serde(skip)]
     buffer: std::sync::Mutex<PtyBuffer>,
+    #[serde(skip)]
+    termination_kind: std::sync::Mutex<TerminationKind>,
+    #[serde(skip)]
+    started_at: std::time::Instant,
 }
 
 #[derive(Clone, Serialize)]
@@ -189,7 +204,7 @@ struct PtyBuffer {
 /// The caller must ensure `pid` still refers to the child process we spawned.
 #[cfg(unix)]
 unsafe fn force_kill(pid: u32) {
-    libc::kill(pid as i32, libc::SIGKILL);
+    unsafe { libc::kill(pid as i32, libc::SIGKILL) };
 }
 
 /// # Safety
@@ -199,10 +214,12 @@ unsafe fn force_kill(pid: u32) {
     use windows_sys::Win32::Foundation::CloseHandle;
     use windows_sys::Win32::System::Threading::{OpenProcess, PROCESS_TERMINATE, TerminateProcess};
 
-    let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
-    if !handle.is_null() {
-        TerminateProcess(handle, 1);
-        CloseHandle(handle);
+    unsafe {
+        let handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
+        if !handle.is_null() {
+            TerminateProcess(handle, 1);
+            CloseHandle(handle);
+        }
     }
 }
 
@@ -261,6 +278,8 @@ impl PtyHandle {
                 master: Mutex::new(Some(master)),
                 reader: std::sync::Mutex::new(reader),
                 buffer: std::sync::Mutex::default(),
+                termination_kind: std::sync::Mutex::new(TerminationKind::Finished),
+                started_at: std::time::Instant::now(),
             },
             child,
         ))
@@ -340,8 +359,11 @@ impl PtyHandle {
     }
 
     pub async fn kill(&self) -> Result<()> {
+        // Mark as stopped (graceful Ctrl+C attempt).
+        *self.termination_kind.lock().unwrap() = TerminationKind::Stopped;
+
         // First, try graceful shutdown by sending Ctrl+C (ETX, 0x03) to the PTY.
-        let write_result = self.write("\x03".into()).await;
+        let _write_result = self.write("\x03".into()).await;
 
         // Wait for the process to exit gracefully.
         let mut rx = self.exit_rx.clone();
@@ -349,6 +371,9 @@ impl PtyHandle {
             .await
             .is_err()
         {
+            // Mark as killed (force kill).
+            *self.termination_kind.lock().unwrap() = TerminationKind::Killed;
+
             // Process didn't exit gracefully, force kill it by PID.
             if let Some(pid) = self.process_id {
                 // SAFETY: called right after a graceful-shutdown timeout,
@@ -443,7 +468,20 @@ pub async fn pty_create<R: Runtime>(
         let reader_wait_start = std::time::Instant::now();
         let _ = reader_done_rx.recv();
 
-        let terminated_msg = "\r\n\n[Process stopped]\n\n\r".to_string();
+        let termination_kind = *pty.termination_kind.lock().unwrap();
+        let elapsed = Duration::from_secs(pty.started_at.elapsed().as_secs());
+        let duration_str = humantime::format_duration(elapsed);
+        let terminated_msg = match termination_kind {
+            TerminationKind::Finished => {
+                format!("\r\n\n[Process finished after {duration_str}]\n\n\r")
+            }
+            TerminationKind::Stopped => {
+                format!("\r\n\n[Process stopped after {duration_str}]\n\n\r")
+            }
+            TerminationKind::Killed => {
+                format!("\r\n\n[Process killed after {duration_str}]\n\n\r")
+            }
+        };
         pty.store_chunk(terminated_msg.clone());
         let data_event = PtyDataEvent {
             id: id.clone(),
