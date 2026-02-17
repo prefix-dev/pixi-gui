@@ -101,6 +101,7 @@ export function TaskArgumentsDialog({
                     id={`arg-${argument.name}`}
                     label={argument.name}
                     placeholder={argument.default}
+                    required={!argument.default}
                     value={values.values[argument.name] ?? ""}
                     onChange={(event) =>
                       setValues({
@@ -171,18 +172,7 @@ export function TaskArgumentsDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={
-                "values" in values &&
-                taskArguments.some(
-                  (a) =>
-                    (values.values[a.name] ?? "").trim() === "" && !a.default,
-                )
-              }
-            >
-              Run
-            </Button>
+            <Button type="submit">Run</Button>
           </DialogFooter>
         </form>
       </DialogContent>
