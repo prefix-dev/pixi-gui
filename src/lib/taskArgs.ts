@@ -21,6 +21,20 @@ export function isDirectoryArgument(name: string): boolean {
   return lower.includes("dir") || lower.includes("folder");
 }
 
+export function canRunDirectly(
+  args: TaskArgument[],
+  savedArgValues: TaskArgumentValues | null,
+): boolean {
+  return (
+    args.length === 0 ||
+    args.every((a) => {
+      if (a.default?.trim()) return true;
+      if (!savedArgValues || !("values" in savedArgValues)) return false;
+      return !!savedArgValues.values[a.name]?.trim();
+    })
+  );
+}
+
 export function resolveTaskArgs(
   taskArgumentValues: TaskArgumentValues,
   args: TaskArgument[],

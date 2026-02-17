@@ -30,6 +30,7 @@ import {
 import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 import {
   type TaskArgumentValues,
+  canRunDirectly,
   getTaskArgs,
   resolveTaskArgs,
   saveTaskArgs,
@@ -147,18 +148,9 @@ function ProcessComponent() {
     search,
   ]);
 
-  const handleStart = () => {
-    // Show dialog if any required argument is missing a value
-    const hasRequiredArgWithoutValue = args.some((a) => {
-      if (a.default?.trim()) return false;
-      if (!savedArgValues || !("values" in savedArgValues)) return true;
-      return !savedArgValues.values[a.name]?.trim();
-    });
-    if (hasRequiredArgWithoutValue) {
-      setArgsDialogOpen(true);
-      return;
-    }
+  const runnable = canRunDirectly(args, savedArgValues);
 
+  const handleStart = () => {
     const dims = terminalDimsRef.current!;
     void start(
       resolveTaskArgs(savedArgValues ?? { values: {} }, args),
@@ -232,20 +224,22 @@ function ProcessComponent() {
                       <PencilLineIcon />
                     </Button>
                   )}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    title={isRunning ? "Stop" : "Run"}
-                    onClick={isRunning ? handleKill : handleStart}
-                    disabled={isBusy}
-                  >
-                    {isRunning ? (
-                      <Square className="text-destructive" />
-                    ) : (
-                      <PlayIcon className="text-pfx-good" />
-                    )}
-                  </Button>
+                  {(runnable || isRunning) && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      title={isRunning ? "Stop" : "Run"}
+                      onClick={isRunning ? handleKill : handleStart}
+                      disabled={isBusy}
+                    >
+                      {isRunning ? (
+                        <Square className="text-destructive" />
+                      ) : (
+                        <PlayIcon className="text-pfx-good" />
+                      )}
+                    </Button>
+                  )}
                 </>
               }
             />

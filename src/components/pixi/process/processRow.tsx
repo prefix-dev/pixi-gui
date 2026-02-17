@@ -19,6 +19,7 @@ import {
 import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
 import {
   type TaskArgumentValues,
+  canRunDirectly,
   getTaskArgs,
   resolveTaskArgs,
   saveTaskArgs,
@@ -102,21 +103,10 @@ export function ProcessRow(props: ProcessRowProps) {
     });
   };
 
+  const runnable = canRunDirectly(args, savedArgValues);
+
   const handleStart = () => {
     if (props.kind !== "task") return;
-
-    // Show dialog if any required argument is missing a value
-    const hasRequiredArgWithoutValue = args.some((a) => {
-      if (a.default?.trim()) return false;
-      if (!savedArgValues || !("values" in savedArgValues)) return true;
-      return !savedArgValues.values[a.name]?.trim();
-    });
-
-    if (hasRequiredArgWithoutValue) {
-      setArgsDialogOpen(true);
-      return;
-    }
-
     navigateToProcess(
       true,
       resolveTaskArgs(savedArgValues ?? { values: {} }, args),
@@ -165,27 +155,29 @@ export function ProcessRow(props: ProcessRowProps) {
               >
                 <PencilLineIcon />
               </Button>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                title={isRunning ? "Stop task" : "Run task"}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (isRunning) {
-                    handleKill();
-                  } else {
-                    handleStart();
-                  }
-                }}
-                disabled={isBusy}
-              >
-                {isRunning ? (
-                  <Square className="text-destructive" />
-                ) : (
-                  <PlayIcon />
-                )}
-              </Button>
+              {(runnable || isRunning) && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  title={isRunning ? "Stop task" : "Run task"}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (isRunning) {
+                      handleKill();
+                    } else {
+                      handleStart();
+                    }
+                  }}
+                  disabled={isBusy}
+                >
+                  {isRunning ? (
+                    <Square className="text-destructive" />
+                  ) : (
+                    <PlayIcon />
+                  )}
+                </Button>
+              )}
             </>
           ) : (
             <Button
