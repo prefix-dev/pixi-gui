@@ -3,9 +3,15 @@ import {
   getRouteApi,
   useRouter,
 } from "@tanstack/react-router";
-import { ChevronLeftIcon, PencilIcon, PlayIcon, Square } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  PencilLineIcon,
+  PlayIcon,
+  Square,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { CommandPreview } from "@/components/pixi/process/commandPreview";
 import { Terminal } from "@/components/pixi/process/terminal";
 import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
 import { TaskDialog } from "@/components/pixi/tasks/taskDialog";
@@ -22,6 +28,13 @@ import {
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
 import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
+import {
+  type TaskArgumentValues,
+  canRunDirectly,
+  getTaskArgs,
+  resolveTaskArgs,
+  saveTaskArgs,
+} from "@/lib/taskArgs";
 
 type RouteSearch = {
   environment: string;
@@ -59,10 +72,27 @@ function ProcessComponent() {
     search.kind === "task" ? getTaskCommand(search.task) : search.command;
 
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
-  const [isEditingFeature, setIsEditingFeature] = useState<Feature | null>(
-    null,
-  );
+  const [feature, setFeature] = useState<Feature | null>(null);
 
+  const handleEditTask = async () => {
+    if (!taskName) return;
+    const f = await featureByTask(workspace.root, taskName, environment);
+    if (f) setFeature(f);
+  };
+
+  const handleTaskEdited = (editedTask: Task, editedTaskName: string) => {
+    setFeature(null);
+    // Update search params with the new task data
+    void navigate({
+      search: {
+        ...search,
+        kind: "task",
+        task: editedTask,
+        taskName: editedTaskName,
+      },
+      replace: true,
+    });
+  };
   // Track terminal dimensions so we can pass them when creating a PTY
   const [terminalDims, setTerminalDims] = useState<{
     cols: number;
@@ -73,6 +103,16 @@ function ProcessComponent() {
   const onDimensionsChange = useCallback((cols: number, rows: number) => {
     setTerminalDims({ cols, rows });
   }, []);
+
+  // Saved task arguments
+  const [savedArgValues, setSavedArgValues] =
+    useState<TaskArgumentValues | null>(null);
+  useEffect(() => {
+    if (!isTask || !taskName) return;
+    void getTaskArgs(workspace.root, environment, taskName).then(
+      setSavedArgValues,
+    );
+  }, [isTask, workspace.root, environment, taskName]);
 
   // PTY handling
   const { isRunning, isBusy, start, kill, ptyId } = useProcess(
@@ -108,42 +148,29 @@ function ProcessComponent() {
     search,
   ]);
 
+  const runnable = canRunDirectly(args, savedArgValues);
+
   const handleStart = () => {
-    if (args.length === 0) {
-      const dims = terminalDimsRef.current!;
-      void start([], dims.cols, dims.rows);
-    } else {
-      setArgsDialogOpen(true);
-    }
+    const dims = terminalDimsRef.current!;
+    void start(
+      resolveTaskArgs(savedArgValues ?? { values: {} }, args),
+      dims.cols,
+      dims.rows,
+    );
   };
 
-  const handleStartWithArgs = (taskArgs: string[]) => {
+  const handleStartWithArgs = async (values: TaskArgumentValues) => {
+    if (!taskName) return;
     setArgsDialogOpen(false);
+    setSavedArgValues(values);
+    await saveTaskArgs(workspace.root, environment, taskName, values);
     const dims = terminalDimsRef.current!;
-    void start(taskArgs, dims.cols, dims.rows);
+    void start(resolveTaskArgs(values, args), dims.cols, dims.rows);
   };
 
   const handleKill = () => {
     if (isRunning) {
       void kill();
-    }
-  };
-
-  const handleEdit = async () => {
-    if (!taskName) return;
-    try {
-      const feature = await featureByTask(
-        workspace.manifest,
-        taskName,
-        environment,
-      );
-      if (feature) {
-        setIsEditingFeature(feature);
-      } else {
-        console.error("Could not find feature for task:", taskName);
-      }
-    } catch (err) {
-      console.error("Failed to get feature for task:", err);
     }
   };
 
@@ -171,41 +198,51 @@ function ProcessComponent() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-pfx-sm">
-          {isTask && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              title="Edit Task"
-              onClick={handleEdit}
-            >
-              <PencilIcon />
-            </Button>
-          )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            title={isRunning ? "Stop" : "Run"}
-            onClick={isRunning ? handleKill : handleStart}
-            disabled={isBusy}
-          >
-            {isRunning ? (
-              <Square className="text-destructive" />
-            ) : (
-              <PlayIcon className="text-pfx-good" />
-            )}
-          </Button>
-        </div>
       </div>
       <div className="flex flex-1 flex-col space-y-pfx-m overflow-hidden px-pfx-ml pt-pfx-sm pb-pfx-ml">
         {command && (
           <div className="space-y-pfx-xs">
             <p className="text-muted-foreground text-sm font-bold">Command</p>
-            <code className="block rounded-pfx-s bg-pfxgsl-200 p-pfx-sm text-pfxgsl-900 text-xs dark:bg-pfxgsd-600 dark:text-pfxgsl-50">
-              {command}
-            </code>
+            <CommandPreview
+              command={command}
+              args={args}
+              values={savedArgValues ?? undefined}
+              onArgumentClick={
+                isRunning ? undefined : () => setArgsDialogOpen(true)
+              }
+              suffix={
+                <>
+                  {isTask && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      title="Set Task Arguments"
+                      disabled={isRunning}
+                      onClick={() => setArgsDialogOpen(true)}
+                    >
+                      <PencilLineIcon />
+                    </Button>
+                  )}
+                  {(runnable || isRunning) && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      title={isRunning ? "Stop" : "Run"}
+                      onClick={isRunning ? handleKill : handleStart}
+                      disabled={isBusy}
+                    >
+                      {isRunning ? (
+                        <Square className="text-destructive" />
+                      ) : (
+                        <PlayIcon className="text-pfx-good" />
+                      )}
+                    </Button>
+                  )}
+                </>
+              }
+            />
           </div>
         )}
 
@@ -236,36 +273,28 @@ function ProcessComponent() {
         </div>
       </div>
 
-      {argsDialogOpen && taskName && (
+      {argsDialogOpen && taskName && task && (
         <TaskArgumentsDialog
           open={true}
           onOpenChange={(open) => !open && setArgsDialogOpen(false)}
           taskName={taskName}
+          taskCommand={command}
           taskArguments={args}
+          initialValues={savedArgValues ?? undefined}
           onSubmit={handleStartWithArgs}
+          onEdit={handleEditTask}
         />
       )}
 
-      {isEditingFeature && task && taskName && (
+      {feature && task && taskName && (
         <TaskDialog
           open={true}
-          onOpenChange={(open) => !open && setIsEditingFeature(null)}
+          onOpenChange={(o) => !o && setFeature(null)}
           workspace={workspace}
-          feature={isEditingFeature}
+          feature={feature}
           editTask={task}
           editTaskName={taskName}
-          onSuccess={(newTask, newTaskName) => {
-            void navigate({
-              search: {
-                kind: "task",
-                task: newTask,
-                taskName: newTaskName,
-                environment,
-              },
-              replace: true,
-            });
-          }}
-          onDelete={onBack}
+          onSuccess={handleTaskEdited}
         />
       )}
     </div>

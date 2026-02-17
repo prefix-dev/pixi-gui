@@ -1,10 +1,11 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { PlayIcon, Square } from "lucide-react";
-import { useState } from "react";
+import { PencilLineIcon, PlayIcon, Square } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { CircularIcon } from "@/components/common/circularIcon";
 import { Row } from "@/components/common/row";
 import { TaskArgumentsDialog } from "@/components/pixi/tasks/taskArgsDialog";
+import { TaskDialog } from "@/components/pixi/tasks/taskDialog";
 import { Button } from "@/components/shadcn/button";
 
 import { useProcess } from "@/hooks/useProcess";
@@ -12,8 +13,17 @@ import type { Editor } from "@/lib/editor";
 import {
   type Task,
   taskArguments as getTaskArguments,
+  command as getTaskCommand,
   description as getTaskDescription,
 } from "@/lib/pixi/workspace/task";
+import { type Feature, featureByTask } from "@/lib/pixi/workspace/workspace";
+import {
+  type TaskArgumentValues,
+  canRunDirectly,
+  getTaskArgs,
+  resolveTaskArgs,
+  saveTaskArgs,
+} from "@/lib/taskArgs";
 
 export type ProcessRowProps = { environment: string } & (
   | { kind: "task"; task: Task; taskName: string }
@@ -32,7 +42,31 @@ export function ProcessRow(props: ProcessRowProps) {
 
   // Task arguments dialog (only for tasks)
   const args = props.kind === "task" ? getTaskArguments(props.task) : [];
+  const taskCommand =
+    props.kind === "task" ? getTaskCommand(props.task) : undefined;
   const [argsDialogOpen, setArgsDialogOpen] = useState(false);
+  const [feature, setFeature] = useState<Feature | null>(null);
+
+  const handleEditTask = async () => {
+    if (props.kind !== "task") return;
+    const f = await featureByTask(
+      workspace.root,
+      props.taskName,
+      props.environment,
+    );
+    if (f) setFeature(f);
+  };
+
+  // Saved task arguments
+  const [savedArgValues, setSavedArgValues] =
+    useState<TaskArgumentValues | null>(null);
+  const taskName = props.kind === "task" ? props.taskName : undefined;
+  useEffect(() => {
+    if (!taskName) return;
+    void getTaskArgs(workspace.root, props.environment, taskName).then(
+      setSavedArgValues,
+    );
+  }, [workspace.root, props.environment, taskName]);
 
   // Icon based on kind
   const icon =
@@ -69,19 +103,27 @@ export function ProcessRow(props: ProcessRowProps) {
     });
   };
 
+  const runnable = canRunDirectly(args, savedArgValues);
+
   const handleStart = () => {
-    if (props.kind === "task") {
-      if (args.length === 0) {
-        navigateToProcess(true);
-      } else {
-        setArgsDialogOpen(true);
-      }
-    }
+    if (props.kind !== "task") return;
+    navigateToProcess(
+      true,
+      resolveTaskArgs(savedArgValues ?? { values: {} }, args),
+    );
   };
 
-  const handleStartWithArgs = (taskArgs: string[]) => {
+  const handleStartWithArgs = async (values: TaskArgumentValues) => {
+    if (props.kind !== "task") return;
     setArgsDialogOpen(false);
-    navigateToProcess(true, taskArgs);
+    setSavedArgValues(values);
+    await saveTaskArgs(
+      workspace.root,
+      props.environment,
+      props.taskName,
+      values,
+    );
+    navigateToProcess(true, resolveTaskArgs(values, args));
   };
 
   const handleKill = () => {
@@ -99,27 +141,44 @@ export function ProcessRow(props: ProcessRowProps) {
         onClick={() => navigateToProcess()}
         suffix={
           props.kind === "task" ? (
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              title={isRunning ? "Stop task" : "Run task"}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (isRunning) {
-                  handleKill();
-                } else {
-                  handleStart();
-                }
-              }}
-              disabled={isBusy}
-            >
-              {isRunning ? (
-                <Square className="text-destructive" />
-              ) : (
-                <PlayIcon />
+            <>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                title="Set Task Arguments"
+                disabled={isRunning}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setArgsDialogOpen(true);
+                }}
+              >
+                <PencilLineIcon />
+              </Button>
+              {(runnable || isRunning) && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  title={isRunning ? "Stop task" : "Run task"}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (isRunning) {
+                      handleKill();
+                    } else {
+                      handleStart();
+                    }
+                  }}
+                  disabled={isBusy}
+                >
+                  {isRunning ? (
+                    <Square className="text-destructive" />
+                  ) : (
+                    <PlayIcon />
+                  )}
+                </Button>
               )}
-            </Button>
+            </>
           ) : (
             <Button
               type="button"
@@ -142,8 +201,22 @@ export function ProcessRow(props: ProcessRowProps) {
           open={true}
           onOpenChange={(open) => !open && setArgsDialogOpen(false)}
           taskName={props.taskName}
+          taskCommand={taskCommand}
           taskArguments={args}
+          initialValues={savedArgValues ?? undefined}
           onSubmit={handleStartWithArgs}
+          onEdit={handleEditTask}
+        />
+      )}
+
+      {feature && props.kind === "task" && (
+        <TaskDialog
+          open={true}
+          onOpenChange={(o) => !o && setFeature(null)}
+          workspace={workspace}
+          feature={feature}
+          editTask={props.task}
+          editTaskName={props.taskName}
         />
       )}
     </>

@@ -15,7 +15,7 @@ const buttonVariants = cva(
           "border-2 border-pfxl-card-border dark:border-pfxgsd-600 bg-white dark:bg-pfxgsd-700 hover:text-primary-foreground hover:bg-primary/90 hover:border-border",
         outline: "border-2 hover:bg-primary hover:text-accent-foreground",
         ghost:
-          "hover:bg-pfxgsl-200 hover:text-accent-foreground dark:hover:bg-accent/50",
+          "hover:bg-pfxgsl-300/50 hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

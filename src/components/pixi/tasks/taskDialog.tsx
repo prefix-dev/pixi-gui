@@ -1,4 +1,5 @@
 import {
+  BracesIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   CircleMinusIcon,
@@ -6,7 +7,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
 import { Button } from "@/components/shadcn/button";
@@ -118,12 +119,26 @@ export function TaskDialog({
   );
   const [newDependency, setNewDependency] = useState("");
 
-  // Task Arguments
-  const [taskArguments, setTaskArguments] = useState<
-    Array<{ name: string; default?: string }>
-  >(initialState.taskArguments);
-  const [newArgName, setNewArgName] = useState("");
-  const [newArgDefault, setNewArgDefault] = useState("");
+  // Task Arguments - derived from {{ var }} patterns in the command
+  // Only store the defaults, arg names are parsed from the command
+  const [argDefaults, setArgDefaults] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      initialState.taskArguments
+        .filter((a) => a.default != null)
+        .map((a) => [a.name, a.default!]),
+    ),
+  );
+
+  // Derive detected argument names from command
+  const detectedArgNames = Array.from(
+    new Set(Array.from(command.matchAll(/\{\{\s*(\w+)\s*\}\}/g), (m) => m[1])),
+  );
+
+  // Build taskArguments from detected names + defaults
+  const taskArguments = detectedArgNames.map((name) => ({
+    name,
+    default: argDefaults[name] || undefined,
+  }));
 
   // Inputs/Outputs
   const [inputs, setInputs] = useState<string[]>(initialState.inputs);
@@ -137,6 +152,8 @@ export function TaskDialog({
   );
   const [newEnvKey, setNewEnvKey] = useState("");
   const [newEnvValue, setNewEnvValue] = useState("");
+
+  const commandInputRef = useRef<HTMLInputElement>(null);
 
   // Collapsible state
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -276,24 +293,6 @@ export function TaskDialog({
     setDependencies(dependencies.filter((_, i) => i !== index));
   };
 
-  const addTaskArgument = () => {
-    if (newArgName.trim()) {
-      setTaskArguments([
-        ...taskArguments,
-        {
-          name: newArgName.trim(),
-          default: newArgDefault || undefined,
-        },
-      ]);
-      setNewArgName("");
-      setNewArgDefault("");
-    }
-  };
-
-  const removeTaskArgument = (index: number) => {
-    setTaskArguments(taskArguments.filter((_, i) => i !== index));
-  };
-
   const addInput = () => {
     if (newInput.trim() && !inputs.includes(newInput.trim())) {
       setInputs([...inputs, newInput.trim()]);
@@ -360,13 +359,118 @@ export function TaskDialog({
                 onChange={(e) => setDescription(e.target.value)}
               />
 
-              {/* Command */}
-              <Input
-                label="Command"
-                value={command}
-                onChange={(e) => setCommand(e.target.value)}
-                required
-              />
+              {/* Command & Arguments */}
+              <PreferencesGroup
+                description="You can parameterize the command by adding {{ arguments }} to the command."
+                className="mt-4"
+                nested
+              >
+                <Input
+                  ref={commandInputRef}
+                  label="Command"
+                  value={command}
+                  onChange={(e) => setCommand(e.target.value)}
+                  required
+                  suffix={
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      title="Insert Argument"
+                      onClick={() => {
+                        const input = commandInputRef.current;
+                        if (!input) return;
+
+                        let selStart = input.selectionStart ?? command.length;
+                        let selEnd = input.selectionEnd ?? selStart;
+
+                        // If cursor is inside a {{ }} block, move insertion point after it
+                        for (const match of command.matchAll(
+                          /\{\{[^}]*\}\}/g,
+                        )) {
+                          const matchEnd = match.index + match[0].length;
+                          if (selStart > match.index && selStart < matchEnd) {
+                            selStart = matchEnd;
+                            selEnd = matchEnd;
+                            break;
+                          }
+                        }
+
+                        const selected = command.slice(selStart, selEnd);
+                        const argName = selected.trim() || "variable";
+                        const insertion = `{{ ${argName} }}`;
+
+                        // Use execCommand so Ctrl+Z works
+                        input.focus();
+                        input.setSelectionRange(selStart, selEnd);
+
+                        // execCommand is deprecated but has no replacement for undo support
+                        document.execCommand("insertText", false, insertion);
+
+                        // Select the variable name for easy renaming
+                        requestAnimationFrame(() => {
+                          const nameStart = selStart + 3; // after "{{ "
+                          const nameEnd = nameStart + argName.length;
+                          input.setSelectionRange(nameStart, nameEnd);
+                        });
+                      }}
+                    >
+                      <BracesIcon />
+                    </Button>
+                  }
+                />
+
+                {/* Auto-detected arguments from {{ var }} in command */}
+                {detectedArgNames.map((argName, index) => {
+                  // Default is required if any previous arg has a default
+                  const defaultRequired = detectedArgNames
+                    .slice(0, index)
+                    .some((prev) => !!argDefaults[prev]);
+
+                  return (
+                    <div key={index} className="flex items-center gap-pfx-s">
+                      <Input
+                        label="Argument"
+                        value={argName}
+                        onChange={(e) => {
+                          const newName = e.target.value;
+                          const pattern = new RegExp(
+                            `\\{\\{\\s*${argName}\\s*\\}\\}`,
+                          );
+                          // Remove entire {{ arg }} if name is cleared, otherwise rename
+                          setCommand((prev) =>
+                            prev.replace(
+                              pattern,
+                              newName ? `{{ ${newName} }}` : "",
+                            ),
+                          );
+                          // Transfer default value to new name
+                          setArgDefaults((prev) => {
+                            const { [argName]: value, ...rest } = prev;
+                            if (newName && value != null) {
+                              return { ...rest, [newName]: value };
+                            }
+                            return rest;
+                          });
+                        }}
+                        className="flex-1"
+                      />
+                      <Input
+                        label="Default Value"
+                        value={argDefaults[argName] ?? ""}
+                        onChange={(e) =>
+                          setArgDefaults((prev) => ({
+                            ...prev,
+                            [argName]: e.target.value,
+                          }))
+                        }
+                        required={defaultRequired}
+                        className="flex-1"
+                      />
+                    </div>
+                  );
+                })}
+              </PreferencesGroup>
 
               {/* Advanced Settings */}
               <Collapsible
@@ -419,61 +523,6 @@ export function TaskDialog({
                         variant="ghost"
                         onClick={addDependency}
                         disabled={!newDependency}
-                      >
-                        <CirclePlusIcon />
-                      </Button>
-                    </div>
-                  </PreferencesGroup>
-
-                  {/* Task Arguments */}
-                  <PreferencesGroup
-                    title="Arguments"
-                    description="Add arguments to the command with {{ name }}."
-                    nested
-                  >
-                    {taskArguments.map((arg, index) => (
-                      <div key={index} className="flex items-center gap-pfx-s">
-                        <Input
-                          value={arg.name}
-                          readOnly
-                          placeholder="Name"
-                          className="flex-1"
-                        />
-                        <Input
-                          value={arg.default ?? ""}
-                          readOnly
-                          placeholder="Default"
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => removeTaskArgument(index)}
-                        >
-                          <CircleMinusIcon className="text-destructive" />
-                        </Button>
-                      </div>
-                    ))}
-                    <div className="flex items-center gap-pfx-s">
-                      <Input
-                        value={newArgName}
-                        onChange={(e) => setNewArgName(e.target.value)}
-                        label="Argument Name"
-                        className="flex-1"
-                      />
-                      <Input
-                        value={newArgDefault}
-                        onChange={(e) => setNewArgDefault(e.target.value)}
-                        label="Default Value"
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={addTaskArgument}
-                        disabled={!newArgName.trim()}
                       >
                         <CirclePlusIcon />
                       </Button>
