@@ -1,0 +1,20 @@
+name: Bump Pixi
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # Daily at 8 AM UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-pixi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+      - run: pixi run create-pixi-update-pr
+        env:
+          GH_TOKEN: ${{ github.token }}
