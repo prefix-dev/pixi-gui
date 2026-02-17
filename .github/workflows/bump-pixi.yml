@@ -2,7 +2,7 @@ name: Bump Pixi
 
 on:
   schedule:
-    - cron: '0 8 * * *' # Daily at 8 AM UTC
+    - cron: "0 8 * * *" # Daily at 8 AM UTC
   workflow_dispatch: {}
 
 permissions:
@@ -14,83 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Check for new pixi release
-        id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Extract current ref - handles both tag = "v..." and rev = "..."
-          CURRENT_TAG=$(sed -n 's/.*pixi_api.*tag = "\(v[^"]*\)".*/\1/p' src-tauri/Cargo.toml)
-          CURRENT_REV=$(sed -n 's/.*pixi_api.*rev = "\([^"]*\)".*/\1/p' src-tauri/Cargo.toml)
-          LATEST=$(gh release view --repo prefix-dev/pixi --json tagName -q .tagName)
-
-          {
-            echo "current_tag=$CURRENT_TAG"
-            echo "current_rev=$CURRENT_REV"
-            echo "latest=$LATEST"
-
-            if [ -n "$CURRENT_TAG" ]; then
-              # Tag-based: update if the tag differs from the latest release
-              if [ "$CURRENT_TAG" != "$LATEST" ]; then
-                echo "needs_update=true"
-              fi
-            elif [ -n "$CURRENT_REV" ]; then
-              # Rev-based: update only if the latest release is ahead of the pinned commit
-              STATUS=$(gh api "repos/prefix-dev/pixi/compare/${CURRENT_REV}...${LATEST}" --jq '.status')
-              if [ "$STATUS" = "ahead" ] || [ "$STATUS" = "diverged" ]; then
-                echo "needs_update=true"
-              fi
-            fi
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Check if PR already exists
-        if: steps.check.outputs.needs_update == 'true'
-        id: existing
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          BRANCH="bump-pixi/${{ steps.check.outputs.latest }}"
-          PR=$(gh pr list --head "$BRANCH" --json number -q '.[0].number' || true)
-          if [ -n "$PR" ]; then
-            echo "PR #$PR already exists for $BRANCH"
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - uses: prefix-dev/setup-pixi@v0.9.4
-        if: steps.check.outputs.needs_update == 'true' && steps.existing.outputs.exists != 'true'
-
-      - name: Create bump PR
-        if: steps.check.outputs.needs_update == 'true' && steps.existing.outputs.exists != 'true'
+      - run: pixi run create-pixi-update-pr
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          CURRENT_TAG="${{ steps.check.outputs.current_tag }}"
-          CURRENT_REV="${{ steps.check.outputs.current_rev }}"
-          LATEST="${{ steps.check.outputs.latest }}"
-          BRANCH="bump-pixi/$LATEST"
-
-          git checkout -b "$BRANCH"
-
-          # Handle both tag = "..." and rev = "..." formats
-          if [ -n "$CURRENT_REV" ]; then
-            sed -i "s/rev = \"$CURRENT_REV\"/tag = \"$LATEST\"/" src-tauri/Cargo.toml
-            FROM="rev $CURRENT_REV"
-          else
-            sed -i "s/tag = \"$CURRENT_TAG\"/tag = \"$LATEST\"/" src-tauri/Cargo.toml
-            FROM="$CURRENT_TAG"
-          fi
-
-          cargo update --manifest-path src-tauri/Cargo.toml -p pixi_api
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src-tauri/Cargo.toml src-tauri/Cargo.lock
-          git commit -m "chore: bump pixi to $LATEST"
-          git push origin "$BRANCH"
-
-          gh pr create \
-            --title "chore: bump pixi to $LATEST" \
-            --body "Bumps pixi dependency from $FROM to $LATEST.
-
-          Release notes: https://github.com/prefix-dev/pixi/releases/tag/$LATEST"
