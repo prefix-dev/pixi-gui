@@ -117,10 +117,13 @@ upload-package = "python scripts/upload_package.py"
 [feature.automation.dependencies]
 pygithub = ">=2,<3"
 python = ">=3.14,<3.15"
+tomlkit = ">=0.13,<1"
 
 [feature.automation.tasks]
-check-pixi-update = "python scripts/bump_pixi.py check"
-create-pixi-update-pr = "python scripts/bump_pixi.py pr"
+create-pixi-update-pr = { cmd = "python scripts/bump_pixi.py pr", depends-on = [
+  "update-pixi",
+] }
+update-pixi = "python scripts/bump_pixi.py update"
 
 #
 # Environments
