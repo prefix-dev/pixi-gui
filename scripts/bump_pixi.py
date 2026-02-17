@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Check for new pixi releases and optionally create a PR to bump the version."""
+"""Check for new pixi releases and update the dependency."""
 
 import os
-import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any, cast
 
+import tomlkit
 from github import Github
 
 PIXI_REPO = "prefix-dev/pixi"
@@ -14,20 +15,16 @@ PIXI_GUI_REPO = "prefix-dev/pixi-gui"
 CARGO_TOML = Path("src-tauri/Cargo.toml")
 
 
+def get_pixi_api_dep(toml_content: str) -> dict[str, Any]:
+    """Parse the pixi_api dependency table from a Cargo.toml string."""
+    doc = tomlkit.parse(toml_content)
+    return cast(dict[str, Any], cast(dict[str, Any], doc["dependencies"])["pixi_api"])
+
+
 def get_current_ref() -> tuple[str | None, str | None]:
     """Returns (tag, rev) from pixi_api dependency in Cargo.toml."""
-    content = CARGO_TOML.read_text()
-    for line in content.splitlines():
-        if "pixi_api" not in line:
-            continue
-        tag_match = re.search(r'tag = "(v[^"]+)"', line)
-        if tag_match:
-            return tag_match.group(1), None
-        rev_match = re.search(r'rev = "([^"]+)"', line)
-        if rev_match:
-            return None, rev_match.group(1)
-    msg = "Could not find pixi_api dependency in Cargo.toml"
-    raise ValueError(msg)
+    dep = get_pixi_api_dep(CARGO_TOML.read_text())
+    return dep.get("tag"), dep.get("rev")
 
 
 def needs_update(gh: Github, current_tag: str | None, current_rev: str | None, latest: str) -> bool:
@@ -54,8 +51,8 @@ def check(gh: Github) -> None:
         print("Up to date.")
 
 
-def create_pr(gh: Github) -> None:
-    """Update Cargo.toml, create a branch, and open a PR for the new version."""
+def update(gh: Github) -> None:
+    """Update Cargo.toml and Cargo.lock to the latest pixi release."""
     current_tag, current_rev = get_current_ref()
     latest = gh.get_repo(PIXI_REPO).get_latest_release().tag_name
 
@@ -66,23 +63,14 @@ def create_pr(gh: Github) -> None:
         print("Already up to date, nothing to do.")
         return
 
-    branch = f"bump-pixi/{latest}"
-    from_ref = current_tag or f"rev {current_rev}"
-
-    # Check if PR already exists
-    repo = gh.get_repo(PIXI_GUI_REPO)
-    pulls = list(repo.get_pulls(state="open", head=f"{repo.owner.login}:{branch}"))
-    if pulls:
-        print(f"PR #{pulls[0].number} already exists for {branch}")
-        return
-
     # Update Cargo.toml
-    content = CARGO_TOML.read_text()
-    if current_rev:
-        content = content.replace(f'rev = "{current_rev}"', f'tag = "{latest}"')
-    elif current_tag:
-        content = content.replace(f'tag = "{current_tag}"', f'tag = "{latest}"')
-    CARGO_TOML.write_text(content)
+    doc = tomlkit.parse(CARGO_TOML.read_text())
+    dep = cast(dict[str, Any], cast(dict[str, Any], doc["dependencies"])["pixi_api"])
+    if "rev" in dep:
+        del dep["rev"]
+    dep["tag"] = latest
+    CARGO_TOML.write_text(tomlkit.dumps(doc))
+    subprocess.run(["taplo", "fmt", str(CARGO_TOML)], check=True)
     print(f"Updated Cargo.toml to {latest}")
 
     # Update Cargo.lock
@@ -90,6 +78,41 @@ def create_pr(gh: Github) -> None:
         ["cargo", "update", "--manifest-path", "src-tauri/Cargo.toml", "-p", "pixi_api"],
         check=True,
     )
+
+
+def pr(gh: Github) -> None:
+    """Create branch, commit, push, and open PR. Assumes update was already run."""
+    # Check if there are changes to commit
+    result = subprocess.run(["git", "diff", "--quiet", "src-tauri/"], capture_output=True)
+    if result.returncode == 0:
+        print("No changes to commit.")
+        return
+
+    # Read new version from updated Cargo.toml
+    new_dep = get_pixi_api_dep(CARGO_TOML.read_text())
+    latest = new_dep.get("tag")
+    if not latest:
+        print("Cargo.toml does not have a pixi_api tag. Run update-pixi first.")
+        return
+
+    # Read old version from git HEAD
+    original = subprocess.run(
+        ["git", "show", "HEAD:src-tauri/Cargo.toml"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    old_dep = get_pixi_api_dep(original)
+    from_ref = old_dep.get("tag") or f"rev {old_dep.get('rev')}"
+
+    branch = f"bump-pixi/{latest}"
+
+    # Check if PR already exists
+    repo = gh.get_repo(PIXI_GUI_REPO)
+    pulls = list(repo.get_pulls(state="open", head=f"{repo.owner.login}:{branch}"))
+    if pulls:
+        print(f"PR #{pulls[0].number} already exists for {branch}")
+        return
 
     # Create branch, commit, push
     subprocess.run(["git", "checkout", "-b", branch], check=True)
@@ -102,7 +125,7 @@ def create_pr(gh: Github) -> None:
     subprocess.run(["git", "push", "origin", branch], check=True)
 
     # Create PR
-    pr = repo.create_pull(
+    pr_obj = repo.create_pull(
         title=f"chore: bump pixi to {latest}",
         body=(
             f"Bumps pixi dependency from {from_ref} to {latest}.\n\n"
@@ -111,22 +134,19 @@ def create_pr(gh: Github) -> None:
         head=branch,
         base=repo.default_branch,
     )
-    print(f"Created PR #{pr.number}: {pr.html_url}")
+    print(f"Created PR #{pr_obj.number}: {pr_obj.html_url}")
 
 
 def main() -> None:
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     gh = Github(token) if token else Github()
 
-    if len(sys.argv) < 2 or sys.argv[1] not in ("check", "pr"):
-        print("Usage: bump_pixi.py [check|pr]")
+    commands = {"check": check, "update": update, "pr": pr}
+    if len(sys.argv) < 2 or sys.argv[1] not in commands:
+        print(f"Usage: bump_pixi.py [{'|'.join(commands)}]")
         sys.exit(2)
 
-    command = sys.argv[1]
-    if command == "check":
-        check(gh)
-    elif command == "pr":
-        create_pr(gh)
+    commands[sys.argv[1]](gh)
 
 
 if __name__ == "__main__":
