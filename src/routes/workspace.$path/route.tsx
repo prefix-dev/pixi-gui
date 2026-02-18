@@ -22,6 +22,7 @@ import {
   type Environment,
   type Feature,
   type Workspace,
+  currentPlatform,
   getWorkspace,
   listChannels,
   listEnvironments,
@@ -39,22 +40,32 @@ export interface WorkspaceLoaderData {
   environments: Environment[];
   channels: Record<string, string[]>;
   platforms: Record<string, string[]>;
+  currentPlatform: string;
 }
 
 export const Route = createFileRoute("/workspace/$path")({
   loader: async ({ params: { path } }): Promise<WorkspaceLoaderData> => {
     console.info("Load manifest:", path);
     const workspace = await getWorkspace(path);
-    const [tasks, features, environments, channels, platforms] =
+    const [tasks, features, environments, channels, platforms, hostPlatform] =
       await Promise.all([
         listTask(workspace.root),
         listFeatures(workspace.root),
         listEnvironments(workspace.root),
         listChannels(workspace.root),
         listPlatforms(workspace.root),
+        currentPlatform(),
       ]);
     await addRecentWorkspace(workspace);
-    return { workspace, tasks, features, environments, channels, platforms };
+    return {
+      workspace,
+      tasks,
+      features,
+      environments,
+      channels,
+      platforms,
+      currentPlatform: hostPlatform,
+    };
   },
   staleTime: 1_000,
   onError: async (error) => {

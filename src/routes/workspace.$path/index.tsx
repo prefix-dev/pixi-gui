@@ -1,10 +1,11 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
-import { Bug, CirclePlay, ScrollTextIcon } from "lucide-react";
+import { Bug, CirclePlay, PackageIcon, ScrollTextIcon } from "lucide-react";
 
 import { AppMenu } from "@/components/common/appMenu";
 import { Header } from "@/components/common/header";
 import { Debug } from "@/components/pixi/debug";
 import { Environments } from "@/components/pixi/environments/environments";
+import { Inspect } from "@/components/pixi/inspect/inspect";
 import { Manifest } from "@/components/pixi/manifest/manifest";
 import {
   Tabs,
@@ -48,6 +49,10 @@ function WorkspaceComponent() {
             <CirclePlay />
             Run
           </TabsTrigger>
+          <TabsTrigger value="inspect">
+            <PackageIcon />
+            Inspect
+          </TabsTrigger>
           <TabsTrigger value="manifest">
             <ScrollTextIcon />
             Manifest
@@ -61,6 +66,9 @@ function WorkspaceComponent() {
         </TabsList>
         <TabsContent value="run">
           <Environments />
+        </TabsContent>
+        <TabsContent value="inspect">
+          <Inspect />
         </TabsContent>
         <TabsContent value="manifest">
           <Manifest />

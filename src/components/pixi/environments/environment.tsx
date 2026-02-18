@@ -270,7 +270,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         value={commandInput}
         onChange={(e) => setCommandInput(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && runFreeformTask()}
-        icon={<TerminalIcon className="size-4" />}
+        icon={<TerminalIcon />}
       />
       {filteredCommands.map(([id, { command, editor }]) => (
         <ProcessRow
