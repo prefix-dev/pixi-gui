@@ -91,12 +91,12 @@ export function Environments() {
         <Input
           value={localSearch}
           onChange={(event) => setLocalSearch(event.target.value)}
-          placeholder="Search…"
+          placeholder="Search tasks…"
           autoComplete="off"
           spellCheck={false}
           autoCorrect="off"
           autoFocus={true}
-          icon={<SearchIcon className="size-4" />}
+          icon={<SearchIcon />}
         />
       </div>
       {Object.entries(tasks)

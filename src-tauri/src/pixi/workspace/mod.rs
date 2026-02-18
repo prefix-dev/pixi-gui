@@ -1,5 +1,6 @@
 pub mod add;
 pub mod init;
+pub mod list;
 pub mod reinstall;
 pub mod remove;
 pub mod search;
