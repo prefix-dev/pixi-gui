@@ -84,6 +84,10 @@ export function listPlatforms(
   return invoke<Record<string, string[]>>("list_platforms", { workspace });
 }
 
+export function currentPlatform(): Promise<string> {
+  return invoke<string>("current_platform");
+}
+
 export async function addPlatforms(
   workspace: string,
   platforms: string[],
