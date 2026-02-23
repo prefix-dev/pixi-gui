@@ -1,11 +1,14 @@
 import { getRouteApi } from "@tanstack/react-router";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  BoxIcon,
   ChevronRightIcon,
   Columns3CogIcon,
-  ListIcon,
-  ListTreeIcon,
+  CpuIcon,
+  MaximizeIcon,
+  MinimizeIcon,
   PackageCheckIcon,
   PackageIcon,
   SearchIcon,
@@ -21,23 +24,18 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
 import { Input } from "@/components/shadcn/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
 
 import { type Package, listPackages } from "@/lib/pixi/workspace/list";
 
 type FieldKey =
-  | "requested-spec"
   | "version"
+  | "requested-spec"
   | "build"
   | "license"
   | "size"
@@ -57,12 +55,12 @@ type SortField = "name" | FieldKey;
 type SortDirection = "asc" | "desc";
 
 const FIELD_OPTIONS: { key: FieldKey; label: string }[] = [
-  { key: "requested-spec", label: "Requested Spec" },
   { key: "version", label: "Version" },
+  { key: "requested-spec", label: "Requested Spec" },
   { key: "build", label: "Build" },
   { key: "license", label: "License" },
   { key: "size", label: "Size" },
-  { key: "kind", label: "Package Kind" },
+  { key: "kind", label: "Kind" },
   { key: "timestamp", label: "Timestamp" },
   { key: "platform", label: "Platform" },
   { key: "arch", label: "Architecture" },
@@ -92,10 +90,11 @@ export function Inspect() {
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [visibleFields, setVisibleFields] = useState<Set<FieldKey>>(
-    new Set(["version", "build", "license", "size"]),
+    new Set(["version", "requested-spec", "build", "size"]),
   );
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [maximized, setMaximized] = useState(false);
 
   // Sync local state when URL search changes externally
   useEffect(() => {
@@ -268,10 +267,10 @@ export function Inspect() {
     return (
       <tr
         key={expandKey}
-        className="border-b border-pfxl-card-border last:border-b-0 bg-white hover:bg-pfxgsl-50 dark:border-pfxd-card-border dark:bg-pfxgsd-700 dark:hover:bg-pfxgsd-600"
+        className="bg-white hover:bg-pfxgsl-50 dark:bg-pfxgsd-700 dark:hover:bg-pfxgsd-600"
         onClick={() => setSelectedPackage(pkg)}
       >
-        <td className="px-pfx-m py-pfx-s whitespace-nowrap">
+        <td className="sticky left-0 z-10 px-pfx-m py-pfx-s whitespace-nowrap bg-inherit border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border border-r border-r-pfxl-card-border dark:border-r-pfxd-card-border">
           <div
             className="flex items-center gap-pfx-xs"
             style={depth > 0 ? { paddingLeft: depth * 20 } : undefined}
@@ -301,11 +300,32 @@ export function Inspect() {
             <span className="truncate">{pkg.name}</span>
           </div>
         </td>
-        {activeFields.map((f) => (
-          <td key={f.key} className="px-pfx-m py-pfx-s max-w-64 truncate">
-            {getFieldValue(pkg, f.key)}
-          </td>
-        ))}
+        {activeFields.map((f) => {
+          const value = getFieldValue(pkg, f.key);
+          const isLink =
+            value.startsWith("http://") || value.startsWith("https://");
+          return (
+            <td
+              key={f.key}
+              className="px-pfx-m py-pfx-s whitespace-nowrap border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border"
+            >
+              {isLink ? (
+                <button
+                  type="button"
+                  className="cursor-pointer hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openUrl(value);
+                  }}
+                >
+                  {value}
+                </button>
+              ) : (
+                value
+              )}
+            </td>
+          );
+        })}
       </tr>
     );
   }
@@ -338,57 +358,6 @@ export function Inspect() {
     return rows;
   }
 
-  function renderTable() {
-    return (
-      <div className="overflow-x-auto rounded-pfx-s border border-pfxl-card-border dark:border-pfxd-card-border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-pfxl-card-border bg-white text-left text-pfxgsl-400 dark:border-pfxd-card-border dark:bg-pfxgsd-700">
-              <th
-                className="px-pfx-m py-pfx-s font-medium select-none whitespace-nowrap hover:text-foreground dark:hover:text-pfxgsd-200"
-                onClick={() => toggleSort("name")}
-              >
-                <span className="inline-flex items-center gap-1">
-                  Name
-                  {sortField === "name" &&
-                    (sortDirection === "asc" ? (
-                      <ArrowUpIcon className="size-3" />
-                    ) : (
-                      <ArrowDownIcon className="size-3" />
-                    ))}
-                </span>
-              </th>
-              {activeFields.map((f) => (
-                <th
-                  key={f.key}
-                  className="px-pfx-m py-pfx-s font-medium cursor-pointer select-none whitespace-nowrap hover:text-foreground dark:hover:text-pfxgsd-200"
-                  onClick={() => toggleSort(f.key)}
-                >
-                  <span className="inline-flex items-center gap-1">
-                    {f.label}
-                    {sortField === f.key &&
-                      (sortDirection === "asc" ? (
-                        <ArrowUpIcon className="size-3" />
-                      ) : (
-                        <ArrowDownIcon className="size-3" />
-                      ))}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {treeMode
-              ? sortedTreeRoots.flatMap((pkg) =>
-                  renderTreeRows(pkg, 0, new Set()),
-                )
-              : sortedPackages.map((pkg) => renderTableRow(pkg))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-
   // Determine roots for tree mode
   const roots = filteredPackages.filter((pkg) => pkg.is_explicit);
   const treeRoots = roots.length > 0 ? roots : filteredPackages;
@@ -404,99 +373,191 @@ export function Inspect() {
 
   return (
     <>
-      {/* Toolbar */}
-      <div className="mt-pfx-m flex flex-col gap-pfx-s">
-        <Input
-          value={localSearch}
-          onChange={(event) => setLocalSearch(event.target.value)}
-          placeholder="Search packages…"
-          autoComplete="off"
-          spellCheck={false}
-          autoCorrect="off"
-          icon={<SearchIcon />}
-        />
-        <div className="flex gap-pfx-s">
-          {/* Environment */}
-          <Select
-            value={selectedEnvironment}
-            onValueChange={setSelectedEnvironment}
-          >
-            <SelectTrigger label="Environment" className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[...environments]
-                .sort((a, b) => {
-                  if (a.name === "default") return -1;
-                  if (b.name === "default") return 1;
-                  return a.name.localeCompare(b.name);
-                })
-                .map((env) => (
-                  <SelectItem key={env.name} value={env.name}>
-                    {env.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-
-          {/* Platform */}
-          <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-            <SelectTrigger label="Platform" className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[...availablePlatforms].sort().map((p) => (
-                <SelectItem key={p} value={p}>
-                  {p}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       {/* Content */}
-      <PreferencesGroup
-        title={`${filteredPackages.length} Packages`}
-        headerSuffix={
-          <div className="flex gap-pfx-xs">
-            {/* Field Selection */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="secondary">
-                  <Columns3CogIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Visible Fields</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {FIELD_OPTIONS.map((opt) => (
-                  <DropdownMenuCheckboxItem
-                    key={opt.key}
-                    checked={visibleFields.has(opt.key)}
-                    onCheckedChange={() => toggleField(opt.key)}
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    {opt.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* List/Tree Toggle */}
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setTreeMode((prev) => !prev)}
-            >
-              {treeMode ? <ListIcon /> : <ListTreeIcon />}
-              {treeMode ? "Show All Packages" : "Show Dependency Tree"}
-            </Button>
-          </div>
+      <div
+        className={
+          maximized
+            ? "fixed inset-0 z-50 flex flex-col bg-pfxgsl-50 px-pfx-s pb-pfx-s dark:bg-pfxgsd-800"
+            : undefined
         }
       >
-        {renderTable()}
-      </PreferencesGroup>
+        <PreferencesGroup
+          className={
+            maximized
+              ? "flex flex-1 flex-col min-h-0 [&>div]:flex [&>div]:flex-1 [&>div]:flex-col [&>div]:min-h-0 [&>div]:mt-0! [&>div]:mb-0! [&>div>div:last-child]:flex [&>div>div:last-child]:flex-1 [&>div>div:last-child]:flex-col [&>div>div:last-child]:min-h-0"
+              : "-mt-2"
+          }
+          headerPrefix={
+            <div className="flex items-center gap-pfx-xs">
+              {/* Search */}
+              <Input
+                value={localSearch}
+                onChange={(event) => setLocalSearch(event.target.value)}
+                placeholder="Search…"
+                autoComplete="off"
+                spellCheck={false}
+                autoCorrect="off"
+                icon={<SearchIcon />}
+                size="sm"
+                className="w-48"
+              />
+              {/* Environment */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary">
+                    <BoxIcon />
+                    {selectedEnvironment}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Environment</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuRadioGroup
+                    value={selectedEnvironment}
+                    onValueChange={setSelectedEnvironment}
+                  >
+                    {[...environments]
+                      .sort((a, b) => {
+                        if (a.name === "default") return -1;
+                        if (b.name === "default") return 1;
+                        return a.name.localeCompare(b.name);
+                      })
+                      .map((env) => (
+                        <DropdownMenuRadioItem key={env.name} value={env.name}>
+                          {env.name}
+                        </DropdownMenuRadioItem>
+                      ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {/* Platform */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary">
+                    <CpuIcon />
+                    {selectedPlatform}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Platform</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuRadioGroup
+                    value={selectedPlatform}
+                    onValueChange={setSelectedPlatform}
+                  >
+                    {[...availablePlatforms].sort().map((p) => (
+                      <DropdownMenuRadioItem key={p} value={p}>
+                        {p}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          }
+          headerSuffix={
+            <div className="flex items-center gap-pfx-xs">
+              <span className="text-sm text-pfxgsl-400 mr-2">
+                {filteredPackages.length}{" "}
+                {filteredPackages.length === 1 ? "package" : "packages"}
+                {(() => {
+                  const totalBytes = filteredPackages.reduce(
+                    (sum, pkg) => sum + (pkg.size_bytes ?? 0),
+                    0,
+                  );
+                  return totalBytes > 0 ? ` (${prettyBytes(totalBytes)})` : "";
+                })()}
+              </span>
+              {/* Field Selection */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary">
+                    <Columns3CogIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Visible Fields</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={treeMode}
+                    onCheckedChange={() => setTreeMode((prev) => !prev)}
+                  >
+                    Dependency Tree
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuSeparator />
+                  {FIELD_OPTIONS.map((opt) => (
+                    <DropdownMenuCheckboxItem
+                      key={opt.key}
+                      checked={visibleFields.has(opt.key)}
+                      onCheckedChange={() => toggleField(opt.key)}
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      {opt.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {/* Maximize/Minimize */}
+              <Button
+                variant="secondary"
+                onClick={() => setMaximized((prev) => !prev)}
+              >
+                {maximized ? <MinimizeIcon /> : <MaximizeIcon />}
+              </Button>
+            </div>
+          }
+        >
+          <div
+            className={`overflow-auto rounded-pfx-s border border-pfxl-card-border bg-white dark:border-pfxd-card-border dark:bg-pfxgsd-700 ${maximized ? "flex-1" : "min-h-96 max-h-[calc(100vh-18rem)] -mb-12"}`}
+          >
+            {/* Actual List */}
+            <table className="w-full border-separate border-spacing-0 text-sm">
+              <thead>
+                <tr className="sticky top-0 z-20 bg-white text-left text-pfxgsl-400 dark:bg-pfxgsd-700">
+                  <th
+                    className="sticky left-0 z-30 px-pfx-m py-pfx-s font-medium select-none whitespace-nowrap hover:text-foreground dark:hover:text-pfxgsd-200 bg-white dark:bg-pfxgsd-700 border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border border-r border-r-pfxl-card-border dark:border-r-pfxd-card-border"
+                    onClick={() => toggleSort("name")}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      Package
+                      {sortField === "name" &&
+                        (sortDirection === "asc" ? (
+                          <ArrowUpIcon className="size-3" />
+                        ) : (
+                          <ArrowDownIcon className="size-3" />
+                        ))}
+                    </span>
+                  </th>
+                  {activeFields.map((f) => (
+                    <th
+                      key={f.key}
+                      className="px-pfx-m py-pfx-s font-medium cursor-pointer select-none whitespace-nowrap hover:text-foreground dark:hover:text-pfxgsd-200 border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border"
+                      onClick={() => toggleSort(f.key)}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {f.label}
+                        {sortField === f.key &&
+                          (sortDirection === "asc" ? (
+                            <ArrowUpIcon className="size-3" />
+                          ) : (
+                            <ArrowDownIcon className="size-3" />
+                          ))}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {treeMode
+                  ? sortedTreeRoots.flatMap((pkg) =>
+                      renderTreeRows(pkg, 0, new Set()),
+                    )
+                  : sortedPackages.map((pkg) => renderTableRow(pkg))}
+              </tbody>
+            </table>
+          </div>
+        </PreferencesGroup>
+      </div>
 
       {/* Package detail dialog */}
       {selectedPackage && (
