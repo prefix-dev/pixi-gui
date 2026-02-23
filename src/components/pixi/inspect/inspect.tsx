@@ -33,7 +33,7 @@ import { Input } from "@/components/shadcn/input";
 
 import { type Package, listPackages } from "@/lib/pixi/workspace/list";
 
-type FieldKey =
+type ColumnKey =
   | "version"
   | "requested-spec"
   | "build"
@@ -51,10 +51,10 @@ type FieldKey =
   | "constrains"
   | "depends";
 
-type SortField = "name" | FieldKey;
+type SortColumn = "name" | ColumnKey;
 type SortDirection = "asc" | "desc";
 
-const FIELD_OPTIONS: { key: FieldKey; label: string }[] = [
+const COLUMN_OPTIONS: { key: ColumnKey; label: string }[] = [
   { key: "version", label: "Version" },
   { key: "requested-spec", label: "Requested Spec" },
   { key: "build", label: "Build" },
@@ -89,10 +89,10 @@ export function Inspect() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [visibleFields, setVisibleFields] = useState<Set<FieldKey>>(
+  const [visibleColumns, setVisibleColumns] = useState<Set<ColumnKey>>(
     new Set(["version", "requested-spec", "build", "size"]),
   );
-  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortColumn, setSortColumn] = useState<SortColumn>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [maximized, setMaximized] = useState(false);
 
@@ -168,8 +168,8 @@ export function Inspect() {
     ];
   }
 
-  function toggleField(col: FieldKey) {
-    setVisibleFields((prev) => {
+  function toggleColumn(col: ColumnKey) {
+    setVisibleColumns((prev) => {
       const next = new Set(prev);
       if (next.has(col)) next.delete(col);
       else next.add(col);
@@ -177,16 +177,16 @@ export function Inspect() {
     });
   }
 
-  function toggleSort(field: SortField) {
-    if (sortField === field) {
+  function toggleSort(column: SortColumn) {
+    if (sortColumn === column) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
-      setSortField(field);
+      setSortColumn(column);
       setSortDirection("asc");
     }
   }
 
-  function getFieldValue(pkg: Package, field: FieldKey): string {
+  function getColumnValue(pkg: Package, field: ColumnKey): string {
     switch (field) {
       case "requested-spec":
         return pkg.requested_spec ?? "";
@@ -227,7 +227,7 @@ export function Inspect() {
 
   function comparePackages(a: Package, b: Package): number {
     let result: number;
-    switch (sortField) {
+    switch (sortColumn) {
       case "name":
         result = a.name.localeCompare(b.name);
         break;
@@ -238,8 +238,8 @@ export function Inspect() {
         result = (a.timestamp ?? 0) - (b.timestamp ?? 0);
         break;
       default:
-        result = getFieldValue(a, sortField).localeCompare(
-          getFieldValue(b, sortField),
+        result = getColumnValue(a, sortColumn).localeCompare(
+          getColumnValue(b, sortColumn),
         );
         break;
     }
@@ -300,8 +300,8 @@ export function Inspect() {
             <span className="truncate">{pkg.name}</span>
           </div>
         </td>
-        {activeFields.map((f) => {
-          const value = getFieldValue(pkg, f.key);
+        {activeColumns.map((f) => {
+          const value = getColumnValue(pkg, f.key);
           const isLink =
             value.startsWith("http://") || value.startsWith("https://");
           return (
@@ -362,9 +362,9 @@ export function Inspect() {
   const roots = filteredPackages.filter((pkg) => pkg.is_explicit);
   const treeRoots = roots.length > 0 ? roots : filteredPackages;
 
-  // Visible field columns in display order
-  const activeFields = FIELD_OPTIONS.filter((opt) =>
-    visibleFields.has(opt.key),
+  // Visible columns in display order
+  const activeColumns = COLUMN_OPTIONS.filter((opt) =>
+    visibleColumns.has(opt.key),
   );
 
   // Sort packages
@@ -468,7 +468,7 @@ export function Inspect() {
                   return totalBytes > 0 ? ` (${prettyBytes(totalBytes)})` : "";
                 })()}
               </span>
-              {/* Field Selection */}
+              {/* Column Selection */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary">
@@ -476,7 +476,7 @@ export function Inspect() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Visible Fields</DropdownMenuLabel>
+                  <DropdownMenuLabel>View Settings</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuCheckboxItem
                     checked={treeMode}
@@ -485,11 +485,11 @@ export function Inspect() {
                     Dependency Tree
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuSeparator />
-                  {FIELD_OPTIONS.map((opt) => (
+                  {COLUMN_OPTIONS.map((opt) => (
                     <DropdownMenuCheckboxItem
                       key={opt.key}
-                      checked={visibleFields.has(opt.key)}
-                      onCheckedChange={() => toggleField(opt.key)}
+                      checked={visibleColumns.has(opt.key)}
+                      onCheckedChange={() => toggleColumn(opt.key)}
                       onSelect={(e) => e.preventDefault()}
                     >
                       {opt.label}
@@ -520,7 +520,7 @@ export function Inspect() {
                   >
                     <span className="inline-flex items-center gap-1">
                       Package
-                      {sortField === "name" &&
+                      {sortColumn === "name" &&
                         (sortDirection === "asc" ? (
                           <ArrowUpIcon className="size-3" />
                         ) : (
@@ -528,7 +528,7 @@ export function Inspect() {
                         ))}
                     </span>
                   </th>
-                  {activeFields.map((f) => (
+                  {activeColumns.map((f) => (
                     <th
                       key={f.key}
                       className="px-pfx-m py-pfx-s font-medium cursor-pointer select-none whitespace-nowrap hover:text-foreground dark:hover:text-pfxgsd-200 border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border"
@@ -536,7 +536,7 @@ export function Inspect() {
                     >
                       <span className="inline-flex items-center gap-1">
                         {f.label}
-                        {sortField === f.key &&
+                        {sortColumn === f.key &&
                           (sortDirection === "asc" ? (
                             <ArrowUpIcon className="size-3" />
                           ) : (
