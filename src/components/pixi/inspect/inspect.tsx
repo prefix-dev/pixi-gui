@@ -149,7 +149,12 @@ export function Inspect() {
   // Client-side search filtering
   const needle = localSearch.trim().toLowerCase();
   const filteredPackages = needle
-    ? packages.filter((pkg) => pkg.name.toLowerCase().includes(needle))
+    ? packages.filter((pkg) => {
+        if (pkg.name.toLowerCase().includes(needle)) return true;
+        return COLUMN_OPTIONS.some((col) =>
+          getColumnValue(pkg, col.key).toLowerCase().includes(needle),
+        );
+      })
     : packages;
 
   // Dependency tree
@@ -258,6 +263,25 @@ export function Inspect() {
     });
   }
 
+  function highlightMatch(text: string): React.ReactNode {
+    if (!needle || !text.toLowerCase().includes(needle)) return text;
+    const parts = text.split(
+      new RegExp(`(${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"),
+    );
+    return parts.map((part, i) =>
+      part.toLowerCase() === needle ? (
+        <mark
+          key={i}
+          className="bg-primary/70 dark:bg-primary/50 text-inherit rounded-sm"
+        >
+          {part}
+        </mark>
+      ) : (
+        part
+      ),
+    );
+  }
+
   function renderTableRow(pkg: Package, depth: number = 0, nodeKey?: string) {
     const depNames = treeMode ? getDependencyNames(pkg) : [];
     const hasChildren = depNames.length > 0;
@@ -297,7 +321,7 @@ export function Inspect() {
             ) : (
               <PackageIcon className="size-4 shrink-0 text-pfxgsl-400" />
             )}
-            <span className="truncate">{pkg.name}</span>
+            <span className="truncate">{highlightMatch(pkg.name)}</span>
           </div>
         </td>
         {activeColumns.map((f) => {
@@ -318,10 +342,10 @@ export function Inspect() {
                     openUrl(value);
                   }}
                 >
-                  {value}
+                  {highlightMatch(value)}
                 </button>
               ) : (
-                value
+                highlightMatch(value)
               )}
             </td>
           );
