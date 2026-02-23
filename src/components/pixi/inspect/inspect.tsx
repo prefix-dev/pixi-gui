@@ -85,7 +85,9 @@ export function Inspect() {
   const [selectedPlatform, setSelectedPlatform] =
     useState<string>(currentPlatform);
 
-  const [treeMode, setTreeMode] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "tree" | "inverted-tree">(
+    "list",
+  );
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -144,7 +146,7 @@ export function Inspect() {
   // Reset expanded nodes when switching modes or refetching
   useEffect(() => {
     setExpanded(new Set());
-  }, [treeMode, packages]);
+  }, [viewMode, packages]);
 
   // Client-side search filtering
   const needle = localSearch.trim().toLowerCase();
@@ -171,6 +173,24 @@ export function Inspect() {
           .filter((name) => packageMap.has(name)),
       ),
     ];
+  }
+
+  // Reverse dependency map: package name -> names of packages that depend on it
+  const reverseDeps = new Map<string, string[]>();
+  for (const pkg of packages) {
+    for (const depName of getDependencyNames(pkg)) {
+      if (!reverseDeps.has(depName)) reverseDeps.set(depName, []);
+      reverseDeps.get(depName)!.push(pkg.name);
+    }
+  }
+
+  const treeMode = viewMode !== "list";
+  const invertTree = viewMode === "inverted-tree";
+
+  function getTreeChildNames(pkg: Package): string[] {
+    return invertTree
+      ? (reverseDeps.get(pkg.name) ?? [])
+      : getDependencyNames(pkg);
   }
 
   function toggleColumn(col: ColumnKey) {
@@ -283,8 +303,8 @@ export function Inspect() {
   }
 
   function renderTableRow(pkg: Package, depth: number = 0, nodeKey?: string) {
-    const depNames = treeMode ? getDependencyNames(pkg) : [];
-    const hasChildren = depNames.length > 0;
+    const childNames = treeMode ? getTreeChildNames(pkg) : [];
+    const hasChildren = childNames.length > 0;
     const expandKey = nodeKey ?? pkg.name;
     const isOpen = expanded.has(expandKey);
 
@@ -364,15 +384,15 @@ export function Inspect() {
     const nextVisited = new Set(visited);
     nextVisited.add(pkg.name);
 
-    const depNames = getDependencyNames(pkg);
+    const childNames = getTreeChildNames(pkg);
     const nodeKey = parentKey ? `${parentKey}>${pkg.name}` : pkg.name;
     const isOpen = expanded.has(nodeKey);
 
     const rows: React.ReactNode[] = [renderTableRow(pkg, depth, nodeKey)];
 
     if (isOpen) {
-      for (const depName of depNames.sort()) {
-        const depPkg = packageMap.get(depName);
+      for (const childName of childNames.sort()) {
+        const depPkg = packageMap.get(childName);
         if (depPkg) {
           rows.push(...renderTreeRows(depPkg, depth + 1, nextVisited, nodeKey));
         }
@@ -383,8 +403,14 @@ export function Inspect() {
   }
 
   // Determine roots for tree mode
-  const roots = filteredPackages.filter((pkg) => pkg.is_explicit);
-  const treeRoots = roots.length > 0 ? roots : filteredPackages;
+  // Normal: explicit packages are roots, expand to see their dependencies
+  // Inverted: all packages are roots, expand to see what depends on them
+  const treeRoots = invertTree
+    ? filteredPackages
+    : (() => {
+        const roots = filteredPackages.filter((pkg) => pkg.is_explicit);
+        return roots.length > 0 ? roots : filteredPackages;
+      })();
 
   // Visible columns in display order
   const activeColumns = COLUMN_OPTIONS.filter((opt) =>
@@ -502,12 +528,22 @@ export function Inspect() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>View Settings</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem
-                    checked={treeMode}
-                    onCheckedChange={() => setTreeMode((prev) => !prev)}
+                  <DropdownMenuRadioGroup
+                    value={viewMode}
+                    onValueChange={(v) =>
+                      setViewMode(v as "list" | "tree" | "inverted-tree")
+                    }
                   >
-                    Dependency Tree
-                  </DropdownMenuCheckboxItem>
+                    <DropdownMenuRadioItem value="list">
+                      List
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="tree">
+                      Tree
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="inverted-tree">
+                      Inverted Tree
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
                   <DropdownMenuSeparator />
                   {COLUMN_OPTIONS.map((opt) => (
                     <DropdownMenuCheckboxItem
