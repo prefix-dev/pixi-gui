@@ -6,7 +6,6 @@ export type ColumnKey =
   | "version"
   | "requested-spec"
   | "build"
-  | "build-number"
   | "timestamp"
   | "license"
   | "license-family"
@@ -33,7 +32,7 @@ export interface ColumnDefinition {
 }
 
 export const COLUMNS: ColumnDefinition[] = [
-  { key: "kind", label: "Kind" },
+  { key: "kind", label: "Package Kind" },
   { key: "version", label: "Version" },
   { key: "requested-spec", label: "Requested Spec" },
   { key: "build", label: "Build" },
@@ -48,8 +47,8 @@ export const COLUMNS: ColumnDefinition[] = [
   { key: "arch", label: "Architecture" },
   { key: "noarch", label: "Noarch" },
   { key: "size", label: "Size" },
-  { key: "sha256", label: "SHA256" },
-  { key: "md5", label: "MD5" },
+  { key: "sha256", label: "SHA256 Hash" },
+  { key: "md5", label: "MD5 Hash" },
   { key: "depends", label: "Dependencies" },
   { key: "constrains", label: "Constrains" },
 ];
@@ -123,9 +122,6 @@ export function comparePackages(
       break;
     case "timestamp":
       result = (a.timestamp ?? 0) - (b.timestamp ?? 0);
-      break;
-    case "build-number":
-      result = (a.build_number ?? 0) - (b.build_number ?? 0);
       break;
     default:
       result = getColumnValue(a, sortColumn).localeCompare(

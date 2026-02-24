@@ -181,7 +181,7 @@ function EntryList({
             {isUrl(value) ? (
               <button
                 type="button"
-                className="truncate cursor-pointer hover:underline"
+                className="block max-w-full truncate cursor-pointer hover:underline"
                 onClick={() => openUrl(value)}
               >
                 {value}
