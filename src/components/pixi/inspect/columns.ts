@@ -37,7 +37,6 @@ export const COLUMNS: ColumnDefinition[] = [
   { key: "version", label: "Version" },
   { key: "requested-spec", label: "Requested Spec" },
   { key: "build", label: "Build" },
-  { key: "build-number", label: "Build Number" },
   { key: "timestamp", label: "Timestamp" },
   { key: "license", label: "License" },
   { key: "license-family", label: "License Family" },
@@ -70,8 +69,6 @@ export function getColumnValue(pkg: Package, key: ColumnKey): string {
       return pkg.requested_spec ?? "";
     case "build":
       return pkg.build ?? "";
-    case "build-number":
-      return pkg.build_number != null ? String(pkg.build_number) : "";
     case "timestamp":
       return pkg.timestamp != null
         ? new Date(pkg.timestamp).toLocaleDateString()

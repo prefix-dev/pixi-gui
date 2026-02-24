@@ -526,6 +526,7 @@ export function Inspect() {
       {selectedPackage && (
         <PackageDialog
           pkg={selectedPackage}
+          allPackages={allPackages}
           open={!!selectedPackage}
           onOpenChange={(open) => !open && setSelectedPackage(null)}
         />
