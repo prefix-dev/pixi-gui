@@ -41,7 +41,7 @@ export function PackageRow({
 }: PackageRowProps) {
   return (
     <tr
-      className="bg-white hover:bg-pfxgsl-50 dark:bg-pfxgsd-700 dark:hover:bg-pfxgsd-600"
+      className="cursor-default bg-white hover:bg-pfxgsl-50 dark:bg-pfxgsd-700 dark:hover:bg-pfxgsd-600"
       onClick={() => onSelect(pkg)}
     >
       <td className="sticky left-0 z-10 px-pfx-m py-pfx-s whitespace-nowrap bg-inherit border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border border-r border-r-pfxl-card-border dark:border-r-pfxd-card-border">
