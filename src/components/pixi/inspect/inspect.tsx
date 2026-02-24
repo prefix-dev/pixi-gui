@@ -8,6 +8,7 @@ import {
   Columns3CogIcon,
   CpuIcon,
   MaximizeIcon,
+  MicrochipIcon,
   MinimizeIcon,
   PackageCheckIcon,
   PackageIcon,
@@ -97,6 +98,7 @@ export function Inspect() {
   const [sortColumn, setSortColumn] = useState<SortColumn>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [maximized, setMaximized] = useState(false);
+  const [showVirtualPackages, setShowVirtualPackages] = useState(true);
 
   // Sync local state when URL search changes externally
   useEffect(() => {
@@ -148,20 +150,66 @@ export function Inspect() {
     setExpanded(new Set());
   }, [viewMode, packages]);
 
+  // Extract virtual packages from dependency specs (names starting with "__")
+  const realNames = new Set(packages.map((p) => p.name));
+  const virtualVersions = new Map<string, string>();
+  for (const pkg of packages) {
+    for (const dep of pkg.depends) {
+      const name = dep.split(/[\s[]/)[0];
+      if (name.startsWith("__") && !realNames.has(name)) {
+        const version = dep.slice(name.length).trim();
+        if (!virtualVersions.has(name) || version) {
+          virtualVersions.set(name, version);
+        }
+      }
+    }
+  }
+  const virtualPackages: Package[] = Array.from(virtualVersions.entries()).map(
+    ([name, version]) => ({
+      name,
+      version: version || "",
+      build: null,
+      build_number: null,
+      size_bytes: null,
+      kind: "conda",
+      source: null,
+      license: null,
+      license_family: null,
+      is_explicit: false,
+      is_editable: false,
+      md5: null,
+      sha256: null,
+      arch: null,
+      platform: null,
+      subdir: null,
+      timestamp: null,
+      noarch: null,
+      file_name: null,
+      url: null,
+      requested_spec: null,
+      constrains: [],
+      depends: [],
+      track_features: [],
+    }),
+  );
+  const allPackages = showVirtualPackages
+    ? [...packages, ...virtualPackages]
+    : packages;
+
   // Client-side search filtering
   const needle = localSearch.trim().toLowerCase();
   const filteredPackages = needle
-    ? packages.filter((pkg) => {
+    ? allPackages.filter((pkg) => {
         if (pkg.name.toLowerCase().includes(needle)) return true;
         return COLUMN_OPTIONS.some((col) =>
           getColumnValue(pkg, col.key).toLowerCase().includes(needle),
         );
       })
-    : packages;
+    : allPackages;
 
   // Dependency tree
   const packageMap = new Map<string, Package>();
-  for (const pkg of packages) {
+  for (const pkg of allPackages) {
     packageMap.set(pkg.name, pkg);
   }
 
@@ -177,7 +225,7 @@ export function Inspect() {
 
   // Reverse dependency map: package name -> names of packages that depend on it
   const reverseDeps = new Map<string, string[]>();
-  for (const pkg of packages) {
+  for (const pkg of allPackages) {
     for (const depName of getDependencyNames(pkg)) {
       if (!reverseDeps.has(depName)) reverseDeps.set(depName, []);
       reverseDeps.get(depName)!.push(pkg.name);
@@ -224,6 +272,7 @@ export function Inspect() {
       case "size":
         return pkg.size_bytes != null ? prettyBytes(pkg.size_bytes) : "";
       case "kind":
+        if (pkg.name.startsWith("__")) return "Virtual";
         return pkg.kind === "conda" ? "Conda" : "PyPI";
       case "timestamp":
         return pkg.timestamp != null
@@ -336,7 +385,9 @@ export function Inspect() {
               ) : (
                 <div className="size-5 shrink-0" />
               ))}
-            {pkg.is_explicit ? (
+            {pkg.name.startsWith("__") ? (
+              <MicrochipIcon className="size-4 shrink-0 text-pfxgsl-400" />
+            ) : pkg.is_explicit ? (
               <PackageCheckIcon className="size-4 shrink-0 text-primary" />
             ) : (
               <PackageIcon className="size-4 shrink-0 text-pfxgsl-400" />
@@ -534,16 +585,35 @@ export function Inspect() {
                       setViewMode(v as "list" | "tree" | "inverted-tree")
                     }
                   >
-                    <DropdownMenuRadioItem value="list">
+                    <DropdownMenuRadioItem
+                      value="list"
+                      onSelect={(e) => e.preventDefault()}
+                    >
                       List
                     </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="tree">
+                    <DropdownMenuRadioItem
+                      value="tree"
+                      onSelect={(e) => e.preventDefault()}
+                    >
                       Tree
                     </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="inverted-tree">
+                    <DropdownMenuRadioItem
+                      value="inverted-tree"
+                      onSelect={(e) => e.preventDefault()}
+                    >
                       Inverted Tree
                     </DropdownMenuRadioItem>
                   </DropdownMenuRadioGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={showVirtualPackages}
+                    onCheckedChange={() =>
+                      setShowVirtualPackages((prev) => !prev)
+                    }
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    Show Virtual Packages
+                  </DropdownMenuCheckboxItem>
                   <DropdownMenuSeparator />
                   {COLUMN_OPTIONS.map((opt) => (
                     <DropdownMenuCheckboxItem
