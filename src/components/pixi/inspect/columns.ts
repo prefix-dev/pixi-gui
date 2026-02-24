@@ -71,7 +71,7 @@ export function getColumnValue(pkg: Package, key: ColumnKey): string {
       return pkg.build ?? "";
     case "timestamp":
       return pkg.timestamp != null
-        ? new Date(pkg.timestamp).toLocaleDateString()
+        ? new Date(pkg.timestamp).toLocaleString()
         : "";
     case "license":
       return pkg.license ?? "";
