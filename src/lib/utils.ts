@@ -11,6 +11,10 @@ export function toPixiName(value: string): string {
   return value.toLowerCase().replace(/\s+/g, "-");
 }
 
+export function isUrl(value: string): boolean {
+  return value.startsWith("http://") || value.startsWith("https://");
+}
+
 export const COMMON_PLATFORMS = [
   { id: "win-64", name: "Windows (x64)" },
   { id: "win-arm64", name: "Windows (ARM64)" },

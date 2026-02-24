@@ -1,7 +1,7 @@
-import prettyBytes from "pretty-bytes";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
-import { Row } from "@/components/common/row";
+import { COLUMNS, getColumnValue } from "@/components/pixi/inspect/columns";
 import { Badge } from "@/components/shadcn/badge";
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
 } from "@/components/shadcn/dialog";
 
 import type { Package } from "@/lib/pixi/workspace/list";
+import { isUrl } from "@/lib/utils";
 
 interface PackageDialogProps {
   pkg: Package;
@@ -19,6 +20,12 @@ interface PackageDialogProps {
 }
 
 export function PackageDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
+  const entries = COLUMNS.filter(
+    (c) => c.key !== "depends" && c.key !== "constrains",
+  )
+    .map((col) => ({ col, value: getColumnValue(pkg, col.key) }))
+    .filter((e) => e.value);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -29,122 +36,51 @@ export function PackageDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
           <DialogTitle>{pkg.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto">
-          {/* General */}
-          <PreferencesGroup title="General" nested>
-            <Row
-              title="Package Kind"
-              subtitle={`${pkg.kind === "conda" ? "Conda" : "PyPI"} Package`}
-              property
-            />
-            {pkg.requested_spec && (
-              <Row
-                title="Requested Spec"
-                subtitle={pkg.requested_spec}
-                property
-              />
-            )}
-            <Row title="Version" subtitle={pkg.version} property />
+        <div className="flex flex-col gap-pfx-m overflow-y-auto">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-pfx-l gap-y-pfx-xs text-sm">
+            {entries.map(({ col, value }) => (
+              <div
+                key={col.key}
+                className="col-span-2 grid grid-cols-subgrid items-center"
+              >
+                <dt className="text-pfxgsl-400 whitespace-nowrap">
+                  {col.label}
+                </dt>
+                <dd className="truncate">
+                  {isUrl(value) ? (
+                    <button
+                      type="button"
+                      className="truncate cursor-pointer hover:underline"
+                      onClick={() => openUrl(value)}
+                    >
+                      {value}
+                    </button>
+                  ) : (
+                    value
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
 
-            {pkg.build && <Row title="Build" subtitle={pkg.build} property />}
-
-            {pkg.license && (
-              <Row title="License" subtitle={pkg.license} property />
-            )}
-            {pkg.source && (
-              <Row title="Source" subtitle={pkg.source} property />
-            )}
-
-            <Row
-              title="Explicit Package"
-              subtitle={pkg.is_explicit ? "Yes" : "No"}
-              property
-            />
-            {pkg.is_editable && (
-              <Row title="Editable" subtitle="Yes" property />
-            )}
-          </PreferencesGroup>
-
-          {/* File / Location */}
-          <PreferencesGroup title="Location" nested>
-            {pkg.file_name && (
-              <Row title="File Name" subtitle={pkg.file_name} property />
-            )}
-            {pkg.url && <Row title="URL" subtitle={pkg.url} property />}
-            {pkg.subdir && (
-              <Row title="Subdir" subtitle={pkg.subdir} property />
-            )}
-            {pkg.platform && (
-              <Row title="Platform" subtitle={pkg.platform} property />
-            )}
-            {pkg.arch && <Row title="Arch" subtitle={pkg.arch} property />}
-            {pkg.noarch && (
-              <Row title="Noarch" subtitle={pkg.noarch} property />
-            )}
-          </PreferencesGroup>
-
-          {/* Size & Integrity */}
-          {(pkg.size_bytes != null ||
-            pkg.sha256 ||
-            pkg.md5 ||
-            pkg.timestamp != null) && (
-            <PreferencesGroup title="Size & Integrity" nested>
-              {pkg.size_bytes != null && (
-                <Row
-                  title="Size"
-                  subtitle={prettyBytes(pkg.size_bytes)}
-                  property
-                />
-              )}
-              {pkg.sha256 && (
-                <Row title="SHA256" subtitle={pkg.sha256} property />
-              )}
-              {pkg.md5 && <Row title="MD5" subtitle={pkg.md5} property />}
-              {pkg.timestamp != null && (
-                <Row
-                  title="Timestamp"
-                  subtitle={new Date(pkg.timestamp).toLocaleString()}
-                  property
-                />
-              )}
-            </PreferencesGroup>
-          )}
-
-          {/* Dependencies */}
           {pkg.depends.length > 0 && (
             <PreferencesGroup title="Dependencies" nested>
-              {[...pkg.depends].sort().map((dep) => (
-                <Row
-                  key={dep}
-                  title={dep.split(/[\s[]/)[0]}
-                  subtitle={dep}
-                  property
-                />
-              ))}
+              <div className="flex flex-wrap gap-1">
+                {[...pkg.depends].sort().map((dep) => (
+                  <Badge key={dep} icon="package">
+                    {dep}
+                  </Badge>
+                ))}
+              </div>
             </PreferencesGroup>
           )}
 
-          {/* Constrains */}
           {pkg.constrains.length > 0 && (
             <PreferencesGroup title="Constrains" nested>
-              {[...pkg.constrains].sort().map((c) => (
-                <Row
-                  key={c}
-                  title={c.split(/[\s[]/)[0]}
-                  subtitle={c}
-                  property
-                />
-              ))}
-            </PreferencesGroup>
-          )}
-
-          {/* Track Features */}
-          {pkg.track_features.length > 0 && (
-            <PreferencesGroup title="Track Features" nested>
               <div className="flex flex-wrap gap-1">
-                {pkg.track_features.map((f) => (
-                  <Badge key={f} variant="nested">
-                    {f}
+                {[...pkg.constrains].sort().map((c) => (
+                  <Badge key={c} icon="package">
+                    {c}
                   </Badge>
                 ))}
               </div>

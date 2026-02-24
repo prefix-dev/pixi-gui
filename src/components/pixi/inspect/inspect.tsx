@@ -1,24 +1,30 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
   BoxIcon,
-  ChevronRightIcon,
   Columns3CogIcon,
   CpuIcon,
   MaximizeIcon,
-  MicrochipIcon,
   MinimizeIcon,
-  PackageCheckIcon,
-  PackageIcon,
   SearchIcon,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import { useEffect, useState } from "react";
 
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
+import {
+  COLUMNS,
+  type ColumnKey,
+  DEFAULT_VISIBLE_COLUMNS,
+  type SortColumn,
+  type SortDirection,
+  comparePackages,
+  createVirtualPackage,
+  getColumnValue,
+} from "@/components/pixi/inspect/columns";
 import { PackageDialog } from "@/components/pixi/inspect/packageDialog";
+import { PackageRow } from "@/components/pixi/inspect/packageRow";
 import { Button } from "@/components/shadcn/button";
 import {
   DropdownMenu,
@@ -33,46 +39,6 @@ import {
 import { Input } from "@/components/shadcn/input";
 
 import { type Package, listPackages } from "@/lib/pixi/workspace/list";
-
-type ColumnKey =
-  | "version"
-  | "requested-spec"
-  | "build"
-  | "license"
-  | "size"
-  | "kind"
-  | "timestamp"
-  | "platform"
-  | "arch"
-  | "subdir"
-  | "source"
-  | "file-name"
-  | "url"
-  | "is-editable"
-  | "constrains"
-  | "depends";
-
-type SortColumn = "name" | ColumnKey;
-type SortDirection = "asc" | "desc";
-
-const COLUMN_OPTIONS: { key: ColumnKey; label: string }[] = [
-  { key: "version", label: "Version" },
-  { key: "requested-spec", label: "Requested Spec" },
-  { key: "build", label: "Build" },
-  { key: "license", label: "License" },
-  { key: "size", label: "Size" },
-  { key: "kind", label: "Kind" },
-  { key: "timestamp", label: "Timestamp" },
-  { key: "platform", label: "Platform" },
-  { key: "arch", label: "Architecture" },
-  { key: "subdir", label: "Subdirectory" },
-  { key: "source", label: "Source" },
-  { key: "file-name", label: "File Name" },
-  { key: "url", label: "URL" },
-  { key: "is-editable", label: "Editable" },
-  { key: "constrains", label: "Constrains" },
-  { key: "depends", label: "Dependencies" },
-];
 
 export function Inspect() {
   const { workspace, environments, platforms, currentPlatform } =
@@ -89,16 +55,18 @@ export function Inspect() {
   const [viewMode, setViewMode] = useState<"list" | "tree" | "inverted-tree">(
     "list",
   );
+  const [showVirtualPackages, setShowVirtualPackages] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<Set<ColumnKey>>(
+    new Set(DEFAULT_VISIBLE_COLUMNS),
+  );
+  const [maximized, setMaximized] = useState(false);
+
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [visibleColumns, setVisibleColumns] = useState<Set<ColumnKey>>(
-    new Set(["version", "requested-spec", "build", "size"]),
-  );
+
   const [sortColumn, setSortColumn] = useState<SortColumn>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const [maximized, setMaximized] = useState(false);
-  const [showVirtualPackages, setShowVirtualPackages] = useState(true);
 
   // Sync local state when URL search changes externally
   useEffect(() => {
@@ -150,7 +118,7 @@ export function Inspect() {
     setExpanded(new Set());
   }, [viewMode, packages]);
 
-  // Extract virtual packages from dependency specs (names starting with "__")
+  // Extract virtual packages from dependency specs
   const realNames = new Set(packages.map((p) => p.name));
   const virtualVersions = new Map<string, string>();
   for (const pkg of packages) {
@@ -165,32 +133,7 @@ export function Inspect() {
     }
   }
   const virtualPackages: Package[] = Array.from(virtualVersions.entries()).map(
-    ([name, version]) => ({
-      name,
-      version: version || "",
-      build: null,
-      build_number: null,
-      size_bytes: null,
-      kind: "conda",
-      source: null,
-      license: null,
-      license_family: null,
-      is_explicit: false,
-      is_editable: false,
-      md5: null,
-      sha256: null,
-      arch: null,
-      platform: null,
-      subdir: null,
-      timestamp: null,
-      noarch: null,
-      file_name: null,
-      url: null,
-      requested_spec: null,
-      constrains: [],
-      depends: [],
-      track_features: [],
-    }),
+    ([name, version]) => createVirtualPackage(name, version),
   );
   const allPackages = showVirtualPackages
     ? [...packages, ...virtualPackages]
@@ -201,7 +144,7 @@ export function Inspect() {
   const filteredPackages = needle
     ? allPackages.filter((pkg) => {
         if (pkg.name.toLowerCase().includes(needle)) return true;
-        return COLUMN_OPTIONS.some((col) =>
+        return COLUMNS.some((col) =>
           getColumnValue(pkg, col.key).toLowerCase().includes(needle),
         );
       })
@@ -259,70 +202,6 @@ export function Inspect() {
     }
   }
 
-  function getColumnValue(pkg: Package, field: ColumnKey): string {
-    switch (field) {
-      case "requested-spec":
-        return pkg.requested_spec ?? "";
-      case "version":
-        return pkg.version;
-      case "build":
-        return pkg.build ?? "";
-      case "license":
-        return pkg.license ?? "";
-      case "size":
-        return pkg.size_bytes != null ? prettyBytes(pkg.size_bytes) : "";
-      case "kind":
-        if (pkg.name.startsWith("__")) return "Virtual";
-        return pkg.kind === "conda" ? "Conda" : "PyPI";
-      case "timestamp":
-        return pkg.timestamp != null
-          ? new Date(pkg.timestamp).toLocaleDateString()
-          : "";
-      case "platform":
-        return pkg.platform ?? "";
-      case "arch":
-        return pkg.arch ?? "";
-      case "subdir":
-        return pkg.subdir ?? "";
-      case "source":
-        return pkg.source ?? "";
-      case "file-name":
-        return pkg.file_name ?? "";
-      case "url":
-        return pkg.url ?? "";
-      case "is-editable":
-        return pkg.is_editable ? "Yes" : "";
-      case "constrains":
-        return pkg.constrains.join(", ");
-      case "depends":
-        return pkg.depends.join(", ");
-    }
-  }
-
-  function comparePackages(a: Package, b: Package): number {
-    let result: number;
-    switch (sortColumn) {
-      case "name":
-        result = a.name.localeCompare(b.name);
-        break;
-      case "size":
-        result = (a.size_bytes ?? 0) - (b.size_bytes ?? 0);
-        break;
-      case "timestamp":
-        result = (a.timestamp ?? 0) - (b.timestamp ?? 0);
-        break;
-      default:
-        result = getColumnValue(a, sortColumn).localeCompare(
-          getColumnValue(b, sortColumn),
-        );
-        break;
-    }
-    return (
-      (sortDirection === "asc" ? result : -result) ||
-      a.name.localeCompare(b.name)
-    );
-  }
-
   function toggleExpand(name: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -351,80 +230,6 @@ export function Inspect() {
     );
   }
 
-  function renderTableRow(pkg: Package, depth: number = 0, nodeKey?: string) {
-    const childNames = treeMode ? getTreeChildNames(pkg) : [];
-    const hasChildren = childNames.length > 0;
-    const expandKey = nodeKey ?? pkg.name;
-    const isOpen = expanded.has(expandKey);
-
-    return (
-      <tr
-        key={expandKey}
-        className="bg-white hover:bg-pfxgsl-50 dark:bg-pfxgsd-700 dark:hover:bg-pfxgsd-600"
-        onClick={() => setSelectedPackage(pkg)}
-      >
-        <td className="sticky left-0 z-10 px-pfx-m py-pfx-s whitespace-nowrap bg-inherit border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border border-r border-r-pfxl-card-border dark:border-r-pfxd-card-border">
-          <div
-            className="flex items-center gap-pfx-xs"
-            style={depth > 0 ? { paddingLeft: depth * 20 } : undefined}
-          >
-            {treeMode &&
-              (hasChildren ? (
-                <button
-                  type="button"
-                  className="flex size-5 shrink-0 items-center justify-center rounded-xl hover:bg-primary/75 hover:text-black"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleExpand(expandKey);
-                  }}
-                >
-                  <ChevronRightIcon
-                    className={`size-4 transition-transform duration-150 ${isOpen ? "rotate-90" : ""}`}
-                  />
-                </button>
-              ) : (
-                <div className="size-5 shrink-0" />
-              ))}
-            {pkg.name.startsWith("__") ? (
-              <MicrochipIcon className="size-4 shrink-0 text-pfxgsl-400" />
-            ) : pkg.is_explicit ? (
-              <PackageCheckIcon className="size-4 shrink-0 text-primary" />
-            ) : (
-              <PackageIcon className="size-4 shrink-0 text-pfxgsl-400" />
-            )}
-            <span className="truncate">{highlightMatch(pkg.name)}</span>
-          </div>
-        </td>
-        {activeColumns.map((f) => {
-          const value = getColumnValue(pkg, f.key);
-          const isLink =
-            value.startsWith("http://") || value.startsWith("https://");
-          return (
-            <td
-              key={f.key}
-              className="px-pfx-m py-pfx-s whitespace-nowrap border-b border-b-pfxl-card-border dark:border-b-pfxd-card-border"
-            >
-              {isLink ? (
-                <button
-                  type="button"
-                  className="cursor-pointer hover:underline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openUrl(value);
-                  }}
-                >
-                  {highlightMatch(value)}
-                </button>
-              ) : (
-                highlightMatch(value)
-              )}
-            </td>
-          );
-        })}
-      </tr>
-    );
-  }
-
   function renderTreeRows(
     pkg: Package,
     depth: number,
@@ -439,7 +244,21 @@ export function Inspect() {
     const nodeKey = parentKey ? `${parentKey}>${pkg.name}` : pkg.name;
     const isOpen = expanded.has(nodeKey);
 
-    const rows: React.ReactNode[] = [renderTableRow(pkg, depth, nodeKey)];
+    const rows: React.ReactNode[] = [
+      <PackageRow
+        key={nodeKey}
+        pkg={pkg}
+        depth={depth}
+        nodeKey={nodeKey}
+        treeMode={treeMode}
+        hasChildren={childNames.length > 0}
+        isOpen={isOpen}
+        activeColumns={activeColumns}
+        highlightMatch={highlightMatch}
+        onSelect={setSelectedPackage}
+        onToggleExpand={toggleExpand}
+      />,
+    ];
 
     if (isOpen) {
       for (const childName of childNames.sort()) {
@@ -464,13 +283,13 @@ export function Inspect() {
       })();
 
   // Visible columns in display order
-  const activeColumns = COLUMN_OPTIONS.filter((opt) =>
-    visibleColumns.has(opt.key),
-  );
+  const activeColumns = COLUMNS.filter((opt) => visibleColumns.has(opt.key));
 
   // Sort packages
-  const sortedPackages = [...filteredPackages].sort(comparePackages);
-  const sortedTreeRoots = [...treeRoots].sort(comparePackages);
+  const sort = (a: Package, b: Package) =>
+    comparePackages(a, b, sortColumn, sortDirection);
+  const sortedPackages = [...filteredPackages].sort(sort);
+  const sortedTreeRoots = [...treeRoots].sort(sort);
 
   return (
     <>
@@ -615,7 +434,7 @@ export function Inspect() {
                     Show Virtual Packages
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuSeparator />
-                  {COLUMN_OPTIONS.map((opt) => (
+                  {COLUMNS.map((opt) => (
                     <DropdownMenuCheckboxItem
                       key={opt.key}
                       checked={visibleColumns.has(opt.key)}
@@ -682,7 +501,21 @@ export function Inspect() {
                   ? sortedTreeRoots.flatMap((pkg) =>
                       renderTreeRows(pkg, 0, new Set()),
                     )
-                  : sortedPackages.map((pkg) => renderTableRow(pkg))}
+                  : sortedPackages.map((pkg) => (
+                      <PackageRow
+                        key={pkg.name}
+                        pkg={pkg}
+                        depth={0}
+                        nodeKey={pkg.name}
+                        treeMode={treeMode}
+                        hasChildren={false}
+                        isOpen={false}
+                        activeColumns={activeColumns}
+                        highlightMatch={highlightMatch}
+                        onSelect={setSelectedPackage}
+                        onToggleExpand={toggleExpand}
+                      />
+                    ))}
               </tbody>
             </table>
           </div>
