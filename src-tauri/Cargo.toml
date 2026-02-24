@@ -27,7 +27,7 @@ miette = "7"
 notify = "8"
 notify-debouncer-full = "0.7"
 percent-encoding = "2"
-pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi" }
+pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi", rev = "7bf7c1be384f29a8f894e2b15835b79c39bcc533" }
 portable-pty = "0.9"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
