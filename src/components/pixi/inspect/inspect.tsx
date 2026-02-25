@@ -195,7 +195,12 @@ export function Inspect() {
 
   function toggleSort(column: SortColumn) {
     if (sortColumn === column) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        setSortColumn("name");
+        setSortDirection("asc");
+      }
     } else {
       setSortColumn(column);
       setSortDirection("asc");
