@@ -22,9 +22,9 @@ RUSTC_WRAPPER = "sccache"
 [dependencies]
 compilers = ">=1.11.0,<2"
 pnpm = ">=10.15.0,<11"
-rust = ">=1.92,<1.93"
-rust-src = ">=1.92,<1.93"
-sccache = ">=0.12,<0.13"
+rust = ">=1.93,<1.94"
+rust-src = ">=1.93,<1.94"
+sccache = ">=0.14,<0.15"
 tauri = ">=2.9.2,<3"
 
 [target.linux-64.dependencies]
@@ -56,7 +56,7 @@ actionlint = ">=1.7.9,<2"
 cargo-deny = ">=0.19,<0.20"
 lefthook = ">=2.0.1,<3"
 mypy = ">=1.17.1,<2"
-ruff = ">=0.14,<0.15"
+ruff = ">=0.15,<0.16"
 shellcheck = ">=0.10.0,<0.11"
 taplo = ">=0.10.0,<0.11"
 typos = ">=1.36.1,<2"
@@ -104,7 +104,7 @@ lint-slow = { cmd = "lefthook run pre-push --all-files --force", description = "
 
 [feature.packaging.dependencies]
 python = ">=3.14,<3.15"
-rattler-build = ">=0.55,<0.56"
+rattler-build = ">=0.57,<0.58"
 
 [feature.packaging.tasks]
 build-package = "python scripts/build_package.py"
