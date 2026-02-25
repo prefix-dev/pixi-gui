@@ -70,7 +70,7 @@ export function PreferencesGroup({
         {(title || headerPrefix || headerSuffix) && (
           <div
             className={cn(
-              "flex items-center justify-between gap-pfx-m py-pfx-s",
+              "flex items-center justify-between gap-pfx-m py-pfx-s overflow-hidden",
               stickyHeader &&
                 "sticky top-0 z-10 before:absolute before:inset-y-0 before:-z-10 before:left-[calc(-50vw+50%)] before:right-[calc(-50vw+50%)] bg-pfxgsl-50 dark:bg-pfxgsd-800",
               stickyHeader && isStuck && "before:shadow-md",

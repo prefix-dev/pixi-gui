@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 export const presetIcons = {
   task: GalleryVerticalEndIcon,
   feature: PuzzleIcon,
@@ -29,19 +31,29 @@ interface CircularIconProps {
   children?: ReactNode;
   icon?: PresetIcon;
   size?: "sm" | "md";
+  variant?: "default" | "muted";
+  className?: string;
 }
 
 export function CircularIcon({
   children,
   icon,
   size = "sm",
+  variant = "default",
+  className,
 }: CircularIconProps) {
   const sizeClasses = size === "md" ? "h-12 w-12" : "h-9 w-9";
   const IconComponent = icon ? presetIcons[icon] : null;
 
   return (
     <div
-      className={`flex ${sizeClasses} shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground`}
+      className={cn(
+        `flex ${sizeClasses} shrink-0 items-center justify-center rounded-full`,
+        variant === "muted"
+          ? "bg-pfxgsl-200 text-pfxgsl-500 dark:bg-pfxgsd-600 dark:text-pfxgsl-400"
+          : "bg-primary text-primary-foreground",
+        className,
+      )}
     >
       {IconComponent ? <IconComponent /> : children}
     </div>

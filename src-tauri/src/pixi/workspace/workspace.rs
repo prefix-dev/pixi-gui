@@ -185,6 +185,11 @@ pub async fn remove_platforms<R: Runtime>(
 }
 
 #[tauri::command]
+pub fn current_platform() -> String {
+    Platform::current().to_string()
+}
+
+#[tauri::command]
 pub async fn list_features<R: Runtime>(
     window: Window<R>,
     workspace: PathBuf,

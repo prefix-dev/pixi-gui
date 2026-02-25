@@ -17,11 +17,13 @@ function Input({
   required,
   icon,
   suffix,
+  size = "default",
   ...props
-}: React.ComponentProps<"input"> & {
+}: Omit<React.ComponentProps<"input">, "size"> & {
   label?: string;
   icon?: ReactNode;
   suffix?: ReactNode;
+  size?: "default" | "sm";
 }) {
   if (label) {
     return (
@@ -65,7 +67,9 @@ function Input({
   }
   return (
     <div className={cn("relative", className)}>
-      {icon && <div className={iconClass}>{icon}</div>}
+      {icon && (
+        <div className={cn(iconClass, size === "sm" && "left-3")}>{icon}</div>
+      )}
       <input
         type={type}
         data-slot="input"
@@ -75,13 +79,17 @@ function Input({
         spellCheck="false"
         className={cn(
           baseInputClass,
-          "h-12 px-3.5",
-          icon && "pl-10",
-          suffix && "pr-10",
+          size === "sm" ? "h-9 px-3 text-sm rounded-xl" : "h-12 px-3.5",
+          icon && (size === "sm" ? "pl-9" : "pl-10"),
+          suffix && (size === "sm" ? "pr-9" : "pr-10"),
         )}
         {...props}
       />
-      {suffix && <div className={suffixClass}>{suffix}</div>}
+      {suffix && (
+        <div className={cn(suffixClass, size === "sm" && "right-2")}>
+          {suffix}
+        </div>
+      )}
     </div>
   );
 }
