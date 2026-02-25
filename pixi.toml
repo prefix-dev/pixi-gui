@@ -111,11 +111,26 @@ build-package = "python scripts/build_package.py"
 upload-package = "python scripts/upload_package.py"
 
 #
+# Feature: Automation
+#
+
+[feature.automation.dependencies]
+pygithub = ">=2,<3"
+python = ">=3.14,<3.15"
+tomlkit = ">=0.13,<1"
+
+[feature.automation.tasks]
+create-pixi-update-pr = { cmd = "python scripts/bump_pixi.py pr", depends-on = [
+  "update-pixi",
+] }
+update-pixi = "python scripts/bump_pixi.py update"
+
+#
 # Environments
 #
 
 [environments]
-default = ["lint"]
+default = ["lint", "automation"]
 packaging = { features = ["packaging"], no-default-feature = true }
 
 #
