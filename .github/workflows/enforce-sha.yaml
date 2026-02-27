@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main]
+    branches: [main, bump-pixi]
   pull_request:
 
 name: Security

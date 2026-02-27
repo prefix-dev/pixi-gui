@@ -105,36 +105,45 @@ def pr(gh: Github) -> None:
     old_dep = get_pixi_api_dep(original)
     from_ref = old_dep.get("tag") or f"rev {old_dep.get('rev')}"
 
-    branch = f"bump-pixi/{latest}"
+    # Use a fixed branch name so pushes trigger CI workflows
+    # (PRs created with GITHUB_TOKEN don't trigger pull_request events)
+    branch = "bump-pixi"
 
-    # Check if PR already exists
     repo = gh.get_repo(PIXI_GUI_REPO)
-    pulls = list(repo.get_pulls(state="open", head=f"{repo.owner.login}:{branch}"))
-    if pulls:
-        print(f"PR #{pulls[0].number} already exists for {branch}")
-        return
 
-    # Create branch, commit, push
-    subprocess.run(["git", "checkout", "-b", branch], check=True)
+    # Create branch, commit, force-push
+    subprocess.run(["git", "checkout", "-B", branch], check=True)
     subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=True)
     subprocess.run(
         ["git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"], check=True
     )
     subprocess.run(["git", "add", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock"], check=True)
     subprocess.run(["git", "commit", "-m", f"chore: bump pixi to {latest}"], check=True)
-    subprocess.run(["git", "push", "origin", branch], check=True)
+    subprocess.run(["git", "push", "--force", "origin", branch], check=True)
 
-    # Create PR
-    pr_obj = repo.create_pull(
-        title=f"chore: bump pixi to {latest}",
-        body=(
-            f"Bumps pixi dependency from {from_ref} to {latest}.\n\n"
-            f"Release notes: https://github.com/prefix-dev/pixi/releases/tag/{latest}"
-        ),
-        head=branch,
-        base=repo.default_branch,
-    )
-    print(f"Created PR #{pr_obj.number}: {pr_obj.html_url}")
+    # Create or update PR
+    pulls = list(repo.get_pulls(state="open", head=f"{repo.owner.login}:{branch}"))
+    if pulls:
+        pull = pulls[0]
+        pull.edit(
+            title=f"chore: bump pixi to {latest}",
+            body=(
+                f"Bumps pixi dependency from {from_ref} to {latest}.\n\n"
+                f"Release notes: https://github.com/prefix-dev/pixi/releases/tag/{latest}"
+            ),
+        )
+        print(f"Updated PR #{pull.number}: {pull.html_url}")
+    else:
+        pr_obj = repo.create_pull(
+            title=f"chore: bump pixi to {latest}",
+            body=(
+                f"Bumps pixi dependency from {from_ref} to {latest}.\n\n"
+                f"Release notes: https://github.com/prefix-dev/pixi/releases/tag/{latest}"
+            ),
+            head=branch,
+            base=repo.default_branch,
+        )
+        print(f"Created PR #{pr_obj.number}: {pr_obj.html_url}")
 
 
 def main() -> None:
