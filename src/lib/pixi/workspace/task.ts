@@ -15,6 +15,7 @@ export interface Dependency {
 export interface TaskArgument {
   name: string;
   default?: string;
+  choices?: string[];
 }
 
 export interface ExecuteTask {

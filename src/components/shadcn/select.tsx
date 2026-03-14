@@ -40,8 +40,7 @@ function SelectTrigger({
         "flex h-16 w-full items-center justify-between gap-2 whitespace-nowrap rounded-2xl border font-body text-pfxl-text outline-none transition duration-300 ease-out focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[size=sm]:h-10 data-[size=sm]:px-3 data-[size=sm]:text-sm data-placeholder:text-pfxgsl-400 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2",
         "border-pfxl-card-border bg-white hover:border-pfx-primary-alt focus:border-pfx-primary-alt dark:border-pfxd-card-border dark:bg-pfxgsd-700 dark:text-pfxd-text dark:data-placeholder:text-pfxgsl-400 dark:focus:border-pfx-primary-alt dark:hover:border-pfx-primary-alt",
         "[&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-pfxgsl-400 [&_svg]:pointer-events-none [&_svg]:shrink-0 px-3.5",
-        label &&
-          "peer pt-4 data-placeholder:pt-0 [&_svg:last-child]:mt-[-1rem] data-placeholder:[&_svg:last-child]:mt-0",
+        label && "peer pt-4 [&_svg:last-child]:-mt-pfx-m",
         !label && className,
       )}
       {...props}
@@ -57,7 +56,7 @@ function SelectTrigger({
     return (
       <div className={cn("relative", className)}>
         {trigger}
-        <label className="pointer-events-none absolute left-4 top-5 text-base font-medium text-pfxgsl-400 transition-all duration-100 peer-[:not([data-placeholder])]:top-2 peer-[:not([data-placeholder])]:text-xs">
+        <label className="pointer-events-none absolute left-4 top-2 text-xs font-medium text-pfxgsl-400">
           {label}
         </label>
       </div>

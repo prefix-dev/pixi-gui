@@ -14,6 +14,13 @@ import {
   DialogTitle,
 } from "@/components/shadcn/dialog";
 import { Input } from "@/components/shadcn/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 
 import type { TaskArgument } from "@/lib/pixi/workspace/task";
 import {
@@ -94,6 +101,40 @@ export function TaskArgumentsDialog({
               taskArguments.map((argument) => {
                 const isPath = isPathArgument(argument.name);
                 const isDirectory = isDirectoryArgument(argument.name);
+
+                if (argument.choices && argument.choices.length > 0) {
+                  return (
+                    <Select
+                      key={argument.name}
+                      value={values.values[argument.name] || undefined}
+                      onValueChange={(value) =>
+                        setValues({
+                          values: {
+                            ...values.values,
+                            [argument.name]: value,
+                          },
+                        })
+                      }
+                      required={!argument.default}
+                    >
+                      <SelectTrigger
+                        id={`arg-${argument.name}`}
+                        label={argument.name}
+                      >
+                        <SelectValue
+                          placeholder={argument.default ?? "Select…"}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {argument.choices.map((choice) => (
+                          <SelectItem key={choice} value={choice}>
+                            {choice}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }
 
                 return (
                   <Input
