@@ -1,0 +1,135 @@
+name: Release Installer
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build-installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact-name: windows-installer-x64
+          - os: macos-latest
+            artifact-name: macos-installer-arm64
+          - os: macos-15-intel
+            artifact-name: macos-installer-x64
+          - os: ubuntu-latest
+            artifact-name: linux-installer-x64
+    runs-on: ${{ matrix.os }}
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      ACTIONS_CACHE_SERVICE_V2: on
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Configure sccache
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - uses: prefix-dev/setup-pixi@v0.9.4
+
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Setting version to $VERSION"
+          sed -i.bak "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+          rm -f src-tauri/Cargo.toml.bak
+
+      # macOS needs WebKit framework linking flag
+      - name: Set macOS build flags
+        if: runner.os == 'macOS'
+        run: echo "RUSTFLAGS=-l framework=WebKit" >> "$GITHUB_ENV"
+
+      # Windows: Shorten CARGO_HOME path to avoid "path too long" issues in CI
+      - name: Fix Windows long paths
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          if not exist C:\cargo-home mkdir C:\cargo-home
+          echo CARGO_HOME=C:\cargo-home>> %GITHUB_ENV%
+
+      - name: Build installer
+        run: pixi run build-installer
+
+      - name: Show sccache stats
+        run: pixi run sccache --stop-server
+
+      # Windows: Sign the NSIS installer with Azure Trusted Signing
+      - name: Sign Windows installer
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
+        uses: azure/trusted-signing-action@07c81171dd46a04e1b9f382b6c693815828bbbf7 # v0.5.0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ secrets.AZURE_ENDPOINT }}
+          trusted-signing-account-name: ${{ secrets.AZURE_CODE_SIGNING_NAME }}
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: src-tauri/target/release/bundle/nsis
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Upload Windows installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: src-tauri/target/release/bundle/nsis/*.exe
+
+      - name: Upload macOS installer
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: src-tauri/target/release/bundle/dmg/*.dmg
+
+      - name: Upload Linux installer
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: |
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
+
+  create-release:
+    needs: build-installer
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          merge-multiple: true
+          path: release-artifacts
+
+      - name: List release artifacts
+        run: ls -lhR release-artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: release-artifacts/*
