@@ -111,6 +111,13 @@ def pr(gh: Github) -> None:
 
     repo = gh.get_repo(PIXI_GUI_REPO)
 
+    # Delete any stale refs under `bump-pixi/*` left over from an earlier naming
+    # scheme. They turn `bump-pixi` into a ref directory and make the push below
+    # fail with "directory file conflict".
+    for ref in repo.get_git_matching_refs(f"heads/{branch}/"):
+        print(f"Deleting stale ref {ref.ref}")
+        ref.delete()
+
     # Create branch, commit, force-push
     subprocess.run(["git", "checkout", "-B", branch], check=True)
     subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=True)
