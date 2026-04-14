@@ -62,20 +62,18 @@ export function DependencyVersionPicker({
 
       try {
         const results = await searchExact(workspaceRoot, { name: packageName });
-        if (results) {
-          // Group by version and keep only the latest build for each version
-          const versionMap = new Map<string, RepoDataRecord>();
+        // Group by version and keep only the latest build for each version
+        const versionMap = new Map<string, RepoDataRecord>();
 
-          for (const record of results) {
-            const existing = versionMap.get(record.version);
-            if (!existing || record.build_number > existing.build_number) {
-              versionMap.set(record.version, record);
-            }
+        for (const record of results) {
+          const existing = versionMap.get(record.version);
+          if (!existing || record.build_number > existing.build_number) {
+            versionMap.set(record.version, record);
           }
-
-          const uniqueVersions = Array.from(versionMap.values()).reverse();
-          setAvailableVersions(uniqueVersions);
         }
+
+        const uniqueVersions = Array.from(versionMap.values()).reverse();
+        setAvailableVersions(uniqueVersions);
       } catch (err) {
         setError(`Failed to list available versions: ${err}`);
       } finally {

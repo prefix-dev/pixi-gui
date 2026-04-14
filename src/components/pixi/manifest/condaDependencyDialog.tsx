@@ -132,7 +132,7 @@ export function CondaDependencyDialog({
 
         // Only update if this is still the most recent search
         if (currentSearchId === searchIdRef.current) {
-          setSearchResults(results ?? []);
+          setSearchResults(results);
         }
       } catch (err) {
         // Only show error if this is still the most recent search

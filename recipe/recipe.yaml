@@ -16,6 +16,13 @@ build:
       then:
         # WebKit framework linking for macOS, see https://crates.io/crates/wry/0.37.0
         - export RUSTFLAGS="-l framework=WebKit"
+    - if: target_platform == "osx-64"
+      then:
+        # aws-lc-sys' cc_builder panics under the conda-forge
+        # x86_64-apple-darwin cross toolchain. Force its cmake builder path on
+        # intel mac only; arm64 and the other platforms build fine with
+        # cc_builder and cmake itself fails a test-compile probe on arm64.
+        - export AWS_LC_SYS_CMAKE_BUILDER=1
     - if: unix
       then:
         - export RUSTC_WRAPPER=sccache
@@ -69,6 +76,12 @@ requirements:
     - if: linux
       then:
         - pkg-config
+        - make
+    - if: target_platform == "osx-64"
+      then:
+        # Required by aws-lc-sys' cmake builder (see AWS_LC_SYS_CMAKE_BUILDER
+        # export in the build script).
+        - cmake
         - make
   host:
     - if: linux
