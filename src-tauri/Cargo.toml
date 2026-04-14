@@ -27,7 +27,7 @@ miette = "7"
 notify = "8"
 notify-debouncer-full = "0.7"
 percent-encoding = "2"
-pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi", tag = "v0.67.0" }
+pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi", tag = "v0.65.0" }
 portable-pty = "0.9"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -58,8 +58,8 @@ tauri-plugin-single-instance = "2"
 # This is a temporary patch to get `cargo vendor` to work with the `uv` and pep508_rs` crates.
 reqwest-middleware = { git = "https://github.com/astral-sh/reqwest-middleware", rev = "7650ed76215a962a96d94a79be71c27bffde7ab2" }
 reqwest-retry = { git = "https://github.com/astral-sh/reqwest-middleware", rev = "7650ed76215a962a96d94a79be71c27bffde7ab2" }
-tao = { git = "https://github.com/tauri-apps/tao.git", branch = "dev" }
 version-ranges = { git = "https://github.com/astral-sh/pubgrub", rev = "d8efd77673c9a90792da9da31b6c0da7ea8a324b" }
+tao = { git = "https://github.com/tauri-apps/tao.git", branch = "dev" }
 
 # Enable a small amount of optimization in the dev profile.
 [profile.dev]
