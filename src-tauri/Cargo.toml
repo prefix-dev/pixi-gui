@@ -29,9 +29,13 @@ notify-debouncer-full = "0.7"
 percent-encoding = "2"
 pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi", tag = "v0.67.0" }
 portable-pty = "0.9"
+# Pinned to avoid picking up a semver-broken 0.44.5 release that adds a
+# `license_family` field pixi v0.67.0's `pixi_spec` crate doesn't know about.
+rattler_conda_types = { version = "=0.44.4", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 strip-ansi-escapes = "0.2"
+strsim = "0.11"
 tauri = { version = "2", features = ["devtools"] }
 tauri-plugin-dialog = "2"
 tauri-plugin-log = "2"

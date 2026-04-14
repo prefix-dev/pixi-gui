@@ -13,6 +13,7 @@ count.txt
 # pixi environments
 .pixi
 *.conda
+.pnpm-store
 
 # Local environment files
 *.local.*
