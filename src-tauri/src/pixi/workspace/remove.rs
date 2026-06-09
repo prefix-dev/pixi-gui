@@ -32,7 +32,8 @@ pub async fn remove_conda_deps<R: Runtime>(
 
         Ok(utils::workspace_context(window, workspace)?
             .remove_conda_deps(specs, SpecType::Run, dep_options)
-            .await?)
+            .await
+            .map_err(miette::Report::new)?)
     })
     .await
 }
@@ -52,7 +53,8 @@ pub async fn remove_pypi_deps<R: Runtime>(
 
         utils::workspace_context(window, workspace)?
             .remove_pypi_deps(pypi_deps, dep_options)
-            .await?;
+            .await
+            .map_err(miette::Report::new)?;
 
         Ok(())
     })

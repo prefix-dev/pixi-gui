@@ -7,7 +7,9 @@ use crate::{
 use miette::{Context, IntoDiagnostic};
 use pixi_api::{
     manifest::FeaturesExt,
-    rattler_conda_types::{MatchSpec, Platform, RepoDataRecord},
+    rattler_conda_types::{
+        MatchSpec, ParseStrictness, ParseStrictnessWithNameMatcher, Platform, RepoDataRecord,
+    },
 };
 use tauri::{Runtime, Window};
 
@@ -30,9 +32,23 @@ pub async fn search_wildcard<R: Runtime>(
         .into_diagnostic()
         .wrap_err("Failed to parse channels")?;
 
-    Ok(ctx
-        .search_wildcard(package_name_filter, channels, Platform::current())
-        .await?)
+    let match_spec = MatchSpec::from_str(
+        package_name_filter,
+        ParseStrictnessWithNameMatcher {
+            parse_strictness: ParseStrictness::Lenient,
+            exact_names_only: false,
+        },
+    )
+    .into_diagnostic()?;
+
+    Ok(Some(
+        ctx.search(
+            match_spec,
+            channels,
+            vec![Platform::current(), Platform::NoArch],
+        )
+        .await?,
+    ))
 }
 
 #[tauri::command]
@@ -54,7 +70,12 @@ pub async fn search_exact<R: Runtime>(
         .into_diagnostic()
         .wrap_err("Failed to parse channels")?;
 
-    Ok(ctx
-        .search_exact(match_spec, channels, Platform::current())
-        .await?)
+    Ok(Some(
+        ctx.search(
+            match_spec,
+            channels,
+            vec![Platform::current(), Platform::NoArch],
+        )
+        .await?,
+    ))
 }
