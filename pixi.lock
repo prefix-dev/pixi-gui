@@ -170,7 +170,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-64/ruby-3.4.8-h498564d_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/ruff-0.15.2-h40fa522_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/rust-1.94.0-h53717f1_0.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/sccache-0.14.0-he64ecbb_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/sccache-0.15.0-he64ecbb_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/shellcheck-0.11.0-ha770c72_1.conda
       - conda: https://prefix.dev/conda-forge/linux-64/svt-av1-4.0.0-hecca717_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/taplo-0.10.0-h2d22210_1.conda
@@ -335,7 +335,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/osx-64/readline-8.3-h68b038d_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/ruff-0.15.2-h8ee721d_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/rust-1.94.0-h5655b98_0.conda
-      - conda: https://prefix.dev/conda-forge/osx-64/sccache-0.14.0-h4728fb8_0.conda
+      - conda: https://prefix.dev/conda-forge/osx-64/sccache-0.15.0-h19f9e61_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/shellcheck-0.11.0-h7dd6a17_1.conda
       - conda: https://prefix.dev/conda-forge/osx-64/sigtool-codesign-0.1.3-hc0f2934_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/tapi-1600.0.11.8-h8d8e812_0.conda
@@ -450,7 +450,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/osx-arm64/readline-8.3-h46df422_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/ruff-0.15.2-h279115b_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/rust-1.94.0-h4ff7c5d_0.conda
-      - conda: https://prefix.dev/conda-forge/osx-arm64/sccache-0.14.0-h6fdd925_0.conda
+      - conda: https://prefix.dev/conda-forge/osx-arm64/sccache-0.15.0-h6fdd925_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/shellcheck-0.11.0-hecfb573_1.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/sigtool-codesign-0.1.3-h98dc951_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/tapi-1600.0.11.8-h997e182_0.conda
@@ -533,7 +533,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/win-64/python-librt-0.8.1-py314hc5dbbe4_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/ruff-0.15.2-h213852a_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/rust-1.94.0-hf8d6059_0.conda
-      - conda: https://prefix.dev/conda-forge/win-64/sccache-0.14.0-h18a1a76_0.conda
+      - conda: https://prefix.dev/conda-forge/win-64/sccache-0.15.0-h18a1a76_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/shellcheck-0.11.0-h57928b3_1.conda
       - conda: https://prefix.dev/conda-forge/win-64/taplo-0.10.0-h63977a8_1.conda
       - conda: https://prefix.dev/conda-forge/win-64/tauri-2.10.0-h18a1a76_0.conda
@@ -2727,19 +2727,20 @@ packages:
   license_family: MIT
   size: 178422821
   timestamp: 1773066893036
-- conda: https://prefix.dev/conda-forge/linux-64/sccache-0.14.0-he64ecbb_0.conda
-  sha256: 83f881b318b9a39723ee8b5f0a5329240b4b65c692a8a998d4217333b8c801d4
-  md5: 513b2505df7c927f2f048aa2e3f48f7d
+- conda: https://prefix.dev/conda-forge/linux-64/sccache-0.15.0-he64ecbb_0.conda
+  sha256: ab458d0774e3ab2a975249c5b086e2595a92e8cc0939eff1171b8421e5a72cd9
+  md5: 8d9e0ce221ac64406e7eb6092f335922
   depends:
-  - __glibc >=2.17,<3.0.a0
   - libgcc >=14
-  - openssl >=3.5.5,<4.0a0
+  - __glibc >=2.17,<3.0.a0
+  - openssl >=3.5.6,<4.0a0
   constrains:
   - __glibc >=2.17
   license: Apache-2.0
   license_family: APACHE
-  size: 6181856
-  timestamp: 1770690886352
+  run_exports: {}
+  size: 6137086
+  timestamp: 1777489973035
 - conda: https://prefix.dev/conda-forge/linux-64/shellcheck-0.11.0-ha770c72_1.conda
   sha256: 09335c4ce927c3c47ffbe4f13c18b21cc0bf7b661dba8f7caba699f9e9f26bf3
   md5: 59f8f9cfb1dc2f62abdca662823e052a
@@ -4534,17 +4535,18 @@ packages:
   license_family: MIT
   size: 201469684
   timestamp: 1773066100586
-- conda: https://prefix.dev/conda-forge/osx-64/sccache-0.14.0-h4728fb8_0.conda
-  sha256: 540a53afa16eff7f2dce5c2d313cde1e386d2809f332575c2f542f6540150ab6
-  md5: 4e34b4df5ebaf47994b41ef370d9a0f3
+- conda: https://prefix.dev/conda-forge/osx-64/sccache-0.15.0-h19f9e61_0.conda
+  sha256: 70a3487c27d1fdf9b56b160a73f8765220e9fbc87a138fdc4e9b389c30a68803
+  md5: 51c3d9126fa1618db37c2d933ac092d4
   depends:
-  - __osx >=10.13
+  - __osx >=11.0
   constrains:
   - __osx >=10.13
   license: Apache-2.0
   license_family: APACHE
-  size: 6118272
-  timestamp: 1770690899286
+  run_exports: {}
+  size: 6075970
+  timestamp: 1777490069502
 - conda: https://prefix.dev/conda-forge/osx-64/shellcheck-0.11.0-h7dd6a17_1.conda
   sha256: b78a4e62565565fb61ee9c27da1559c92a105d09f244779c3c8ed3ff77d08577
   md5: 85b923438e74e1828639a39f674e5958
@@ -5564,17 +5566,18 @@ packages:
   license_family: MIT
   size: 183759788
   timestamp: 1773066599252
-- conda: https://prefix.dev/conda-forge/osx-arm64/sccache-0.14.0-h6fdd925_0.conda
-  sha256: eb41fa276fcbebcf7c4ce4223988af0ef40ee97a724fca39547508868375249a
-  md5: 5ca50d2b2df57a9d08c8ea1ecf1425f1
+- conda: https://prefix.dev/conda-forge/osx-arm64/sccache-0.15.0-h6fdd925_0.conda
+  sha256: 21fb497f5303908dacc9a7d0fb83716bba834292ac5f6897b9c496fe03e2cc58
+  md5: 44d19b2ccbb9c401d722afc37d84e99c
   depends:
   - __osx >=11.0
   constrains:
   - __osx >=11.0
   license: Apache-2.0
   license_family: APACHE
-  size: 5643269
-  timestamp: 1770690917645
+  run_exports: {}
+  size: 5586622
+  timestamp: 1777490021733
 - conda: https://prefix.dev/conda-forge/osx-arm64/shellcheck-0.11.0-hecfb573_1.conda
   sha256: 71a76120f2230e941fd943276cc9653986af4f2d47210a3b35ff13e2297c3c77
   md5: 16c849ba724a6d59132a3b7547e2bd36
@@ -6222,17 +6225,18 @@ packages:
   license_family: MIT
   size: 196531421
   timestamp: 1773068659416
-- conda: https://prefix.dev/conda-forge/win-64/sccache-0.14.0-h18a1a76_0.conda
-  sha256: 7a2cbb5c405e8ec04cf9d77f8d567cb57a3b8e2cb875b8962795edd9569dedb7
-  md5: 531701ba481a1f2f3228f3f077a0e97a
+- conda: https://prefix.dev/conda-forge/win-64/sccache-0.15.0-h18a1a76_0.conda
+  sha256: 0ffbd1c29869cd6aaa6b2c4325e4517b1f0a20ab5d67abb44f300673f0ac22fb
+  md5: bcefcd32def7cdbc05c599ee36ac6f34
   depends:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   - ucrt >=10.0.20348.0
   license: Apache-2.0
   license_family: APACHE
-  size: 6698663
-  timestamp: 1770690927791
+  run_exports: {}
+  size: 6678302
+  timestamp: 1777489990123
 - conda: https://prefix.dev/conda-forge/win-64/shellcheck-0.11.0-h57928b3_1.conda
   sha256: 8bbb9dbd770d0fdfc2e6234c0c03ebb5fca5f9ff5718a8e1eb65b3a5d276f5ce
   md5: 3d6d1997bf67f4e6155366acad439bd0

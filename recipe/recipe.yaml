@@ -65,7 +65,9 @@ requirements:
     - cargo-bundle-licenses
     - nodejs
     - pnpm
-    - sccache
+    # Must match the sccache pin in pixi.toml, the client from the default
+    # environment talks to the server started in this build environment
+    - sccache >=0.15,<0.16
     - if: linux
       then:
         - pkg-config
