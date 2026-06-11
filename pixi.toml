@@ -24,7 +24,7 @@ compilers = ">=1.11.0,<2"
 pnpm = ">=10.15.0,<11"
 rust = ">=1.94,<1.95"
 rust-src = ">=1.94,<1.95"
-sccache = ">=0.14,<0.15"
+sccache = ">=0.15,<0.16"
 tauri = ">=2.9.2,<3"
 
 [target.linux-64.dependencies]
