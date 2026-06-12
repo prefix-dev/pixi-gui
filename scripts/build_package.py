@@ -42,7 +42,20 @@ def build() -> None:
     env = os.environ.copy()
     env["PIXI_GUI_VERSION"] = pixi_gui_version
 
-    subprocess.run(["pixi", "build", "--verbose"], env=env, check=True)
+    subprocess.run(
+        [
+            "rattler-build",
+            "build",
+            "--recipe",
+            "recipe/recipe.yaml",
+            "--env-isolation",
+            "none",
+            "--channel",
+            "https://prefix.dev/conda-forge",
+        ],
+        env=env,
+        check=True,
+    )
     print("Build completed successfully")
 
 
