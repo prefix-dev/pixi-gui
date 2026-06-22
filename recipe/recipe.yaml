@@ -12,51 +12,66 @@ source:
 build:
   number: 0
   script:
-    - if: osx
-      then:
-        # WebKit framework linking for macOS, see https://crates.io/crates/wry/0.37.0
-        - export RUSTFLAGS="-l framework=WebKit"
-    - if: unix
-      then:
-        - export RUSTC_WRAPPER=sccache
-        - unset CI
-        - TARGET=${TARGET:-$(rustc -vV | grep "host:" | awk '{print $2}')}
-        - export CARGO_TARGET_DIR=${{ SRC_DIR }}/../../target-cache
-        - pnpm install
-        - pnpm run tauri build --no-bundle
-        - mkdir -p ${{ PREFIX }}/bin
-        - install -m0755 "$CARGO_TARGET_DIR/$TARGET/release/pixi-gui" "${{ PREFIX }}/bin"
-        - cd ${{ SRC_DIR }}/src-tauri && cargo-bundle-licenses --format yaml --output ../THIRDPARTY.yml
+    # The build runs under rattler-build's default strict environment
+    # isolation, which scrubs the host environment. Forward the variables the
+    # sccache GitHub Actions cache backend needs so caching keeps working.
+    env:
+      SCCACHE_GHA_ENABLED: "${{ env.get('SCCACHE_GHA_ENABLED', default='') }}"
+      ACTIONS_CACHE_SERVICE_V2: "${{ env.get('ACTIONS_CACHE_SERVICE_V2', default='') }}"
+      ACTIONS_RESULTS_URL: "${{ env.get('ACTIONS_RESULTS_URL', default='') }}"
+    secrets:
+      - ACTIONS_RUNTIME_TOKEN
+    content:
+      - if: osx
+        then:
+          # WebKit framework linking for macOS, see https://crates.io/crates/wry/0.37.0
+          - export RUSTFLAGS="-l framework=WebKit"
+      - if: unix
+        then:
+          - export RUSTC_WRAPPER=sccache
+          - unset CI
+          - TARGET=${TARGET:-$(rustc -vV | grep "host:" | awk '{print $2}')}
+          - export CARGO_TARGET_DIR=${{ SRC_DIR }}/../../target-cache
+          - pnpm install
+          - pnpm run tauri build --no-bundle
+          - mkdir -p ${{ PREFIX }}/bin
+          - install -m0755 "$CARGO_TARGET_DIR/$TARGET/release/pixi-gui" "${{ PREFIX }}/bin"
+          - cd ${{ SRC_DIR }}/src-tauri && cargo-bundle-licenses --format yaml --output ../THIRDPARTY.yml
 
-        # menuinst
-        - mkdir -p "${{ PREFIX }}/Menu"
-        - if: osx
-          then:
-            - sed "s/__PKG_VERSION__/${PKG_VERSION}/g" "${{ RECIPE_DIR }}/menu.json" > "${{ PREFIX }}/Menu/${{ PKG_NAME }}_menu.json"
-            - install -m0644 "${{ SRC_DIR }}/src-tauri/icons/icon.icns" "${{ PREFIX }}/Menu/icon.icns"
-        - if: linux
-          then:
-            - install -m0644 "${{ RECIPE_DIR }}/menu.json" "${{ PREFIX }}/Menu/${{ PKG_NAME }}_menu.json"
-            - install -m0644 "${{ SRC_DIR }}/src-tauri/icons/icon.png" "${{ PREFIX }}/Menu/icon.png"
-    - if: win
-      then:
-        # Required to fix "path too long" issues
-        - if not "%GITHUB_ACTIONS%"=="" if not exist C:\\cargo-home mkdir C:\\cargo-home
-        - if not "%GITHUB_ACTIONS%"=="" set CARGO_HOME=C:\\cargo-home
+          # menuinst
+          - mkdir -p "${{ PREFIX }}/Menu"
+          - if: osx
+            then:
+              - sed "s/__PKG_VERSION__/${PKG_VERSION}/g" "${{ RECIPE_DIR }}/menu.json" > "${{ PREFIX }}/Menu/${{ PKG_NAME }}_menu.json"
+              - install -m0644 "${{ SRC_DIR }}/src-tauri/icons/icon.icns" "${{ PREFIX }}/Menu/icon.icns"
+          - if: linux
+            then:
+              - install -m0644 "${{ RECIPE_DIR }}/menu.json" "${{ PREFIX }}/Menu/${{ PKG_NAME }}_menu.json"
+              - install -m0644 "${{ SRC_DIR }}/src-tauri/icons/icon.png" "${{ PREFIX }}/Menu/icon.png"
+      - if: win
+        then:
+          # Required to fix "path too long" issues on CI. GITHUB_ACTIONS is read
+          # at recipe render time, so this applies under the default strict
+          # environment isolation where the variable is not forwarded to the
+          # build script.
+          - if: env.get("GITHUB_ACTIONS", default="")
+            then:
+              - if not exist C:\\cargo-home mkdir C:\\cargo-home
+              - set CARGO_HOME=C:\\cargo-home
 
-        - set RUSTC_WRAPPER=sccache
-        - set CI=
-        - set CARGO_TARGET_DIR=%SRC_DIR%\..\..\target-cache
-        - cmd /c "pnpm install"
-        - cmd /c "pnpm run tauri build --no-bundle"
-        - cmd /c "if not exist %PREFIX%\bin\ mkdir %PREFIX%\bin\"
-        - copy /Y %CARGO_TARGET_DIR%\release\pixi-gui.exe %PREFIX%\bin
-        - cd %SRC_DIR%\src-tauri && cargo-bundle-licenses --format yaml --output ../THIRDPARTY.yml
+          - set RUSTC_WRAPPER=sccache
+          - set CI=
+          - set CARGO_TARGET_DIR=%SRC_DIR%\..\..\target-cache
+          - cmd /c "pnpm install"
+          - cmd /c "pnpm run tauri build --no-bundle"
+          - cmd /c "if not exist %PREFIX%\bin\ mkdir %PREFIX%\bin\"
+          - copy /Y %CARGO_TARGET_DIR%\release\pixi-gui.exe %PREFIX%\bin
+          - cd %SRC_DIR%\src-tauri && cargo-bundle-licenses --format yaml --output ../THIRDPARTY.yml
 
-        # menuinst
-        - mkdir "%PREFIX%\Menu"
-        - copy /Y "%RECIPE_DIR%\menu.json" "%PREFIX%\Menu\%PKG_NAME%_menu.json"
-        - copy /Y "%SRC_DIR%\src-tauri\icons\icon.ico" "%PREFIX%\Menu\icon.ico"
+          # menuinst
+          - mkdir "%PREFIX%\Menu"
+          - copy /Y "%RECIPE_DIR%\menu.json" "%PREFIX%\Menu\%PKG_NAME%_menu.json"
+          - copy /Y "%SRC_DIR%\src-tauri\icons\icon.ico" "%PREFIX%\Menu\icon.ico"
 
 requirements:
   build:

@@ -48,8 +48,6 @@ def build() -> None:
             "build",
             "--recipe",
             "recipe/recipe.yaml",
-            "--env-isolation",
-            "none",
             "--channel",
             "https://prefix.dev/conda-forge",
         ],
