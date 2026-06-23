@@ -75,6 +75,11 @@ build:
           - copy /Y "%RECIPE_DIR%\menu.json" "%PREFIX%\Menu\%PKG_NAME%_menu.json"
           - copy /Y "%SRC_DIR%\src-tauri\icons\icon.ico" "%PREFIX%\Menu\icon.ico"
 
+      # Stop the sccache server so it releases its file handles on the build
+      # tree. On Windows those open handles block rattler-build from cleaning up
+      # before the test phase, which fails with "Access is denied".
+      - sccache --stop-server
+
 requirements:
   build:
     - ${{ compiler('rust') }}

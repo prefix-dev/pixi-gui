@@ -70,9 +70,6 @@ jobs:
           RATTLER_BUILD_ENABLE_GITHUB_INTEGRATION: true
           RATTLER_BUILD_COLOR: always
 
-      - name: Show sccache stats
-        run: pixi run sccache --stop-server
-
       - name: Upload package
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: pixi run --environment=packaging upload-package
@@ -101,9 +98,6 @@ jobs:
         env:
           RATTLER_BUILD_ENABLE_GITHUB_INTEGRATION: true
           RATTLER_BUILD_COLOR: always
-
-      - name: Show sccache stats
-        run: pixi run sccache --stop-server
 
       - name: Upload package
         run: pixi run --environment=packaging upload-package
