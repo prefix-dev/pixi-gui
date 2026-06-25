@@ -5,6 +5,7 @@ use std::str::FromStr;
 use indexmap::IndexSet;
 use pixi_api::manifest::HasFeaturesIter;
 use pixi_api::manifest::{EnvironmentName, FeatureName, PrioritizedChannel};
+use pixi_api::manifest::{PixiPlatform, PixiPlatformName};
 use pixi_api::manifest::{Task, TaskName};
 use pixi_api::pypi_spec::{PixiPypiSpec, PypiPackageName};
 use pixi_api::rattler_conda_types::{NamedChannelOrUrl, PackageName, Platform};
@@ -142,7 +143,7 @@ pub async fn set_channels<R: Runtime>(
 pub async fn list_platforms<R: Runtime>(
     window: Window<R>,
     workspace: PathBuf,
-) -> Result<HashMap<EnvironmentName, Vec<Platform>>, Error> {
+) -> Result<HashMap<EnvironmentName, Vec<PixiPlatformName>>, Error> {
     Ok(utils::workspace_context(window, workspace)?
         .list_platforms()
         .await)
@@ -158,7 +159,11 @@ pub async fn add_platforms<R: Runtime>(
 ) -> Result<(), Error> {
     spawn_local(move || async move {
         utils::workspace_context(window, workspace)?
-            .add_platforms(platforms, no_install, feature)
+            .add_platforms(
+                platforms.into_iter().map(PixiPlatform::from).collect(),
+                no_install,
+                feature,
+            )
             .await?;
 
         Ok(())
@@ -176,7 +181,11 @@ pub async fn remove_platforms<R: Runtime>(
 ) -> Result<(), Error> {
     spawn_local(move || async move {
         utils::workspace_context(window, workspace)?
-            .remove_platforms(platforms, no_install, feature)
+            .remove_platforms(
+                platforms.into_iter().map(PixiPlatform::from).collect(),
+                no_install,
+                feature,
+            )
             .await?;
 
         Ok(())

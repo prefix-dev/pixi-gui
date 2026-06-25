@@ -12,7 +12,10 @@ pub async fn list_tasks<R: Runtime>(
 ) -> Result<HashMap<EnvironmentName, HashMap<TaskName, Task>>, Error> {
     Ok(utils::workspace_context(window, workspace)?
         .list_tasks(None)
-        .await?)
+        .await?
+        .into_iter()
+        .map(|(environment, (_runnability, tasks))| (environment, tasks))
+        .collect())
 }
 
 #[tauri::command]
