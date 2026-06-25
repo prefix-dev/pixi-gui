@@ -5,7 +5,8 @@ use crate::{
     utils::{self, spawn_local},
 };
 use pixi_api::{
-    core::environment::LockFileUsage, rattler_conda_types::Platform, workspace::Package,
+    core::environment::LockFileUsage, manifest::PixiPlatformName, rattler_conda_types::Platform,
+    workspace::Package,
 };
 use tauri::{Runtime, Window};
 
@@ -22,8 +23,11 @@ pub async fn list_packages<R: Runtime>(
     lock_file_usage: LockFileUsage,
 ) -> Result<Vec<Package>, Error> {
     spawn_local(move || async move {
-        let platform: Option<Platform> =
-            platform.map(|p| p.parse::<Platform>()).transpose().unwrap();
+        let platform: Option<PixiPlatformName> = platform
+            .map(|p| p.parse::<Platform>())
+            .transpose()
+            .unwrap()
+            .map(PixiPlatformName::from);
 
         let packages = utils::workspace_context(window, workspace)?
             .list_packages(
