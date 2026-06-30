@@ -14,6 +14,9 @@ count.txt
 .pixi
 *.conda
 
+# pnpm content-addressable store (created in-tree when the global store is on another filesystem)
+.pnpm-store
+
 # Local environment files
 *.local.*
 .env
