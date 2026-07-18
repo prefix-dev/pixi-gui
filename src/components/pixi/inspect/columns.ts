@@ -63,7 +63,7 @@ export const DEFAULT_VISIBLE_COLUMNS = new Set<ColumnKey>([
 export function getColumnValue(pkg: Package, key: ColumnKey): string {
   switch (key) {
     case "version":
-      return pkg.version;
+      return pkg.version ?? "";
     case "requested-spec":
       return pkg.requested_spec ?? "";
     case "build":
