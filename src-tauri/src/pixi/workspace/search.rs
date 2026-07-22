@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 
 use crate::{
     error::Error,
@@ -41,14 +41,22 @@ pub async fn search_wildcard<R: Runtime>(
     )
     .into_diagnostic()?;
 
-    Ok(Some(
-        ctx.search(
+    let packages = ctx
+        .search(
             match_spec,
             channels,
             vec![Platform::current(), Platform::NoArch],
         )
-        .await?,
-    ))
+        .await?;
+
+    let mut seen_packages = HashSet::new();
+
+    let deduplicated_packages: Vec<RepoDataRecord> = packages
+        .into_iter()
+        .filter(|record| seen_packages.insert(record.package_record.name.clone()))
+        .collect();
+
+    Ok(Some(deduplicated_packages))
 }
 
 #[tauri::command]
