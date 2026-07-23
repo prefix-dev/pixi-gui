@@ -127,7 +127,7 @@ export function CondaDependencyDialog({
       setIsSearching(true);
 
       try {
-        const searchTerm = `*${packageSearch.trim()}*`;
+        const searchTerm = `${packageSearch.trim()}*`;
         const results = await searchWildcard(workspace.root, searchTerm);
 
         // Only update if this is still the most recent search
