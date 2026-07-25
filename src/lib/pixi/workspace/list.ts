@@ -4,6 +4,13 @@ import type { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 
 export type PackageKind = "conda" | "pypi";
 
+export interface RunExportsJson {
+  weak?: string[];
+  strong?: string[];
+  noarch?: string[];
+  weak_constrains?: string[];
+  strong_constrains?: string[];
+}
 export interface Package {
   name: string;
   version: string;
@@ -29,6 +36,7 @@ export interface Package {
   constrains: string[];
   depends: string[];
   track_features: string[];
+  run_exports: RunExportsJson | null;
 }
 
 export interface ListPackagesOptions {

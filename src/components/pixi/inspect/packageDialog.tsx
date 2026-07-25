@@ -135,6 +135,71 @@ export function PackageDialog({
             </PreferencesGroup>
           )}
 
+          {/* Run Exports */}
+          {pkg.run_exports && (
+            <PreferencesGroup title="Run Exports" nested>
+              {/* Noarch */}
+              {pkg.run_exports.noarch && (
+                <div className="flex flex-wrap gap-1">
+                  {[...pkg.run_exports.noarch].sort().map((c) => (
+                    <Badge key={c} icon="package">
+                      <span>noarch:</span>
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Weak */}
+              {pkg.run_exports.weak && (
+                <div className="flex flex-wrap gap-1">
+                  {[...pkg.run_exports.weak].sort().map((c) => (
+                    <Badge key={c} icon="package">
+                      <span>weak:</span>
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Strong */}
+              {pkg.run_exports.strong && (
+                <div className="flex flex-wrap gap-1">
+                  {[...pkg.run_exports.strong].sort().map((c) => (
+                    <Badge key={c} icon="package">
+                      <span>strong:</span>
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Weak Constraints */}
+              {pkg.run_exports.weak_constrains && (
+                <div className="flex flex-wrap gap-1">
+                  {[...pkg.run_exports.weak_constrains].sort().map((c) => (
+                    <Badge key={c} icon="package">
+                      <span>weak constraints:</span>
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Strong Constraints*/}
+              {pkg.run_exports.strong_constrains && (
+                <div className="flex flex-wrap gap-1">
+                  {[...pkg.run_exports.strong_constrains].sort().map((c) => (
+                    <Badge key={c} icon="package">
+                      <span>strong constraints:</span>
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </PreferencesGroup>
+          )}
+
           {/* Required By */}
           {revDepNames.length > 0 && (
             <PreferencesGroup title="Required by" nested>
