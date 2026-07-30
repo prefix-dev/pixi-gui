@@ -162,7 +162,7 @@ pub async fn add_platforms<R: Runtime>(
             .add_platforms(
                 platforms.into_iter().map(PixiPlatform::from).collect(),
                 no_install,
-                feature,
+                feature.map_or(FeatureName::Default, FeatureName::from),
             )
             .await?;
 
@@ -184,7 +184,7 @@ pub async fn remove_platforms<R: Runtime>(
             .remove_platforms(
                 platforms.into_iter().map(PixiPlatform::from).collect(),
                 no_install,
-                feature,
+                feature.map_or(FeatureName::Default, FeatureName::from),
             )
             .await?;
 
