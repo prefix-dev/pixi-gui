@@ -160,5 +160,6 @@ export function createVirtualPackage(name: string, version: string): Package {
     constrains: [],
     depends: [],
     track_features: [],
+    run_exports: null,
   };
 }
