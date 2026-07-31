@@ -1,9 +1,8 @@
 use std::{future::Future, io::IsTerminal, path::PathBuf};
 
-use miette::IntoDiagnostic;
 use pixi_api::{
-    WorkspaceContext,
-    core::{Workspace, WorkspaceLocator, workspace::DiscoveryStart},
+    PIXI_VERSION, WorkspaceContext,
+    core::{Workspace, WorkspaceLocator, WorkspaceLocatorError, workspace::DiscoveryStart},
 };
 use strip_ansi_escapes::strip;
 use tauri::{
@@ -28,13 +27,21 @@ where
 }
 
 pub fn workspace(workspace: PathBuf) -> Result<Workspace, Error> {
-    let workspace = WorkspaceLocator::for_cli()
+    let workspace_result = WorkspaceLocator::for_cli()
         .with_consider_environment(false)
         .with_search_start(DiscoveryStart::SearchRoot(workspace))
-        .locate()
-        .into_diagnostic()?;
+        .locate();
 
-    Ok(workspace)
+    workspace_result.map_err(|err| match err {
+        WorkspaceLocatorError::PixiVersionMismatch(mismatch) => {
+            let msg = format!(
+                "This workspace requires pixi '{}'.\nBut this version of pixi-gui is built with pixi {}",
+                mismatch.requires_pixi, PIXI_VERSION
+            );
+            miette::miette!(msg).into()
+        }
+        _ => Error(err.into()),
+    })
 }
 
 pub fn workspace_context<R: Runtime>(
