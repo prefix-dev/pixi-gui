@@ -2,3 +2,31 @@ allowBuilds:
   "@tailwindcss/oxide": true
   electron: true
   esbuild: true
+
+# Pin vulnerable transitive dependencies to their first patched release.
+# Keys are scoped by major so each consumer stays on an API-compatible line
+# instead of being forced across a breaking boundary. Floors are the minimum
+# patched version rather than the newest one, so the resolver stays free to
+# pick something that also satisfies the minimumReleaseAge policy.
+overrides:
+  "@babel/core@7": "^7.29.6"
+  "brace-expansion@1": "^1.1.18"
+  "brace-expansion@2": "^2.1.4"
+  "brace-expansion@5": "^5.0.9"
+  "cross-spawn@5": "^7.0.6"
+  "electron@23": "^43.3.0"
+  "esbuild@0.27": "^0.28.1"
+  "got@6": "^11.8.6"
+  "js-yaml@4": "^4.3.1"
+  "lodash-es@4": "^4.18.0"
+  "minimatch@3": "^3.1.4"
+  "minimatch@9": "^9.0.7"
+  "nanoid@3": "^3.3.17"
+  "picomatch@4": "^4.0.4"
+  "postcss@8": "^8.5.23"
+  "rollup@4": "^4.59.0"
+  "seroval@1": "^1.5.3"
+  "seroval-plugins@1": "^1.5.3"
+  "shell-quote@1": "^1.9.0"
+  "ws@7": "^7.5.11"
+  "ws@8": "^8.21.0"
