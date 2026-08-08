@@ -15,7 +15,7 @@ import {
 } from "@/components/shadcn/empty";
 import { Input } from "@/components/shadcn/input";
 
-import { startCommand } from "@/hooks/useProcess";
+import { openEditor } from "@/lib/editor";
 import {
   type Editor,
   getEditorPreference,
@@ -163,7 +163,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         },
       });
     } else {
-      await startCommand(workspace, name, editor.command);
+      await openEditor(workspace, name, editor.command);
       toast.info(`Opening ${editor.name}…`);
     }
   };

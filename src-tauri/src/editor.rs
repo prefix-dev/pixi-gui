@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use tauri::{Runtime, Window};
 use which::which;
 
-use crate::{error::Error, utils};
+use crate::{error::Error, pty::find_pixi_binary, utils};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -175,4 +175,50 @@ pub async fn list_installable_editors<R: Runtime>(
         .collect();
 
     Ok(installable)
+}
+
+use std::process::Stdio;
+
+/// Open editor in the OS as a detached process
+#[tauri::command]
+pub async fn open_editor<R: Runtime>(
+    window: Window<R>,
+    root: String,
+    manifest: String,
+    environment: String,
+    command: String,
+) -> Result<(), Error> {
+    let pixi = find_pixi_binary();
+
+    let mut cmd = std::process::Command::new(pixi);
+
+    cmd.current_dir(root);
+
+    cmd.args([
+        "run",
+        "--manifest-path",
+        &manifest,
+        "--environment",
+        &environment,
+    ]);
+
+    for arg in command.split_whitespace() {
+        cmd.arg(arg);
+    }
+
+    cmd.stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        use windows_sys::Win32::System::Threading::{CREATE_NEW_PROCESS_GROUP, DETACHED_PROCESS};
+        cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS);
+    }
+
+    cmd.spawn()
+        .map_err(|err| miette::miette!("Failed to launch editor '{command}': {err}"))?;
+
+    Ok(())
 }
