@@ -1,4 +1,4 @@
-use std::{path::PathBuf, str::FromStr};
+use std::{path::PathBuf, process::Stdio, str::FromStr};
 
 use pixi_api::{
     manifest::{EnvironmentName, HasFeaturesIter},
@@ -177,8 +177,6 @@ pub async fn list_installable_editors<R: Runtime>(
     Ok(installable)
 }
 
-use std::process::Stdio;
-
 /// Open editor in the OS as a detached process
 #[tauri::command]
 pub async fn open_editor<R: Runtime>(
@@ -200,11 +198,8 @@ pub async fn open_editor<R: Runtime>(
         &manifest,
         "--environment",
         &environment,
+        &command,
     ]);
-
-    for arg in command.split_whitespace() {
-        cmd.arg(arg);
-    }
 
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())
