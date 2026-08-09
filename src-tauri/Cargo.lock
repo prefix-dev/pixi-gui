@@ -14459,8 +14459,3 @@ dependencies = [
  "syn 2.0.117",
  "winnow 0.7.14",
 ]
-
-[[patch.unused]]
-name = "tao"
-version = "0.34.8"
-source = "git+https://github.com/tauri-apps/tao.git?branch=dev#58781691571b01f18734722feb254a855d51e34b"

@@ -63,7 +63,6 @@ tauri-plugin-single-instance = "2"
 # applies this patch, but `[patch]` sections do not propagate through the
 # `pixi_api` git dependency, so it has to be repeated here.
 reqwest-middleware = { path = "patches/reqwest_middleware_shim" }
-tao = { git = "https://github.com/tauri-apps/tao.git", branch = "dev" }
 version-ranges = { git = "https://github.com/astral-sh/pubgrub", rev = "d8efd77673c9a90792da9da31b6c0da7ea8a324b" }
 
 # Enable a small amount of optimization in the dev profile.
