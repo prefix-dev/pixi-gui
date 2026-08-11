@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-import type { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
+import { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 import type { Task } from "@/lib/pixi/workspace/task";
 
 export interface Workspace {
@@ -93,12 +93,14 @@ export async function addPlatforms(
   platforms: string[],
   noInstall: boolean = false,
   feature?: string,
+  lockFileUsage: LockFileUsage = LockFileUsage.Update,
 ): Promise<void> {
   await invoke("add_platforms", {
     workspace,
     platforms,
     noInstall,
     feature: feature ?? null,
+    lockFileUsage,
   });
 }
 
@@ -107,12 +109,14 @@ export async function removePlatforms(
   platforms: string[],
   noInstall: boolean = false,
   feature?: string,
+  lockFileUsage: LockFileUsage = LockFileUsage.Update,
 ): Promise<void> {
   await invoke("remove_platforms", {
     workspace,
     platforms,
     noInstall,
     feature: feature ?? null,
+    lockFileUsage,
   });
 }
 
