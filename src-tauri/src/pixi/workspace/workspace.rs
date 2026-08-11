@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use indexmap::IndexSet;
+use pixi_api::core::environment::LockFileUsage;
 use pixi_api::manifest::HasFeaturesIter;
 use pixi_api::manifest::{EnvironmentName, FeatureName, PrioritizedChannel};
 use pixi_api::manifest::{PixiPlatform, PixiPlatformName};
@@ -156,6 +157,7 @@ pub async fn add_platforms<R: Runtime>(
     platforms: Vec<Platform>,
     no_install: bool,
     feature: Option<String>,
+    lock_file_usage: LockFileUsage,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
         utils::workspace_context(window, workspace)?
@@ -163,6 +165,7 @@ pub async fn add_platforms<R: Runtime>(
                 platforms.into_iter().map(PixiPlatform::from).collect(),
                 no_install,
                 feature.map_or(FeatureName::Default, FeatureName::from),
+                lock_file_usage,
             )
             .await?;
 
@@ -178,6 +181,7 @@ pub async fn remove_platforms<R: Runtime>(
     platforms: Vec<Platform>,
     no_install: bool,
     feature: Option<String>,
+    lock_file_usage: LockFileUsage,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
         utils::workspace_context(window, workspace)?
@@ -185,6 +189,7 @@ pub async fn remove_platforms<R: Runtime>(
                 platforms.into_iter().map(PixiPlatform::from).collect(),
                 no_install,
                 feature.map_or(FeatureName::Default, FeatureName::from),
+                lock_file_usage,
             )
             .await?;
 
