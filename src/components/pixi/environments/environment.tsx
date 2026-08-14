@@ -133,6 +133,19 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     };
   }, [name, availableEditors, workspace.root]);
 
+  useEffect(() => {
+    const unsubscribeEditorError = subscribe<string>(
+      "editor-failed",
+      (errorText) => {
+        toast.error(`Editor existed with an error: ${errorText}`);
+      },
+    );
+
+    return () => {
+      unsubscribeEditorError();
+    };
+  }, []);
+
   const runFreeformTask = () => {
     if (!commandInput.trim()) return;
     const command = commandInput.trim();
@@ -163,8 +176,12 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         },
       });
     } else {
-      await openEditor(workspace, name, editor.command);
-      toast.info(`Opening ${editor.name}…`);
+      try {
+        await openEditor(workspace, name, editor.command);
+        toast.info(`Opening ${editor.name}…`);
+      } catch (error) {
+        toast.error(`Failed to open the editor ${name}: ${error}`);
+      }
     }
   };
 

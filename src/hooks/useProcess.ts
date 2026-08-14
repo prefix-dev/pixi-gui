@@ -1,7 +1,6 @@
 import { usePty } from "@/hooks/usePty";
 import { listTask } from "@/lib/pixi/workspace/task";
 import type { Workspace } from "@/lib/pixi/workspace/workspace";
-import { createPty } from "@/lib/pty";
 
 export interface ProcessState {
   isRunning: boolean;
@@ -85,28 +84,6 @@ export function useProcess(options: ProcessOptions): ProcessState {
     kill,
     ptyId,
   };
-}
-
-export async function startCommand(
-  workspace: Workspace,
-  environment: string,
-  command: string,
-): Promise<void> {
-  const id = getPtyId({ workspace, environment, command });
-  await createPty(
-    id,
-    {
-      cwd: workspace.root,
-      manifest: workspace.manifest,
-      kind: {
-        kind: "command",
-        command,
-        environment,
-      },
-    },
-    80,
-    24,
-  );
 }
 
 function getPtyId(options: ProcessOptions): string {

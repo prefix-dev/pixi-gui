@@ -5,7 +5,7 @@ use pixi_api::{
     rattler_conda_types::PackageName,
 };
 use serde::{Deserialize, Serialize};
-use tauri::{Runtime, Window};
+use tauri::{Emitter, Runtime, Window};
 use which::which;
 
 use crate::{error::Error, pty::find_pixi_binary, utils};
@@ -203,17 +203,39 @@ pub async fn open_editor<R: Runtime>(
 
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::piped());
 
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
-        use windows_sys::Win32::System::Threading::{CREATE_NEW_PROCESS_GROUP, DETACHED_PROCESS};
-        cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS);
+        use windows_sys::Win32::System::Threading::{CREATE_NEW_PROCESS_GROUP, CREATE_NO_WINDOW};
+        cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW);
     }
 
-    cmd.spawn()
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
+
+    let child = cmd
+        .spawn()
         .map_err(|err| miette::miette!("Failed to launch editor '{command}': {err}"))?;
+
+    // Move to a new thread and emit errors coming from the editor thread
+    tauri::async_runtime::spawn_blocking(move || {
+        if let Ok(output) = child.wait_with_output()
+            && !output.status.success()
+        {
+            let stderr_msg = String::from_utf8_lossy(&output.stderr);
+            let message = if stderr_msg.trim().is_empty() {
+                format!("Process exited with status: {}", output.status)
+            } else {
+                stderr_msg.to_string()
+            };
+            let _ = window.emit("editor-failed", message);
+        }
+    });
 
     Ok(())
 }
