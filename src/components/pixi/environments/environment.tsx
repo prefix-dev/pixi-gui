@@ -137,7 +137,9 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     const unsubscribeEditorError = subscribe<string>(
       "editor-failed",
       (errorText) => {
-        toast.error(`Editor existed with an error: ${errorText}`);
+        toast.error(`Editor process existed with an error`, {
+          description: errorText,
+        });
       },
     );
 
