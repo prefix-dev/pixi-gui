@@ -15,12 +15,12 @@ import {
 } from "@/components/shadcn/empty";
 import { Input } from "@/components/shadcn/input";
 
-import { openEditor } from "@/lib/editor";
 import {
   type Editor,
   getEditorPreference,
   listAvailableEditors,
   listInstallableEditors,
+  openEditor,
   setEditorPreference,
 } from "@/lib/editor";
 import { subscribe } from "@/lib/event";
@@ -133,21 +133,6 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     };
   }, [name, availableEditors, workspace.root]);
 
-  useEffect(() => {
-    const unsubscribeEditorError = subscribe<string>(
-      "editor-failed",
-      (errorText) => {
-        toast.error(`Editor process existed with an error`, {
-          description: errorText,
-        });
-      },
-    );
-
-    return () => {
-      unsubscribeEditorError();
-    };
-  }, []);
-
   const runFreeformTask = () => {
     if (!commandInput.trim()) return;
     const command = commandInput.trim();
@@ -182,7 +167,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         await openEditor(workspace, name, editor.command);
         toast.info(`Opening ${editor.name}…`);
       } catch (error) {
-        toast.error(`Failed to open the editor ${name}: ${error}`);
+        toast.error(`Failed to open the editor ${editor.name}: ${error}`);
       }
     }
   };

@@ -20,6 +20,14 @@ pub struct Editor {
     pub package_name: Option<&'static str>,
 }
 
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OpenEditorError {
+    pub command: String,
+    pub environment: String,
+    pub exit_code: i32,
+}
+
 /// Editors detected via system PATH
 const KNOWN_SYSTEM_EDITORS: &[Editor] = &[
     Editor {
@@ -203,7 +211,7 @@ pub async fn open_editor<R: Runtime>(
 
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())
-        .stderr(Stdio::piped());
+        .stderr(Stdio::null());
 
     #[cfg(target_os = "windows")]
     {
@@ -218,22 +226,22 @@ pub async fn open_editor<R: Runtime>(
         cmd.process_group(0);
     }
 
-    let child = cmd
+    let mut child = cmd
         .spawn()
         .map_err(|err| miette::miette!("Failed to launch editor '{command}': {err}"))?;
 
     // Move to a new thread and emit errors coming from the editor thread
     tauri::async_runtime::spawn_blocking(move || {
-        if let Ok(output) = child.wait_with_output()
-            && !output.status.success()
+        if let Ok(status) = child.wait()
+            && !status.success()
         {
-            let stderr_msg = String::from_utf8_lossy(&output.stderr);
-            let message = if stderr_msg.trim().is_empty() {
-                format!("Process exited with status: {}", output.status)
-            } else {
-                stderr_msg.to_string()
+            let exit_code = status.code().unwrap_or(-1);
+            let payload = OpenEditorError {
+                command,
+                environment,
+                exit_code,
             };
-            let _ = window.emit("editor-failed", message);
+            let _ = window.emit_to(window.label(), "editor-failed", payload);
         }
     });
 
