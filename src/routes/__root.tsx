@@ -23,8 +23,8 @@ function RootComponent() {
     const unsubscribeEditorError = subscribe<OpenEditorErrorPayload>(
       "editor-failed",
       (payload) => {
-        toast.error("Editor process exited with an error", {
-          description: `command '${payload.command}' in ${payload.environment} exited with code ${payload.exitCode}.`,
+        toast.error("Failed to launch editor", {
+          description: `The command '${payload.command}' failed in the '${payload.environment}' environment (Exit code: ${payload.exitCode}).`,
         });
       },
     );
