@@ -336,7 +336,7 @@ fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
     #[cfg(target_os = "windows")]
     {
         // status.code() returns Option<i32>.
-        // Casting `code as u32` converts the two's complement bit representation 
+        // Casting `code as u32` converts the two's complement bit representation
         // back into the native Windows u32 DWORD (e.g., 0xC0000005).
         let code = status.code().map(|c| c as u32);
         (code, None)
