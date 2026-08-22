@@ -165,7 +165,10 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     } else {
       try {
         await openEditor(workspace, name, editor.command);
-        toast.info(`Opening ${editor.name}…`);
+        toast.info(`Launching ${editor.name}…`, {
+          description:
+            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
+        });
       } catch (error) {
         toast.error(`Failed to open the editor ${editor.name}: ${error}`);
       }
