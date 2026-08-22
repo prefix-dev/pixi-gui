@@ -15,12 +15,12 @@ import {
 } from "@/components/shadcn/empty";
 import { Input } from "@/components/shadcn/input";
 
-import { startCommand } from "@/hooks/useProcess";
 import {
   type Editor,
   getEditorPreference,
   listAvailableEditors,
   listInstallableEditors,
+  openEditor,
   setEditorPreference,
 } from "@/lib/editor";
 import { subscribe } from "@/lib/event";
@@ -163,8 +163,15 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         },
       });
     } else {
-      await startCommand(workspace, name, editor.command);
-      toast.info(`Opening ${editor.name}…`);
+      try {
+        await openEditor(workspace, name, editor.command);
+        toast.info(`Launching ${editor.name}…`, {
+          description:
+            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
+        });
+      } catch (error) {
+        toast.error(`Failed to open the editor ${editor.name}: ${error}`);
+      }
     }
   };
 
