@@ -272,7 +272,6 @@ pub async fn open_editor<R: Runtime>(
 
     #[cfg(target_os = "windows")]
     {
-        use std::os::windows::process::CommandExt;
         use windows_sys::Win32::System::Threading::{CREATE_NEW_PROCESS_GROUP, CREATE_NO_WINDOW};
         cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW);
     }
@@ -336,9 +335,11 @@ pub async fn open_editor<R: Runtime>(
 fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
     #[cfg(target_os = "windows")]
     {
-        use std::os::windows::process::ExitStatusExt;
-        let raw_code = status.raw_status();
-        (Some(raw_code), None)
+        // status.code() returns Option<i32>.
+        // Casting `code as u32` converts the two's complement bit representation 
+        // back into the native Windows u32 DWORD (e.g., 0xC0000005).
+        let code = status.code().map(|c| c as u32);
+        (code, None)
     }
 
     #[cfg(unix)]
