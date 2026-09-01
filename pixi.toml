@@ -16,7 +16,7 @@ RUSTC_WRAPPER = "sccache"
 #
 
 [dependencies]
-compilers = ">=1.11.0,<2"
+compilers = ">=2,<3"
 pnpm = ">=11.8,<12"
 rust = ">=1.96,<1.97"
 rust-src = ">=1.96,<1.97"
