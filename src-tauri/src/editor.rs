@@ -355,3 +355,144 @@ fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{OpenEditorError, OutputBuffer};
+
+    const MARKER: &str = "... [output truncated] ...";
+
+    /// Push `n` numbered lines through an [`OutputBuffer`] and collect the result.
+    fn buffer_of(n: usize) -> Vec<String> {
+        let mut buffer = OutputBuffer::new();
+        for i in 1..=n {
+            buffer.push(format!("line {i}"));
+        }
+        buffer.into_vec()
+    }
+
+    fn sample_error(exit_code: Option<u32>, signal: Option<String>) -> OpenEditorError {
+        OpenEditorError {
+            workspace: "/ws".into(),
+            command: "code .".into(),
+            environment: "default".into(),
+            exit_code,
+            signal,
+            stderr: vec!["boom".into()],
+        }
+    }
+
+    #[test]
+    fn output_buffer_keeps_short_output_verbatim() {
+        assert_eq!(buffer_of(0), Vec::<String>::new());
+        assert_eq!(buffer_of(1), ["line 1"]);
+        assert_eq!(
+            buffer_of(5),
+            ["line 1", "line 2", "line 3", "line 4", "line 5"]
+        );
+    }
+
+    /// Six lines fit into head(5) + tail(5), so nothing was dropped and the
+    /// truncation marker must not appear.
+    #[test]
+    fn output_buffer_six_lines_are_not_marked_as_truncated() {
+        let out = buffer_of(6);
+        assert_eq!(
+            out,
+            ["line 1", "line 2", "line 3", "line 4", "line 5", "line 6"]
+        );
+    }
+
+    /// Ten lines is exactly head(5) + tail(5): still nothing dropped.
+    #[test]
+    fn output_buffer_ten_lines_are_not_marked_as_truncated() {
+        let out = buffer_of(10);
+        assert!(
+            !out.contains(&MARKER.to_string()),
+            "nothing was dropped but the output is marked as truncated: {out:#?}"
+        );
+        assert_eq!(out.len(), 10);
+    }
+
+    /// Eleven lines drops line 6, so the marker belongs here.
+    #[test]
+    fn output_buffer_drops_the_middle_and_keeps_the_last_lines() {
+        assert_eq!(
+            buffer_of(11),
+            [
+                "line 1", "line 2", "line 3", "line 4", "line 5", MARKER, "line 7", "line 8",
+                "line 9", "line 10", "line 11",
+            ]
+        );
+
+        let out = buffer_of(100);
+        assert_eq!(&out[..5], ["line 1", "line 2", "line 3", "line 4", "line 5"]);
+        assert_eq!(out[5], MARKER);
+        assert_eq!(
+            &out[6..],
+            ["line 96", "line 97", "line 98", "line 99", "line 100"]
+        );
+    }
+
+    #[test]
+    fn error_payload_uses_camel_case_and_explicit_nulls() {
+        assert_eq!(
+            serde_json::to_value(sample_error(Some(3), None)).unwrap(),
+            serde_json::json!({
+                "workspace": "/ws",
+                "command": "code .",
+                "environment": "default",
+                "exitCode": 3,
+                "signal": null,
+                "stderr": ["boom"],
+            })
+        );
+
+        // The frontend types these as optional, but `None` is serialized as an
+        // explicit `null` rather than an omitted key.
+        let json = serde_json::to_string(&sample_error(None, None)).unwrap();
+        assert!(json.contains(r#""exitCode":null"#), "{json}");
+        assert!(json.contains(r#""signal":null"#), "{json}");
+    }
+
+    #[cfg(unix)]
+    mod unix {
+        use std::os::unix::process::ExitStatusExt;
+        use std::process::{Command, ExitStatus, Stdio};
+
+        use super::super::parse_exit_status;
+
+        #[test]
+        fn exit_codes_are_reported_without_a_signal() {
+            assert_eq!(parse_exit_status(&ExitStatus::from_raw(0)), (Some(0), None));
+            assert_eq!(
+                parse_exit_status(&ExitStatus::from_raw(42 << 8)),
+                (Some(42), None)
+            );
+        }
+
+        #[test]
+        fn a_killed_child_is_reported_as_a_signal() {
+            let status = Command::new("sh")
+                .args(["-c", "kill -9 $$"])
+                .stdin(Stdio::null())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .expect("failed to spawn sh");
+
+            assert_eq!(parse_exit_status(&status), (None, Some("SIG9".to_string())));
+        }
+
+        #[test]
+        fn every_wait_status_yields_a_code_or_a_signal() {
+            for raw in [0, 1 << 8, 255 << 8, 9, 15, 11 | 0x80] {
+                let (code, signal) = parse_exit_status(&ExitStatus::from_raw(raw));
+                assert!(
+                    code.is_some() || signal.is_some(),
+                    "raw wait status {raw} produced neither an exit code nor a signal"
+                );
+            }
+        }
+    }
+}
