@@ -25,12 +25,12 @@ import {
   saveTaskArgs,
 } from "@/lib/taskArgs";
 
-export type ProcessRowProps = { environment: string } & (
+export type ProcessRowProps = { environment: string; readOnly?: boolean } & (
   | { kind: "task"; task: Task; taskName: string }
   | { kind: "command"; command: string; editor?: Editor }
 );
 
-export function ProcessRow(props: ProcessRowProps) {
+export function ProcessRow({ readOnly = false, ...props }: ProcessRowProps) {
   const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
   const navigate = getRouteApi("/workspace/$path").useNavigate();
 
@@ -142,19 +142,22 @@ export function ProcessRow(props: ProcessRowProps) {
         suffix={
           props.kind === "task" ? (
             <>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                title="Set Task Arguments"
-                disabled={isRunning}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setArgsDialogOpen(true);
-                }}
-              >
-                <PencilLineIcon />
-              </Button>
+              {" "}
+              {!readOnly && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  title="Set Task Arguments"
+                  disabled={isRunning}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setArgsDialogOpen(true);
+                  }}
+                >
+                  <PencilLineIcon />
+                </Button>
+              )}
               {(runnable || isRunning) && (
                 <Button
                   type="button"

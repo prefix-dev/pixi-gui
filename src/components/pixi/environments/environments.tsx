@@ -3,6 +3,7 @@ import { SearchIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Environment } from "@/components/pixi/environments/environment";
+import { RunningProcesses } from "@/components/pixi/process/runningProcesses";
 import { Button } from "@/components/shadcn/button";
 import {
   Empty,
@@ -87,6 +88,7 @@ export function Environments() {
 
   return (
     <>
+      <RunningProcesses />
       <div className="mt-pfx-m">
         <Input
           value={localSearch}
