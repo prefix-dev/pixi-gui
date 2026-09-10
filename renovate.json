@@ -16,8 +16,9 @@
       "matchManagers": ["pixi"]
     },
     {
-      "groupName": "Tauri Dependencies",
-      "matchManagers": ["cargo", "npm"]
+      "groupName": "Cargo and npm",
+      "matchManagers": ["cargo", "npm"],
+      "separateMajorMinor": false
     }
   ]
 }
