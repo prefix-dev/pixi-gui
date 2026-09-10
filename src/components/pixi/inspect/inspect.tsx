@@ -69,9 +69,11 @@ export function Inspect() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   // Sync local state when URL search changes externally
-  useEffect(() => {
+  const [syncedSearch, setSyncedSearch] = useState(search);
+  if (syncedSearch !== search) {
+    setSyncedSearch(search);
     setLocalSearch(search);
-  }, [search]);
+  }
 
   // Debounced URL update
   useEffect(() => {
@@ -106,17 +108,19 @@ export function Inspect() {
 
   // Reset platform when environment changes and current platform is unavailable
   const availablePlatforms = platforms[selectedEnvironment] ?? [];
-  useEffect(() => {
-    const available = platforms[selectedEnvironment] ?? [];
-    if (!available.includes(selectedPlatform)) {
-      setSelectedPlatform(currentPlatform);
-    }
-  }, [platforms, selectedEnvironment, selectedPlatform, currentPlatform]);
+  if (!availablePlatforms.includes(selectedPlatform)) {
+    setSelectedPlatform(currentPlatform);
+  }
 
   // Reset expanded nodes when switching modes or refetching
-  useEffect(() => {
+  const [expandedSource, setExpandedSource] = useState({ viewMode, packages });
+  if (
+    expandedSource.viewMode !== viewMode ||
+    expandedSource.packages !== packages
+  ) {
+    setExpandedSource({ viewMode, packages });
     setExpanded(new Set());
-  }, [viewMode, packages]);
+  }
 
   // Extract virtual packages from dependency specs
   const realNames = new Set(packages.map((p) => p.name));

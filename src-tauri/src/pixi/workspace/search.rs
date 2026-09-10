@@ -41,17 +41,21 @@ pub async fn search_wildcard<R: Runtime>(
     )
     .into_diagnostic()?;
 
-    let packages = ctx
+    let result = ctx
         .search(
             match_spec,
             channels,
             vec![Platform::current(), Platform::NoArch],
+            // The frontend always appends a glob, so the spec is never a bare
+            // name and the fuzzy fallback has nothing to cap.
+            None,
         )
         .await?;
 
     let mut seen_packages = HashSet::new();
 
-    let deduplicated_packages: Vec<RepoDataRecord> = packages
+    let deduplicated_packages: Vec<RepoDataRecord> = result
+        .packages
         .into_iter()
         .filter(|record| seen_packages.insert(record.package_record.name.clone()))
         .collect();
@@ -83,7 +87,12 @@ pub async fn search_exact<R: Runtime>(
             match_spec,
             channels,
             vec![Platform::current(), Platform::NoArch],
+            // Keep the fuzzy fallback from fetching anything: the version
+            // picker asks for one exact name and must not offer the versions
+            // of similarly named packages.
+            Some(0),
         )
-        .await?,
+        .await?
+        .packages,
     ))
 }

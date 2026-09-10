@@ -52,10 +52,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | "/"
-    | "/workspace/$path"
-    | "/workspace/$path/process"
-    | "/workspace/$path/";
+    "/" | "/workspace/$path" | "/workspace/$path/process" | "/workspace/$path/";
   fileRoutesByTo: FileRoutesByTo;
   to: "/" | "/workspace/$path/process" | "/workspace/$path";
   id:

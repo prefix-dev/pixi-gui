@@ -109,14 +109,29 @@ export function CondaDependencyDialog({
       type: "auto",
     });
 
-  // Package search
-  useEffect(() => {
-    // Clear results immediately when search changes
+  // Querying the channels for a single character is too broad
+  const hasSearchableTerm = packageSearch.trim().length >= 2;
+
+  // Clear results immediately when the search changes
+  const [searchedFor, setSearchedFor] = useState({
+    packageSearch,
+    root: workspace.root,
+  });
+  if (
+    searchedFor.packageSearch !== packageSearch ||
+    searchedFor.root !== workspace.root
+  ) {
+    setSearchedFor({ packageSearch, root: workspace.root });
     setSearchResults([]);
     setError("");
-
-    if (!packageSearch.trim() || packageSearch.trim().length < 2) {
+    if (!hasSearchableTerm) {
       setIsSearching(false);
+    }
+  }
+
+  // Package search
+  useEffect(() => {
+    if (!hasSearchableTerm) {
       return;
     }
 
@@ -148,7 +163,7 @@ export function CondaDependencyDialog({
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [packageSearch, workspace.root]);
+  }, [packageSearch, workspace.root, hasSearchableTerm]);
 
   const handleSelectPackage = (pkg: RepoDataRecord) => {
     const id = getRepoDataRecordId(pkg);

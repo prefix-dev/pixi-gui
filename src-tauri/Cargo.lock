@@ -32,17 +32,6 @@ dependencies = [
 
 [[package]]
 name = "ahash"
-version = "0.7.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "891477e0c6a8957309ee5c45a6368af3ae14bb510732d2684ffa19af310920f9"
-dependencies = [
- "getrandom 0.2.17",
- "once_cell",
- "version_check",
-]
-
-[[package]]
-name = "ahash"
 version = "0.8.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75"
@@ -1096,7 +1085,7 @@ dependencies = [
 [[package]]
 name = "barrier_cell"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "parking_lot",
  "thiserror 2.0.18",
@@ -1274,29 +1263,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc0b364ead1874514c8c2855ab558056ebfeb775653e7ae45ff72f28f8f3166c"
 
 [[package]]
-name = "borsh"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1da5ab77c1437701eeff7c88d968729e7766172279eab0676857b3d63af7a6f"
-dependencies = [
- "borsh-derive",
- "cfg_aliases 0.2.1",
-]
-
-[[package]]
-name = "borsh-derive"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0686c856aa6aac0c4498f936d7d6a02df690f614c03e4d906d1018062b5c5e2c"
-dependencies = [
- "once_cell",
- "proc-macro-crate 3.4.0",
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "boxcar"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1350,49 +1316,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5dd9dc738b7a8311c7ade152424974d8115f2cdad61e8dab8dac9f2362298510"
 
 [[package]]
-name = "byte-unit"
-version = "5.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c6d47a4e2961fb8721bcfc54feae6455f2f64e7054f9bc67e875f0e77f4c58d"
-dependencies = [
- "rust_decimal",
- "schemars 1.2.1",
- "serde",
- "utf8-width",
-]
-
-[[package]]
-name = "bytecheck"
-version = "0.6.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23cdc57ce23ac53c931e88a43d06d070a6fd142f2617be5855eb75efc9beb1c2"
-dependencies = [
- "bytecheck_derive 0.6.12",
- "ptr_meta 0.1.4",
- "simdutf8",
-]
-
-[[package]]
 name = "bytecheck"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0caa33a2c0edca0419d15ac723dff03f1956f7978329b1e3b5fdaaaed9d3ca8b"
 dependencies = [
- "bytecheck_derive 0.8.2",
- "ptr_meta 0.3.1",
+ "bytecheck_derive",
+ "ptr_meta",
  "rancor",
  "simdutf8",
-]
-
-[[package]]
-name = "bytecheck_derive"
-version = "0.6.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3db406d29fbcd95542e92559bed4d8ad92636d1ca8b3b72ede10b4bcc010e659"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -2844,7 +2776,7 @@ dependencies = [
 [[package]]
 name = "fancy_display"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "console",
 ]
@@ -3213,7 +3145,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f288b0a4f20f9a56b5d1da57e2227c661b7b16168e2f72365f57b63326e29b24"
 dependencies = [
  "gloo-timers 0.2.6",
- "send_wrapper",
+ "send_wrapper 0.4.0",
 ]
 
 [[package]]
@@ -3776,9 +3708,6 @@ name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
-dependencies = [
- "ahash 0.7.8",
-]
 
 [[package]]
 name = "hashbrown"
@@ -4992,9 +4921,6 @@ name = "log"
 version = "0.4.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
-dependencies = [
- "value-bag",
-]
 
 [[package]]
 name = "lru"
@@ -5153,6 +5079,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "memo-map"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5449c8c750f1a07ea702bbd212bd999fceece9b3d1508b17023b3e174583124b"
+
+[[package]]
 name = "memoffset"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5231,10 +5163,11 @@ dependencies = [
 
 [[package]]
 name = "minijinja"
-version = "2.15.1"
+version = "2.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b479616bb6f0779fb0f3964246beda02d4b01144e1b0d5519616e012ccc2a245"
+checksum = "86886cf6dbf4e614b19c9a1eec9775f021869d7eadde0fc73921a81b90c9b4c9"
 dependencies = [
+ "memo-map",
  "serde",
 ]
 
@@ -5339,6 +5272,12 @@ dependencies = [
  "raw-window-handle",
  "thiserror 1.0.69",
 ]
+
+[[package]]
+name = "ndk-context"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27b02d87554356db9e9a873add8782d4ea6e3e58ea071a9adb9a2e8ddb884a8b"
 
 [[package]]
 name = "ndk-sys"
@@ -6081,11 +6020,11 @@ checksum = "1e91099d4268b0e11973f036e885d652fb0b21fedcf69738c627f94db6a44f42"
 
 [[package]]
 name = "path_resolver"
-version = "0.2.12"
+version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87b79fa64c9aac78dc850c3ac23f27de50be06cb7d2a051aa4324c3d4d7bcaeb"
+checksum = "9994183d6ed25258205ec5612143b3da8cf2a2027d5e532b0af961ebf32ea5a1"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "fs-err",
  "indexmap 2.13.0",
  "itertools 0.15.0",
@@ -6417,7 +6356,7 @@ dependencies = [
  "serde",
  "serde_json",
  "strip-ansi-escapes",
- "tao",
+ "tao 0.37.0",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
@@ -6435,7 +6374,7 @@ dependencies = [
 [[package]]
 name = "pixi_api"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "console",
  "dunce",
@@ -6460,6 +6399,7 @@ dependencies = [
  "pypi_modifiers",
  "rattler_conda_types",
  "rattler_lock",
+ "rattler_repodata_gateway",
  "regex",
  "same-file",
  "serde",
@@ -6479,7 +6419,7 @@ dependencies = [
 [[package]]
 name = "pixi_auth"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "pixi_config",
  "rattler_networking",
@@ -6489,7 +6429,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_discovery"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "dunce",
  "itertools 0.15.0",
@@ -6512,7 +6452,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_frontend"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "fs-err",
  "futures",
@@ -6533,7 +6473,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_type_conversions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "itertools 0.15.0",
  "ordermap",
@@ -6547,7 +6487,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_types"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "hex",
  "ordermap",
@@ -6564,7 +6504,7 @@ dependencies = [
 [[package]]
 name = "pixi_command_dispatcher"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "async-fd-lock",
  "base64 0.23.1",
@@ -6573,7 +6513,6 @@ dependencies = [
  "dunce",
  "fs-err",
  "futures",
- "indexmap 2.13.0",
  "itertools 0.15.0",
  "miette 7.6.0",
  "nanoid",
@@ -6612,6 +6551,7 @@ dependencies = [
  "rattler_shell",
  "rattler_solve",
  "rattler_virtual_packages",
+ "same-file",
  "serde",
  "serde_json",
  "serde_with",
@@ -6629,7 +6569,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_cache_dirs"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "pixi_compute_engine",
  "pixi_compute_env_vars",
@@ -6639,7 +6579,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_engine"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "cmp_any",
  "futures",
@@ -6651,7 +6591,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_env_vars"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "pixi_compute_engine",
 ]
@@ -6659,7 +6599,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_network"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "pixi_compute_engine",
  "rattler_networking",
@@ -6668,7 +6608,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_reporters"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "dashmap",
  "futures",
@@ -6680,7 +6620,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_sources"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "derive_more 2.1.1",
  "dirs",
@@ -6706,7 +6646,7 @@ dependencies = [
 [[package]]
 name = "pixi_config"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "clap",
  "console",
@@ -6735,7 +6675,7 @@ dependencies = [
 [[package]]
 name = "pixi_consts"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "console",
  "rattler_cache",
@@ -6746,7 +6686,7 @@ dependencies = [
 [[package]]
 name = "pixi_core"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "async-once-cell",
  "barrier_cell",
@@ -6849,7 +6789,7 @@ dependencies = [
 [[package]]
 name = "pixi_default_versions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "rattler_conda_types",
 ]
@@ -6857,9 +6797,9 @@ dependencies = [
 [[package]]
 name = "pixi_diff"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "console",
  "indexmap 2.13.0",
  "itertools 0.15.0",
@@ -6874,7 +6814,7 @@ dependencies = [
 [[package]]
 name = "pixi_git"
 version = "0.0.1"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "astral-reqwest-middleware",
  "dashmap",
@@ -6895,7 +6835,7 @@ dependencies = [
 [[package]]
 name = "pixi_glob"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "dashmap",
  "fs-err",
@@ -6913,9 +6853,9 @@ dependencies = [
 [[package]]
 name = "pixi_install_pypi"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "console",
  "csv",
  "fancy_display",
@@ -6977,7 +6917,7 @@ dependencies = [
 [[package]]
 name = "pixi_manifest"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "archspec",
  "chrono",
@@ -7025,7 +6965,7 @@ dependencies = [
 [[package]]
 name = "pixi_path"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "fs-err",
  "serde",
@@ -7036,7 +6976,7 @@ dependencies = [
 [[package]]
 name = "pixi_progress"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "indicatif",
  "parking_lot",
@@ -7045,7 +6985,7 @@ dependencies = [
 [[package]]
 name = "pixi_pypi_spec"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "itertools 0.15.0",
  "pep440_rs",
@@ -7065,7 +7005,7 @@ dependencies = [
 [[package]]
 name = "pixi_python_status"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "rattler",
 ]
@@ -7073,7 +7013,7 @@ dependencies = [
 [[package]]
 name = "pixi_record"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "file_url",
  "hex",
@@ -7099,26 +7039,34 @@ dependencies = [
 [[package]]
 name = "pixi_reporters"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "console",
+ "fs-err",
  "futures",
  "human_bytes",
  "indexmap 2.13.0",
  "indicatif",
  "itertools 0.15.0",
+ "jiff",
  "parking_lot",
  "pixi_build_discovery",
  "pixi_command_dispatcher",
  "pixi_compute_reporters",
+ "pixi_config",
+ "pixi_consts",
  "pixi_git",
  "pixi_progress",
  "rattler",
  "rattler_conda_types",
+ "rattler_redaction",
  "rattler_repodata_gateway",
  "regex",
+ "serde",
+ "serde_json",
  "tokio",
  "tracing",
+ "unicode-width 0.2.2",
  "url",
  "uv-configuration",
  "uv-distribution",
@@ -7132,7 +7080,7 @@ dependencies = [
 [[package]]
 name = "pixi_spec"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "chrono",
  "dirs",
@@ -7165,7 +7113,7 @@ dependencies = [
 [[package]]
 name = "pixi_spec_containers"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "itertools 0.15.0",
  "ordermap",
@@ -7177,7 +7125,7 @@ dependencies = [
 [[package]]
 name = "pixi_stable_hash"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "ordermap",
  "rattler_conda_types",
@@ -7189,7 +7137,7 @@ dependencies = [
 [[package]]
 name = "pixi_toml"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "digest 0.11.3",
  "hex",
@@ -7204,7 +7152,7 @@ dependencies = [
 [[package]]
 name = "pixi_toml_edit"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "thiserror 2.0.18",
  "toml_edit 0.25.12+spec-1.1.0",
@@ -7213,7 +7161,7 @@ dependencies = [
 [[package]]
 name = "pixi_url"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "astral-reqwest-middleware",
  "bzip2 0.6.1",
@@ -7244,7 +7192,7 @@ dependencies = [
 [[package]]
 name = "pixi_utils"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -7285,7 +7233,7 @@ dependencies = [
 [[package]]
 name = "pixi_uv_context"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "fs-err",
  "miette 7.6.0",
@@ -7309,12 +7257,11 @@ dependencies = [
 [[package]]
 name = "pixi_uv_conversions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "chrono",
  "dunce",
  "hex",
- "jiff",
  "miette 7.6.0",
  "pathdiff",
  "pep440_rs",
@@ -7348,7 +7295,7 @@ dependencies = [
 [[package]]
 name = "pixi_variant"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "pixi_build_types",
  "rattler_lock",
@@ -7693,31 +7640,11 @@ dependencies = [
 
 [[package]]
 name = "ptr_meta"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0738ccf7ea06b608c10564b31debd4f5bc5e197fc8bfe088f68ae5ce81e7a4f1"
-dependencies = [
- "ptr_meta_derive 0.1.4",
-]
-
-[[package]]
-name = "ptr_meta"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b9a0cf95a1196af61d4f1cbdab967179516d9a4a4312af1f31948f8f6224a79"
 dependencies = [
- "ptr_meta_derive 0.3.1",
-]
-
-[[package]]
-name = "ptr_meta_derive"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16b845dbfca988fa33db069c0e230574d15a3088f147a87b64c7589eb662c9ac"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
+ "ptr_meta_derive",
 ]
 
 [[package]]
@@ -7746,7 +7673,7 @@ dependencies = [
 [[package]]
 name = "pypi_mapping"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -7777,7 +7704,7 @@ dependencies = [
 [[package]]
 name = "pypi_modifiers"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?tag=v0.76.2#c723070a534d675eb809ea637fb486b847c89a56"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.77.1#11eb5f2393217676f227ba24aa2d19bb529068a1"
 dependencies = [
  "miette 7.6.0",
  "pixi_default_versions",
@@ -7943,7 +7870,7 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a063ea72381527c2a0561da9c80000ef822bdd7c3241b1cc1b12100e3df081ee"
 dependencies = [
- "ptr_meta 0.3.1",
+ "ptr_meta",
 ]
 
 [[package]]
@@ -8084,9 +8011,9 @@ dependencies = [
 
 [[package]]
 name = "rattler"
-version = "0.48.0"
+version = "0.48.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "120e2584f561484f6642f4825b655b3ec9ba57e06a8b10d0f026886405de9312"
+checksum = "6595b5f9878f0e2787da607235c158c7c125d4c4f145cfcc3febade9c66c3a4f"
 dependencies = [
  "anyhow",
  "astral-reqwest-middleware",
@@ -8131,11 +8058,11 @@ dependencies = [
 
 [[package]]
 name = "rattler_cache"
-version = "0.10.4"
+version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc91045d53da3c63c81b7666119a1f73ed2a69473e7b451649b62397d9148b77"
+checksum = "10e0c05d770d92af1f4230f6f549ab6c4cb47d5e5f7a65339f91fca7fc6b3545"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "anyhow",
  "astral-reqwest-middleware",
  "dashmap",
@@ -8166,11 +8093,11 @@ dependencies = [
 
 [[package]]
 name = "rattler_conda_types"
-version = "0.49.0"
+version = "0.51.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "776dcc9348ae7e1843e1320ad1c1afc375bd2b73faeaa1bb49b1e002575f7791"
+checksum = "654ccb4b723cd1e288bbbb8e798721b8316e19f0de3610ed90ebfbedabf45d45"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "core-foundation 0.10.1",
  "dirs",
  "fancy-regex",
@@ -8209,9 +8136,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_config"
-version = "0.6.2"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66465befa4068f2b5ab01f4949f41e9bbb033d9d7e2833d9bde926fe2d0dfaf9"
+checksum = "e7cb7a3302ec74284640c5c7aa911269e1cfd65bd5e8da4299923453e50a0c78"
 dependencies = [
  "dirs",
  "fs-err",
@@ -8248,11 +8175,11 @@ dependencies = [
 
 [[package]]
 name = "rattler_lock"
-version = "0.32.0"
+version = "0.32.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb8535d2ec6bafe0eab07f234ef7dc04e53cd547b44f1943eb9dd903e8a1088a"
+checksum = "383f34cb66299b71ded79b35a0baa2f5865f1e59a0ecca844016ef9bd40f45ff"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "file_url",
  "indexmap 2.13.0",
  "itertools 0.15.0",
@@ -8287,9 +8214,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_menuinst"
-version = "0.2.71"
+version = "0.2.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48ea27febfd73be21974ea7c3afde8a735e981dd8ceaa351081c829533a66284"
+checksum = "1a39794d7486efd34a701c4e33abd094cff04d78d1f3a9bf9f539a3193b3406c"
 dependencies = [
  "configparser",
  "dirs",
@@ -8318,9 +8245,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_networking"
-version = "0.30.3"
+version = "0.30.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1789dae98aabeedffa2d28f0fd218da55ca21746d7f4b8e909f80525cf3bef5"
+checksum = "bad2167f271e0b3ad411a9623de1e948c12dadb05040cd7508015fed78f4e852"
 dependencies = [
  "ambient-id",
  "anyhow",
@@ -8358,9 +8285,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_package_streaming"
-version = "0.26.9"
+version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2bb89525bd5df28e9abcbba31e5c97b029175e66433a43ed9087792d5b0bdb7"
+checksum = "364ad3b4bac0c95ae1f7c7bdfa33b679c8d64fde14fd47f6fb965836dbc94628"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-tokio-tar",
@@ -8368,6 +8295,7 @@ dependencies = [
  "astral_async_zip 0.0.20",
  "async-compression",
  "async-spooled-tempfile",
+ "bytes",
  "bzip2 0.6.1",
  "filetime",
  "fs-err",
@@ -8399,9 +8327,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_pty"
-version = "0.2.15"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae2c43bc4b13b017eba423c48aa99fa33aac7b63ffd720a12b1e7428397f7328"
+checksum = "c4bb899b6b8d316efe26fe43e003073ef93d230d9009a41d630e22473368c0e4"
 dependencies = [
  "libc",
  "nix 0.31.3",
@@ -8411,9 +8339,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_redaction"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "068b9b88444342b01133c4eb1af90f44e3bc04463d738ac3fa3813df0096c177"
+checksum = "308e86344e78b42b96570e765f287d7cf87fab7f21ba2eb12508363c11b55f72"
 dependencies = [
  "astral-reqwest-middleware",
  "reqwest",
@@ -8422,11 +8350,11 @@ dependencies = [
 
 [[package]]
 name = "rattler_repodata_gateway"
-version = "0.31.0"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a562674a44022e676a4608f29f2f7d35e71de0386148dc5bfa72765e72676684"
+checksum = "50b705828891a4184451f8c5300b9b123bd946c76fa9f55c0057d81fab3f8d28"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "anyhow",
  "astral-reqwest-middleware",
  "async-compression",
@@ -8451,6 +8379,7 @@ dependencies = [
  "humantime",
  "itertools 0.15.0",
  "jiff",
+ "js-sys",
  "json-patch 4.1.0",
  "libc",
  "memmap2 0.9.9",
@@ -8466,6 +8395,7 @@ dependencies = [
  "retry-policies",
  "rmp-serde",
  "self_cell",
+ "send_wrapper 0.6.0",
  "serde",
  "serde_json",
  "serde_with",
@@ -8478,16 +8408,19 @@ dependencies = [
  "tokio-util",
  "tracing",
  "url",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
  "wasmtimer",
+ "web-sys",
  "windows-sys 0.61.2",
  "zstd",
 ]
 
 [[package]]
 name = "rattler_shell"
-version = "0.27.11"
+version = "0.27.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b9eda3170df19c28a7e7c42f52a0d99c68392bd985c0b7a04965f6227bb3340"
+checksum = "1d87277b0a7b7ccba831890810e903c35b56b3c1003952ad07374da9ebb0b46b"
 dependencies = [
  "anyhow",
  "enum_dispatch",
@@ -8506,9 +8439,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_solve"
-version = "9.0.0"
+version = "9.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47428b4adefb08d4b7b915f29a3ea716f6a329b75723355ea1eb63fc0a4eaac2"
+checksum = "9c287fe2c2a57e66162cadc4430b7aa300251edd73034b1b7bf222a660a9a45e"
 dependencies = [
  "futures",
  "hex",
@@ -8526,9 +8459,9 @@ dependencies = [
 
 [[package]]
 name = "rattler_virtual_packages"
-version = "4.1.0"
+version = "5.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e5bb5ca36e7e3c22c77ebb49737401d1ab4dd47a40fcdab19adb4a0319767b5"
+checksum = "4c249324b90e9dcf985991ca4a066b6df72c4c9b300a70746c596e90abe8df2f"
 dependencies = [
  "archspec",
  "libloading 0.9.0",
@@ -8538,8 +8471,11 @@ dependencies = [
  "rattler_conda_types",
  "regex",
  "serde",
+ "serde_json",
+ "tempfile",
  "thiserror 2.0.18",
  "tracing",
+ "windows-sys 0.61.2",
  "winver",
 ]
 
@@ -8673,20 +8609,11 @@ checksum = "ba39f3699c378cd8970968dcbff9c43159ea4cfbd88d43c00b22f2ef10a435d2"
 
 [[package]]
 name = "rend"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71fe3824f5629716b1589be05dacd749f6aa084c87e00e016714a8cdfccc997c"
-dependencies = [
- "bytecheck 0.6.12",
-]
-
-[[package]]
-name = "rend"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cadadef317c2f20755a64d7fdc48f9e7178ee6b0e1f7fce33fa60f1d68a276e6"
 dependencies = [
- "bytecheck 0.8.2",
+ "bytecheck",
 ]
 
 [[package]]
@@ -8884,7 +8811,7 @@ version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbc9b6c092a52fadb381b74d0f859b321ea7b9f4f8365acd7e4947f3a26517aa"
 dependencies = [
- "ahash 0.8.12",
+ "ahash",
  "bitvec",
  "elsa",
  "event-listener",
@@ -8965,51 +8892,22 @@ dependencies = [
 
 [[package]]
 name = "rkyv"
-version = "0.7.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2297bf9c81a3f0dc96bc9521370b88f054168c29826a75e89c55ff196e7ed6a1"
-dependencies = [
- "bitvec",
- "bytecheck 0.6.12",
- "bytes",
- "hashbrown 0.12.3",
- "ptr_meta 0.1.4",
- "rend 0.4.2",
- "rkyv_derive 0.7.46",
- "seahash",
- "tinyvec",
- "uuid",
-]
-
-[[package]]
-name = "rkyv"
 version = "0.8.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "815cc8a37159a463064825246cadb07961e25cd9885908606f6d08a98d8f8874"
 dependencies = [
- "bytecheck 0.8.2",
+ "bytecheck",
  "bytes",
  "hashbrown 0.17.1",
  "indexmap 2.13.0",
  "munge",
- "ptr_meta 0.3.1",
+ "ptr_meta",
  "rancor",
- "rend 0.5.3",
- "rkyv_derive 0.8.17",
+ "rend",
+ "rkyv_derive",
  "smallvec",
  "tinyvec",
  "uuid",
-]
-
-[[package]]
-name = "rkyv_derive"
-version = "0.7.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84d7b42d4b8d06048d3ac8db0eb31bcb942cbeb709f0b5f2b2ebde398d3038f5"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -9109,22 +9007,6 @@ checksum = "796e8d2b6696392a43bea58116b667fb4c29727dc5abd27d6acf338bb4f688c7"
 dependencies = [
  "cfg-if",
  "ordered-multimap",
-]
-
-[[package]]
-name = "rust_decimal"
-version = "1.40.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61f703d19852dbf87cbc513643fa81428361eb6940f1ac14fd58155d295a3eb0"
-dependencies = [
- "arrayvec",
- "borsh",
- "bytes",
- "num-traits",
- "rand 0.8.7",
- "rkyv 0.7.46",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -9582,6 +9464,12 @@ name = "send_wrapper"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f638d531eccd6e23b980caf34876660d38e265409d8e99b397ab71eb3612fad0"
+
+[[package]]
+name = "send_wrapper"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd0b0ec5f1c1ca621c432a25813d8d60c88abe6d3e08a3eb9cf37d97a0fe3d73"
 
 [[package]]
 name = "serde"
@@ -10462,10 +10350,51 @@ dependencies = [
 ]
 
 [[package]]
-name = "tao-macros"
-version = "0.1.3"
+name = "tao"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4e16beb8b2ac17db28eab8bca40e62dbfbb34c0fcdc6d9826b11b7b5d047dfd"
+checksum = "5d12c8607b01516c5d4a37e471a9cfb40b4a25cebce8fecbc6a559e125e51b6b"
+dependencies = [
+ "bitflags 2.13.0",
+ "block2",
+ "core-foundation 0.10.1",
+ "core-graphics",
+ "crossbeam-channel",
+ "dbus",
+ "dispatch2",
+ "dlopen2",
+ "dpi",
+ "gdkwayland-sys",
+ "gdkx11-sys",
+ "gtk",
+ "jni",
+ "libc",
+ "log",
+ "ndk",
+ "ndk-context",
+ "ndk-sys",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
+ "objc2-ui-kit",
+ "once_cell",
+ "parking_lot",
+ "percent-encoding",
+ "raw-window-handle",
+ "tao-macros",
+ "unicode-segmentation",
+ "url",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
+ "windows-version",
+ "x11-dl",
+]
+
+[[package]]
+name = "tao-macros"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f7eeb6d99155545da6150a1795945f16ac9c178deb2a5f2e74d776107bd5849"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -10633,9 +10562,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-dialog"
-version = "2.6.0"
+version = "2.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9204b425d9be8d12aa60c2a83a289cf7d1caae40f57f336ed1155b3a5c0e359b"
+checksum = "61854a36651aa48381e5e209f69a01273b77f3f9f91f0c430b1b98d33bd47229"
 dependencies = [
  "log",
  "raw-window-handle",
@@ -10651,13 +10580,15 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-fs"
-version = "2.4.5"
+version = "2.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed390cc669f937afeb8b28032ce837bac8ea023d975a2e207375ec05afaf1804"
+checksum = "de22eef34fd78c0da050e748710edd50bf127e651d02ea1b2bfada1523cc5c51"
 dependencies = [
  "anyhow",
  "dunce",
  "glob",
+ "log",
+ "objc2-foundation",
  "percent-encoding",
  "schemars 0.8.22",
  "serde",
@@ -10667,18 +10598,17 @@ dependencies = [
  "tauri-plugin",
  "tauri-utils",
  "thiserror 2.0.18",
- "toml 0.9.11+spec-1.1.0",
+ "toml 1.1.2+spec-1.1.0",
  "url",
 ]
 
 [[package]]
 name = "tauri-plugin-log"
-version = "2.8.0"
+version = "2.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7545bd67f070a4500432c826e2e0682146a1d6712aee22a2786490156b574d93"
+checksum = "b4e8861142c21636b03ff6eb9682a073814112e35220435670738a8be7b49896"
 dependencies = [
  "android_logger",
- "byte-unit",
  "fern",
  "log",
  "objc2",
@@ -10806,7 +10736,7 @@ dependencies = [
  "percent-encoding",
  "raw-window-handle",
  "softbuffer",
- "tao",
+ "tao 0.35.0",
  "tauri-runtime",
  "tauri-utils",
  "url",
@@ -11812,7 +11742,7 @@ dependencies = [
  "astral_async_http_range_reader",
  "astral_async_zip 0.0.18",
  "async-trait",
- "bytecheck 0.8.2",
+ "bytecheck",
  "fs-err",
  "futures",
  "h2",
@@ -11822,7 +11752,7 @@ dependencies = [
  "jiff",
  "percent-encoding",
  "reqwest",
- "rkyv 0.8.17",
+ "rkyv",
  "rmp-serde",
  "rustc-hash",
  "rustls-native-certs",
@@ -12001,7 +11931,7 @@ version = "0.0.48"
 source = "git+https://github.com/astral-sh/uv?tag=0.11.15#3cffe97c2e48c9e49422c738da3af95919dd0bf5"
 dependencies = [
  "memchr",
- "rkyv 0.8.17",
+ "rkyv",
  "serde",
  "smallvec",
  "thiserror 2.0.18",
@@ -12027,7 +11957,7 @@ dependencies = [
  "owo-colors",
  "percent-encoding",
  "petgraph",
- "rkyv 0.8.17",
+ "rkyv",
  "rustc-hash",
  "schemars 1.2.1",
  "serde",
@@ -12322,7 +12252,7 @@ name = "uv-normalize"
 version = "0.0.48"
 source = "git+https://github.com/astral-sh/uv?tag=0.11.15#3cffe97c2e48c9e49422c738da3af95919dd0bf5"
 dependencies = [
- "rkyv 0.8.17",
+ "rkyv",
  "schemars 1.2.1",
  "serde",
  "uv-small-str",
@@ -12352,7 +12282,7 @@ version = "0.0.48"
 source = "git+https://github.com/astral-sh/uv?tag=0.11.15#3cffe97c2e48c9e49422c738da3af95919dd0bf5"
 dependencies = [
  "astral-version-ranges",
- "rkyv 0.8.17",
+ "rkyv",
  "serde",
  "tracing",
  "unicode-width 0.2.2",
@@ -12371,7 +12301,7 @@ dependencies = [
  "indexmap 2.13.0",
  "itertools 0.14.0",
  "regex",
- "rkyv 0.8.17",
+ "rkyv",
  "rustc-hash",
  "schemars 1.2.1",
  "serde",
@@ -12413,7 +12343,7 @@ source = "git+https://github.com/astral-sh/uv?tag=0.11.15#3cffe97c2e48c9e49422c7
 dependencies = [
  "bitflags 2.13.0",
  "memchr",
- "rkyv 0.8.17",
+ "rkyv",
  "rustc-hash",
  "serde",
  "thiserror 2.0.18",
@@ -12443,7 +12373,7 @@ dependencies = [
  "mailparse",
  "petgraph",
  "regex",
- "rkyv 0.8.17",
+ "rkyv",
  "rustc-hash",
  "schemars 1.2.1",
  "serde",
@@ -12612,7 +12542,7 @@ dependencies = [
  "owo-colors",
  "percent-encoding",
  "petgraph",
- "rkyv 0.8.17",
+ "rkyv",
  "rustc-hash",
  "same-file",
  "schemars 1.2.1",
@@ -12743,7 +12673,7 @@ version = "0.0.48"
 source = "git+https://github.com/astral-sh/uv?tag=0.11.15#3cffe97c2e48c9e49422c738da3af95919dd0bf5"
 dependencies = [
  "arcstr",
- "rkyv 0.8.17",
+ "rkyv",
  "schemars 1.2.1",
  "serde",
 ]
@@ -12922,12 +12852,6 @@ name = "valuable"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65"
-
-[[package]]
-name = "value-bag"
-version = "1.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ba6f5989077681266825251a52748b8c1d8a4ad098cc37e440103d0ea717fc0"
 
 [[package]]
 name = "value-trait"
