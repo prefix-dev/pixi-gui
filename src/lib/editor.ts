@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { LazyStore } from "@tauri-apps/plugin-store";
 
+import type { Workspace } from "@/lib/pixi/workspace/workspace";
+
 export interface Editor {
   command: string;
   name: string;
@@ -53,4 +55,17 @@ export async function setEditorPreference(
   preferences[getKey(workspaceRoot, environment)] = editor;
   await store.set("editorPreferences", preferences);
   await store.save();
+}
+
+export async function openEditor(
+  workspace: Workspace,
+  environment: string,
+  command: string,
+): Promise<void> {
+  await invoke<void>("open_editor", {
+    root: workspace.root,
+    manifest: workspace.manifest,
+    environment,
+    command,
+  });
 }
