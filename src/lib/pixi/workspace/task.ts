@@ -3,8 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 export type CommandArguments = { Single: string } | { Multiple: string[] };
 
 export type DependencyArgument =
-  | { Positional: string }
-  | { Named: [string, string] };
+  { Positional: string } | { Named: [string, string] };
 
 export interface Dependency {
   task_name: string;

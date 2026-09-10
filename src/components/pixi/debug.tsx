@@ -14,14 +14,12 @@ export function Debug() {
   const [isReinstalling, setIsReinstalling] = useState(false);
   const [activePtys, setActivePtys] = useState<PtyHandle[]>([]);
 
-  const refreshPtys = async () => {
-    try {
-      const handles = await listPtys();
-      setActivePtys(handles);
-    } catch (err) {
-      console.error("Failed to list PTYs:", err);
-    }
-  };
+  const refreshPtys = () =>
+    listPtys()
+      .then(setActivePtys)
+      .catch((err: unknown) => {
+        console.error("Failed to list PTYs:", err);
+      });
 
   const handleKill = async (id: string) => {
     try {
@@ -33,7 +31,7 @@ export function Debug() {
   };
 
   useEffect(() => {
-    refreshPtys();
+    void refreshPtys();
   }, []);
 
   const handleReinstall = async () => {

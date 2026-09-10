@@ -99,7 +99,9 @@ function ProcessComponent() {
     rows: number;
   } | null>(null);
   const terminalDimsRef = useRef(terminalDims);
-  terminalDimsRef.current = terminalDims;
+  useEffect(() => {
+    terminalDimsRef.current = terminalDims;
+  }, [terminalDims]);
   const onDimensionsChange = useCallback((cols: number, rows: number) => {
     setTerminalDims({ cols, rows });
   }, []);

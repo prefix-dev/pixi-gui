@@ -86,15 +86,13 @@ export function DependencyVersionPicker({
     void loadVersions();
   }, [workspaceRoot, packageName, packageType]);
 
-  // Clear input if current version exists in the loaded list (runs once after versions load)
-  useEffect(() => {
-    if (
-      inputValue &&
-      availableVersions.some((record) => `==${record.version}` === inputValue)
-    ) {
-      setInputValue("");
-    }
-  }, [inputValue, availableVersions]);
+  // Clear input if current version exists in the loaded list
+  if (
+    inputValue &&
+    availableVersions.some((record) => `==${record.version}` === inputValue)
+  ) {
+    setInputValue("");
+  }
 
   // Non-editable state
   if (packageVersion.type === "non-editable") {

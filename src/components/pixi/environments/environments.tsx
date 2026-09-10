@@ -21,9 +21,11 @@ export function Environments() {
   const [localSearch, setLocalSearch] = useState(search);
 
   // Sync local state when URL search changes externally
-  useEffect(() => {
+  const [syncedSearch, setSyncedSearch] = useState(search);
+  if (syncedSearch !== search) {
+    setSyncedSearch(search);
     setLocalSearch(search);
-  }, [search]);
+  }
 
   // Debounced URL update
   useEffect(() => {

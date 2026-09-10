@@ -1,6 +1,6 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { CircularIcon } from "@/components/common/circularIcon";
 import { PreferencesGroup } from "@/components/common/preferencesGroup";
@@ -39,15 +39,21 @@ export function Manifest() {
     features.length === 1 &&
     features[0].name === "default";
 
+  // Reset the editable fields whenever the loader reports new values
   const [name, setName] = useState(workspace.name);
-  useEffect(() => {
+  const [syncedName, setSyncedName] = useState(workspace.name);
+  if (syncedName !== workspace.name) {
+    setSyncedName(workspace.name);
     setName(workspace.name);
-  }, [workspace.name]);
+  }
 
-  const [description, setDescription] = useState(workspace.description ?? "");
-  useEffect(() => {
-    setDescription(workspace.description ?? "");
-  }, [workspace.description]);
+  const loadedDescription = workspace.description ?? "";
+  const [description, setDescription] = useState(loadedDescription);
+  const [syncedDescription, setSyncedDescription] = useState(loadedDescription);
+  if (syncedDescription !== loadedDescription) {
+    setSyncedDescription(loadedDescription);
+    setDescription(loadedDescription);
+  }
 
   const handleNameChange = async (name: string) => {
     if (name === workspace.name) return;
@@ -71,9 +77,11 @@ export function Manifest() {
   const [localFeatures, setLocalFeatures] = useState<FeatureData[]>(features);
 
   // Sync localFeatures when features from loader changes
-  useEffect(() => {
+  const [syncedFeatures, setSyncedFeatures] = useState(features);
+  if (syncedFeatures !== features) {
+    setSyncedFeatures(features);
     setLocalFeatures(features);
-  }, [features]);
+  }
 
   return (
     <>
