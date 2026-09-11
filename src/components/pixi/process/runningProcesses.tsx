@@ -26,18 +26,16 @@ export function RunningProcesses() {
     loadRunningProcesses();
 
     const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
-      console.log("[DEBUG] pty-start with event: ", event);
       const { cwd } = event.invocation;
       if (cwd === workspace.root) {
         setPtys((prevPtys) => [
-          ...prevPtys,
           { id: event.id, invocation: event.invocation },
+          ...prevPtys,
         ]);
       }
     });
 
     const unsubscribeExit = subscribe<PtyExitEvent>("pty-exit", (event) => {
-      console.log("[DEBUG] pty-end with event: ", event);
       const { cwd } = event.invocation;
       if (cwd === workspace.root) {
         setPtys((prevPtys) => prevPtys.filter((item) => item.id !== event.id));
