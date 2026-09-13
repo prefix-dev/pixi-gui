@@ -6,7 +6,6 @@ use std::{
 };
 
 use memchr;
-use nix::sys::signal::Signal;
 use pixi_api::{
     manifest::{EnvironmentName, HasFeaturesIter},
     rattler_conda_types::PackageName,
@@ -455,6 +454,7 @@ fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
     #[cfg(unix)]
     {
         use std::os::unix::process::ExitStatusExt;
+        use nix::sys::signal::Signal;
         if let Some(code) = status.code() {
             // Safe case on Unix because only the lowest 8 bits of the exit status are preserved
             (Some(code as u32), None)
