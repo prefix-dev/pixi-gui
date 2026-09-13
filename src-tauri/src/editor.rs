@@ -3,9 +3,10 @@ use std::{
     path::PathBuf,
     process::{ExitStatus, Stdio},
     str::FromStr,
-    time::Duration,
 };
 
+use memchr;
+use nix::sys::signal::Signal;
 use pixi_api::{
     manifest::{EnvironmentName, HasFeaturesIter},
     rattler_conda_types::PackageName,
@@ -26,6 +27,7 @@ pub struct Editor {
     pub description: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package_name: Option<&'static str>,
+    pub is_gui: bool,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -46,60 +48,70 @@ const KNOWN_SYSTEM_EDITORS: &[Editor] = &[
         name: "Visual Studio Code",
         description: "Code editing. Redefined.",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "codium .",
         name: "VSCodium",
         description: "Free/Libre Open Source Software Binaries of VS Code",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "positron .",
         name: "Positron",
         description: "A next-generation data science IDE",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "cursor .",
         name: "Cursor",
         description: "The AI Code Editor",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "zed .",
         name: "Zed",
         description: "Code at the speed of thought",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "subl .",
         name: "Sublime Text",
         description: "Text Editing, Done Right",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "charm .",
         name: "PyCharm",
         description: "The Python IDE for Professional Developers",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "idea .",
         name: "IntelliJ IDEA",
         description: "The IDE for Professional Java Development",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "webstorm .",
         name: "WebStorm",
         description: "The JavaScript and TypeScript IDE",
         package_name: None,
+        is_gui: true,
     },
     Editor {
         command: "rustrover .",
         name: "RustRover",
         description: "The Rust IDE by JetBrains",
         package_name: None,
+        is_gui: true,
     },
 ];
 
@@ -110,12 +122,14 @@ const INSTALLABLE_EDITORS: &[Editor] = &[
         name: "Jupyter Lab",
         description: "Web-based interactive development environment",
         package_name: Some("jupyter"),
+        is_gui: false,
     },
     Editor {
         command: "spyder -p .",
         name: "Spyder",
         description: "The Scientific Python Development Environment",
         package_name: Some("spyder"),
+        is_gui: true,
     },
 ];
 
@@ -198,11 +212,12 @@ pub async fn list_installable_editors<R: Runtime>(
 
 const MAX_TAIL_LINES: usize = 5;
 const MAX_HEAD_LINES: usize = 5;
-const LAUNCH_TIMEOUT: Duration = Duration::from_secs(300); // 5 minutes
+const MAX_LINE_BYTES: usize = 8 * 1024; // 8 KB limit per line
 
 pub struct OutputBuffer {
     head: Vec<String>,
     tail: VecDeque<String>,
+    dropped: usize,
 }
 
 impl OutputBuffer {
@@ -210,6 +225,7 @@ impl OutputBuffer {
         Self {
             head: Vec::with_capacity(MAX_HEAD_LINES),
             tail: VecDeque::with_capacity(MAX_TAIL_LINES),
+            dropped: 0,
         }
     }
 
@@ -219,20 +235,21 @@ impl OutputBuffer {
         } else {
             if self.tail.len() == MAX_TAIL_LINES {
                 self.tail.pop_front();
+                self.dropped = self.dropped.saturating_add(1);
             }
             self.tail.push_back(line);
         }
     }
 
     pub fn into_vec(self) -> Vec<String> {
-        if self.tail.is_empty() {
-            self.head
-        } else {
-            let mut result = self.head;
-            result.push("... [output truncated] ...".to_string());
-            result.extend(self.tail);
-            result
+        let mut result = self.head;
+        if self.dropped > 0 {
+            let count = self.dropped;
+            let suffix = if self.dropped == 1 { "line" } else { "lines" };
+            result.push(format!("... [{count} {suffix} truncated] ..."));
         }
+        result.extend(self.tail);
+        result
     }
 }
 
@@ -272,8 +289,8 @@ pub async fn open_editor<R: Runtime>(
 
     #[cfg(target_os = "windows")]
     {
-        use windows_sys::Win32::System::Threading::{CREATE_NEW_PROCESS_GROUP, CREATE_NO_WINDOW};
-        cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW);
+        use windows_sys::Win32::System::Threading::CREATE_NO_WINDOW;
+        cmd.creation_flags(CREATE_NO_WINDOW);
     }
 
     #[cfg(unix)]
@@ -281,10 +298,9 @@ pub async fn open_editor<R: Runtime>(
         cmd.process_group(0);
     }
 
-    let start_time = std::time::Instant::now();
     let mut child = cmd
         .spawn()
-        .map_err(|err| miette::miette!("failed to find the pixi binary: {err}"))?;
+        .map_err(|err| miette::miette!("failed to spawn process: {err}"))?;
 
     let stderr = child
         .stderr
@@ -295,23 +311,41 @@ pub async fn open_editor<R: Runtime>(
 
     // Move to a new thread and emit errors coming from the editor thread
     tauri::async_runtime::spawn(async move {
-        let mut reader = tokio::io::BufReader::new(stderr).lines();
-        let mut output_buffer = OutputBuffer::new();
+        let drain_task = async move {
+            let mut reader = tokio::io::BufReader::new(stderr);
+            let mut output_buffer = OutputBuffer::new();
 
-        // Read lines continuously until pixi closes stderr
-        while let Ok(Some(line)) = reader.next_line().await {
-            output_buffer.push(line);
-        }
+            // Read lines continuously so the OS pipe never fills up
+            loop {
+                match read_limited_line(&mut reader, MAX_LINE_BYTES).await {
+                    Ok(line) if line.bytes.is_empty() && line.reached_eof => break,
+                    Ok(line) => {
+                        let clean_line = format_line(&line.bytes, line.was_truncated);
+                        output_buffer.push(clean_line);
+                    }
+                    Err(e) => {
+                        log::error!("problem reading the stderr");
+                        break;
+                    }
+                }
+            }
 
-        let status = match child.wait().await {
+            output_buffer
+        };
+
+        let wait_task = async { child.wait().await };
+
+        let (output_buffer, status_result) = tokio::join!(drain_task, wait_task);
+
+        let status = match status_result {
             Ok(status) => status,
             Err(err) => {
-                log::error!("failed to wait on editor process '{command}' : {err}");
+                log::error!("failed to wait for child process (command: '{command}') : {err}");
                 return;
             }
         };
 
-        if status.success() || start_time.elapsed() >= LAUNCH_TIMEOUT {
+        if status.success() {
             return;
         }
 
@@ -332,6 +366,82 @@ pub async fn open_editor<R: Runtime>(
     Ok(())
 }
 
+/// Result of attempting to read single line with a byte cap.
+#[derive(Debug, PartialEq)]
+struct LineRead {
+    bytes: Vec<u8>,
+    was_truncated: bool,
+    reached_eof: bool,
+}
+
+/// Read a single line from an `AsyncBufReadExt` source, discarding any bytes beyond `max_bytes`
+/// until the newline or EOF is reached.
+async fn read_limited_line<R: AsyncBufReadExt + Unpin>(
+    reader: &mut R,
+    max_bytes: usize,
+) -> std::io::Result<LineRead> {
+    let mut line_buf = Vec::new();
+    let mut was_truncated = false;
+
+    loop {
+        let buffer = reader.fill_buf().await?;
+        if buffer.is_empty() {
+            return Ok(LineRead {
+                bytes: line_buf,
+                was_truncated,
+                reached_eof: true,
+            });
+        }
+
+        if let Some(newline_idx) = memchr::memchr(b'\n', buffer) {
+            let bytes_to_consume = newline_idx + 1;
+
+            if !was_truncated {
+                let space_left = max_bytes.saturating_sub(line_buf.len());
+                let copy_amount = space_left.min(bytes_to_consume);
+                line_buf.extend_from_slice(&buffer[..copy_amount]);
+
+                if bytes_to_consume > space_left {
+                    was_truncated = true;
+                }
+            }
+
+            reader.consume(bytes_to_consume);
+            return Ok(LineRead {
+                bytes: line_buf,
+                was_truncated,
+                reached_eof: false,
+            });
+        }
+
+        // No newline found in the current internal buffer slice yet
+        if !was_truncated {
+            let space_left = max_bytes.saturating_sub(line_buf.len());
+            let copy_amount = space_left.min(buffer.len());
+            line_buf.extend_from_slice(&buffer[..copy_amount]);
+
+            if buffer.len() > space_left {
+                was_truncated = true;
+            }
+        }
+
+        let len = buffer.len();
+        reader.consume(len);
+    }
+}
+
+/// Formats the raw line bytes into a cleaned string ready for display.
+fn format_line(raw_bytes: &[u8], was_truncated: bool) -> String {
+    let raw_str = String::from_utf8_lossy(raw_bytes);
+    let trimmed = raw_str.trim_end_matches(['\r', '\n']);
+    let mut clean = utils::strip_ansi_escapes(trimmed).to_string();
+
+    if was_truncated {
+        clean.push_str("... [truncated");
+    }
+    clean
+}
+
 fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
     #[cfg(target_os = "windows")]
     {
@@ -349,7 +459,10 @@ fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
             // Safe case on Unix because only the lowest 8 bits of the exit status are preserved
             (Some(code as u32), None)
         } else if let Some(signal) = status.signal() {
-            (None, Some(format!("SIG{}", signal)))
+            let signal_string = Signal::try_from(signal)
+                .map(|s| s.to_string())
+                .unwrap_or_else(|_| format!("SIG{}", signal));
+            (None, Some(signal_string))
         } else {
             (None, None)
         }
@@ -358,9 +471,12 @@ fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
 
 #[cfg(test)]
 mod tests {
-    use super::{OpenEditorError, OutputBuffer};
+    use super::*;
 
-    const MARKER: &str = "... [output truncated] ...";
+    fn expected_marker(dropped: usize) -> String {
+        let suffix = if dropped == 1 { "line" } else { "lines" };
+        format!("... [{dropped} {suffix} truncated] ...")
+    }
 
     /// Push `n` numbered lines through an [`OutputBuffer`] and collect the result.
     fn buffer_of(n: usize) -> Vec<String> {
@@ -408,7 +524,7 @@ mod tests {
     fn output_buffer_ten_lines_are_not_marked_as_truncated() {
         let out = buffer_of(10);
         assert!(
-            !out.contains(&MARKER.to_string()),
+            !out.iter().any(|line| line.contains("truncated")),
             "nothing was dropped but the output is marked as truncated: {out:#?}"
         );
         assert_eq!(out.len(), 10);
@@ -420,14 +536,26 @@ mod tests {
         assert_eq!(
             buffer_of(11),
             [
-                "line 1", "line 2", "line 3", "line 4", "line 5", MARKER, "line 7", "line 8",
-                "line 9", "line 10", "line 11",
+                "line 1",
+                "line 2",
+                "line 3",
+                "line 4",
+                "line 5",
+                &expected_marker(1),
+                "line 7",
+                "line 8",
+                "line 9",
+                "line 10",
+                "line 11",
             ]
         );
 
         let out = buffer_of(100);
-        assert_eq!(&out[..5], ["line 1", "line 2", "line 3", "line 4", "line 5"]);
-        assert_eq!(out[5], MARKER);
+        assert_eq!(
+            &out[..5],
+            ["line 1", "line 2", "line 3", "line 4", "line 5"]
+        );
+        assert_eq!(out[5], expected_marker(90));
         assert_eq!(
             &out[6..],
             ["line 96", "line 97", "line 98", "line 99", "line 100"]
@@ -453,6 +581,192 @@ mod tests {
         let json = serde_json::to_string(&sample_error(None, None)).unwrap();
         assert!(json.contains(r#""exitCode":null"#), "{json}");
         assert!(json.contains(r#""signal":null"#), "{json}");
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_reads_normal_line() {
+        let mut mock_reader = std::io::Cursor::new(b"short line\nnext");
+
+        let limit = 18;
+
+        let first_line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            first_line,
+            LineRead {
+                bytes: b"short line\n".to_vec(),
+                was_truncated: false,
+                reached_eof: false
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_truncates_long_line() {
+        let mut mock_reader =
+            std::io::Cursor::new(b"a much longer line that should be truncated\n");
+        let limit = 18;
+
+        let line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            line,
+            LineRead {
+                bytes: b"a much longer line".to_vec(),
+                was_truncated: true,
+                reached_eof: false
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_recovery_after_truncation() {
+        let mut mock_reader = std::io::Cursor::new(
+            b"a much longer line that should be truncated\nanother short line",
+        );
+        let limit = 18;
+
+        let _ = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        let next_line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            next_line,
+            LineRead {
+                bytes: b"another short line".to_vec(),
+                was_truncated: false,
+                reached_eof: true
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_chunked_reader() {
+        let mock_stream = tokio_test::io::Builder::new()
+            .read(b"this ")
+            .read(b"line ")
+            .read(b"is chunked\n")
+            .build();
+        let mut mock_reader = tokio::io::BufReader::new(mock_stream);
+        let limit = 30;
+
+        let line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            line,
+            LineRead {
+                bytes: b"this line is chunked\n".to_vec(),
+                was_truncated: false,
+                reached_eof: false
+            }
+        );
+
+        let eof_line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            eof_line,
+            LineRead {
+                bytes: b"".to_vec(),
+                was_truncated: false,
+                reached_eof: true
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_chunked_reader_truncates() {
+        let mock_stream = tokio_test::io::Builder::new()
+            .read(b"part 1 - ")
+            .read(b"part 2 - ")
+            .read(b"part 3 ends with newline\n")
+            .build();
+        let mut mock_reader = tokio::io::BufReader::new(mock_stream);
+        let limit = 12;
+
+        let line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            line,
+            LineRead {
+                bytes: b"part 1 - par".to_vec(),
+                was_truncated: true,
+                reached_eof: false
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_single_newline() {
+        let mut mock_reader = std::io::Cursor::new(b"\n");
+
+        let limit = 18;
+
+        let newline = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            newline,
+            LineRead {
+                bytes: b"\n".to_vec(),
+                was_truncated: false,
+                reached_eof: false
+            }
+        );
+
+        let eof_line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            eof_line,
+            LineRead {
+                bytes: b"".to_vec(),
+                was_truncated: false,
+                reached_eof: true
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_empty_stream() {
+        let mut mock_reader = std::io::Cursor::new(b"");
+
+        let limit = 18;
+
+        let empty_line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            empty_line,
+            LineRead {
+                bytes: b"".to_vec(),
+                was_truncated: false,
+                reached_eof: true
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_one_line_at_the_limit() {
+        let mut mock_reader = std::io::Cursor::new(b"123456789\n");
+
+        let limit = 10;
+
+        let line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+        assert_eq!(
+            line,
+            LineRead {
+                bytes: b"123456789\n".to_vec(),
+                was_truncated: false,
+                reached_eof: false
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn read_limited_line_no_newline_branch() {
+        // 15 bytes of data with NO newline character.
+        let mut mock_reader = std::io::Cursor::new(b"123456789012345");
+
+        // We only have room for 10 bytes. 5 bytes will be dropped.
+        let limit = 10;
+
+        let line = read_limited_line(&mut mock_reader, limit).await.unwrap();
+
+        assert_eq!(
+            line,
+            LineRead {
+                bytes: b"1234567890".to_vec(),
+                was_truncated: true,
+                reached_eof: true
+            }
+        );
     }
 
     #[cfg(unix)]
@@ -481,7 +795,10 @@ mod tests {
                 .status()
                 .expect("failed to spawn sh");
 
-            assert_eq!(parse_exit_status(&status), (None, Some("SIG9".to_string())));
+            assert_eq!(
+                parse_exit_status(&status),
+                (None, Some("SIGKILL".to_string()))
+            );
         }
 
         #[test]

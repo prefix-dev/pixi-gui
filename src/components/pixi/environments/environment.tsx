@@ -133,25 +133,67 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     };
   }, [name, availableEditors, workspace.root]);
 
-  const runFreeformTask = () => {
+  const isGuiEditorCommand = (command: string): boolean => {
+    const binary = command.trim().split(/\s+/)[0];
+    const knownGuiBinaries = [
+      "code",
+      "codium",
+      "positron",
+      "cursor",
+      "zed",
+      "subl",
+      "charm",
+      "idea",
+      "webstorm",
+      "rustrover",
+      "spyder",
+    ];
+    return knownGuiBinaries.includes(binary);
+  };
+
+  const runFreeformTask = async () => {
     if (!commandInput.trim()) return;
     const command = commandInput.trim();
     const editor = availableEditors.find((e) => e.command === command);
-    navigate({
-      to: "./process",
-      search: {
-        kind: "command",
-        command,
-        editor,
-        environment: name,
-        autoStart: true,
-      },
-    });
-    setCommandInput("");
+    const isGui = editor?.isGui ?? isGuiEditorCommand(command);
+
+    if (isGui) {
+      try {
+        await openEditor(workspace, name, command);
+        toast.info(`Launching ${editor?.name ?? command}...`, {
+          description:
+            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
+        });
+      } catch (error) {
+        toast.error(`Failed to execute process: ${error}`);
+      }
+    } else {
+      navigate({
+        to: "./process",
+        search: {
+          kind: "command",
+          command,
+          editor,
+          environment: name,
+          autoStart: true,
+        },
+      });
+      setCommandInput("");
+    }
   };
 
   const launchEditor = async (editor: Editor) => {
-    if (editor.packageName) {
+    if (editor.isGui) {
+      try {
+        await openEditor(workspace, name, editor.command);
+        toast.info(`Launching ${editor.name}…`, {
+          description:
+            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
+        });
+      } catch (error) {
+        toast.error(`Failed to execute editor process: ${error}`);
+      }
+    } else {
       navigate({
         to: "./process",
         search: {
@@ -162,16 +204,6 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
           autoStart: true,
         },
       });
-    } else {
-      try {
-        await openEditor(workspace, name, editor.command);
-        toast.info(`Launching ${editor.name}…`, {
-          description:
-            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
-        });
-      } catch (error) {
-        toast.error(`Failed to open the editor ${editor.name}: ${error}`);
-      }
     }
   };
 

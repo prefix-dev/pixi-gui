@@ -12,8 +12,8 @@ interface OpenEditorErrorPayload {
   workspace: string;
   command: string;
   environment: string;
-  exitCode?: number;
-  signal?: string;
+  exitCode: number | null;
+  signal: string | null;
   stderr: string[];
 }
 
@@ -27,16 +27,18 @@ function RootComponent() {
       "editor-failed",
       (payload) => {
         const reason =
-          payload.exitCode !== null && payload.exitCode !== undefined
+          payload.exitCode != null
             ? `Exit code: ${payload.exitCode}`
-            : `Signal: ${payload.signal}`;
+            : payload.signal != null
+              ? `Signal: ${payload.signal}`
+              : "Unknown exit status";
 
-        toast.error("Failed to launch editor", {
+        toast.error("Editor process error", {
           description: (
             <div className="flex flex-col gap-2 mt-1">
               <div>
-                Could not launch{" "}
-                <code className="font-bold">{payload.command}</code> in{" "}
+                Process <code className="font-bold">{payload.command}</code>{" "}
+                exited with an error in{" "}
                 <code className="font-bold">{payload.environment}</code> (
                 {payload.workspace}). [{reason}]
               </div>

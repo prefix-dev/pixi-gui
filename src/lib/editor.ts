@@ -8,6 +8,7 @@ export interface Editor {
   name: string;
   description: string;
   packageName?: string;
+  isGui: boolean;
 }
 
 export async function listAvailableEditors(
