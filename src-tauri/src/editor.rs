@@ -11,7 +11,7 @@ use pixi_api::{
     rattler_conda_types::PackageName,
 };
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Manager, Runtime, Window};
+use tauri::{Emitter, Runtime, Window};
 use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
 use which::which;
@@ -306,8 +306,6 @@ pub async fn open_editor<R: Runtime>(
         .take()
         .ok_or_else(|| miette::miette!("failed to capture stderr from pixi process"))?;
 
-    let app_handle = window.app_handle().clone();
-
     // Move to a new thread and emit errors coming from the editor thread
     tauri::async_runtime::spawn(async move {
         let drain_task = async move {
@@ -357,7 +355,7 @@ pub async fn open_editor<R: Runtime>(
             signal,
             stderr: output_buffer.into_vec(),
         };
-        if let Err(err) = app_handle.emit("editor-failed", payload) {
+        if let Err(err) = window.emit_to(window.label(), "editor-failed", payload) {
             log::error!("failed to emit editor-failed event to frontend: {}", err);
         }
     });
@@ -453,8 +451,8 @@ fn parse_exit_status(status: &ExitStatus) -> (Option<u32>, Option<String>) {
 
     #[cfg(unix)]
     {
-        use std::os::unix::process::ExitStatusExt;
         use nix::sys::signal::Signal;
+        use std::os::unix::process::ExitStatusExt;
         if let Some(code) = status.code() {
             // Safe case on Unix because only the lowest 8 bits of the exit status are preserved
             (Some(code as u32), None)
