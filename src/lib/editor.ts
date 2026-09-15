@@ -40,10 +40,33 @@ function getKey(workspaceRoot: string, environment: string): string {
 export async function getEditorPreference(
   workspaceRoot: string,
   environment: string,
+  availableEditors: Editor[],
 ): Promise<Editor | null> {
   const preferences =
     (await store.get<Record<string, Editor>>("editorPreferences")) ?? {};
-  return preferences[getKey(workspaceRoot, environment)] ?? null;
+  const saved = preferences[getKey(workspaceRoot, environment)];
+
+  if (!saved) return null;
+
+  const matchingEditor = availableEditors.find(
+    (e) =>
+      e.command === saved.command ||
+      (e.packageName && e.packageName === saved.packageName),
+  );
+
+  // Live metadata overrides saved UI state
+  if (matchingEditor) {
+    return {
+      ...saved,
+      ...matchingEditor,
+    };
+  }
+
+  // Fallback to saved values
+  return {
+    ...saved,
+    isGui: saved.isGui ?? false,
+  };
 }
 
 export async function setEditorPreference(

@@ -50,20 +50,10 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
   const [availableEditors, setAvailableEditors] = useState<Editor[]>([]);
   const [installableEditors, setInstallableEditors] = useState<Editor[]>([]);
 
-  // Load saved editor preference on mount
-  useEffect(() => {
-    const loadPreference = async () => {
-      const saved = await getEditorPreference(workspace.root, name);
-      if (saved) {
-        setLastEditor(saved);
-      }
-    };
-    void loadPreference();
-  }, [workspace.root, name]);
-
   // Load available and installable editors for this environment
+  // Load saved editor preference on mount - requires available editors for correct loading
   useEffect(() => {
-    const loadEditors = async () => {
+    const loadEditorsAndPreference = async () => {
       try {
         const [available, installable] = await Promise.all([
           listAvailableEditors(workspace.root, name),
@@ -71,11 +61,21 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         ]);
         setAvailableEditors(available);
         setInstallableEditors(installable);
+
+        const saved = await getEditorPreference(
+          workspace.root,
+          name,
+          available,
+        );
+        if (saved) {
+          setLastEditor(saved);
+        }
       } catch (error) {
-        console.error("Failed to load editors:", error);
+        console.error("Failed to load editors or preference:", error);
       }
     };
-    void loadEditors();
+
+    void loadEditorsAndPreference();
   }, [workspace.root, name]);
 
   // Load running commands on mount and subscribe to pty events to track the running freeform tasks / commands
@@ -133,29 +133,11 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     };
   }, [name, availableEditors, workspace.root]);
 
-  const isGuiEditorCommand = (command: string): boolean => {
-    const binary = command.trim().split(/\s+/)[0];
-    const knownGuiBinaries = [
-      "code",
-      "codium",
-      "positron",
-      "cursor",
-      "zed",
-      "subl",
-      "charm",
-      "idea",
-      "webstorm",
-      "rustrover",
-      "spyder",
-    ];
-    return knownGuiBinaries.includes(binary);
-  };
-
   const runFreeformTask = async () => {
     if (!commandInput.trim()) return;
     const command = commandInput.trim();
     const editor = availableEditors.find((e) => e.command === command);
-    const isGui = editor?.isGui ?? isGuiEditorCommand(command);
+    const isGui = editor?.isGui ?? false;
 
     if (isGui) {
       try {
