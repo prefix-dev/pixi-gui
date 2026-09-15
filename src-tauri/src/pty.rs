@@ -33,7 +33,7 @@ enum TerminationKind {
 /// 3. `~/.pixi/bin/pixi` as last resort
 ///
 /// Returns the full path if found, otherwise falls back to "pixi" for PATH resolution.
-fn find_pixi_binary() -> String {
+pub(crate) fn find_pixi_binary() -> String {
     // 1. Check PATH first
     if let Ok(path) = which::which("pixi") {
         return path.to_string_lossy().into_owned();

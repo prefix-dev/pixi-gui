@@ -15,12 +15,12 @@ import {
 } from "@/components/shadcn/empty";
 import { Input } from "@/components/shadcn/input";
 
-import { startCommand } from "@/hooks/useProcess";
 import {
   type Editor,
   getEditorPreference,
   listAvailableEditors,
   listInstallableEditors,
+  openEditor,
   setEditorPreference,
 } from "@/lib/editor";
 import { subscribe } from "@/lib/event";
@@ -50,20 +50,10 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
   const [availableEditors, setAvailableEditors] = useState<Editor[]>([]);
   const [installableEditors, setInstallableEditors] = useState<Editor[]>([]);
 
-  // Load saved editor preference on mount
-  useEffect(() => {
-    const loadPreference = async () => {
-      const saved = await getEditorPreference(workspace.root, name);
-      if (saved) {
-        setLastEditor(saved);
-      }
-    };
-    void loadPreference();
-  }, [workspace.root, name]);
-
   // Load available and installable editors for this environment
+  // Load saved editor preference on mount - requires available editors for correct loading
   useEffect(() => {
-    const loadEditors = async () => {
+    const loadEditorsAndPreference = async () => {
       try {
         const [available, installable] = await Promise.all([
           listAvailableEditors(workspace.root, name),
@@ -71,11 +61,21 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
         ]);
         setAvailableEditors(available);
         setInstallableEditors(installable);
+
+        const saved = await getEditorPreference(
+          workspace.root,
+          name,
+          available,
+        );
+        if (saved) {
+          setLastEditor(saved);
+        }
       } catch (error) {
-        console.error("Failed to load editors:", error);
+        console.error("Failed to load editors or preference:", error);
       }
     };
-    void loadEditors();
+
+    void loadEditorsAndPreference();
   }, [workspace.root, name]);
 
   // Load running commands on mount and subscribe to pty events to track the running freeform tasks / commands
@@ -133,25 +133,49 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
     };
   }, [name, availableEditors, workspace.root]);
 
-  const runFreeformTask = () => {
+  const runFreeformTask = async () => {
     if (!commandInput.trim()) return;
     const command = commandInput.trim();
     const editor = availableEditors.find((e) => e.command === command);
-    navigate({
-      to: "./process",
-      search: {
-        kind: "command",
-        command,
-        editor,
-        environment: name,
-        autoStart: true,
-      },
-    });
-    setCommandInput("");
+    const isGui = editor?.isGui ?? false;
+
+    if (isGui) {
+      try {
+        await openEditor(workspace, name, command);
+        toast.info(`Launching ${editor?.name ?? command}...`, {
+          description:
+            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
+        });
+      } catch (error) {
+        toast.error(`Failed to execute process: ${error}`);
+      }
+    } else {
+      navigate({
+        to: "./process",
+        search: {
+          kind: "command",
+          command,
+          editor,
+          environment: name,
+          autoStart: true,
+        },
+      });
+      setCommandInput("");
+    }
   };
 
   const launchEditor = async (editor: Editor) => {
-    if (editor.packageName) {
+    if (editor.isGui) {
+      try {
+        await openEditor(workspace, name, editor.command);
+        toast.info(`Launching ${editor.name}…`, {
+          description:
+            "Preparing the environment. This might take a few moments if dependencies are being downloaded.",
+        });
+      } catch (error) {
+        toast.error(`Failed to execute editor process: ${error}`);
+      }
+    } else {
       navigate({
         to: "./process",
         search: {
@@ -162,9 +186,6 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
           autoStart: true,
         },
       });
-    } else {
-      await startCommand(workspace, name, editor.command);
-      toast.info(`Opening ${editor.name}…`);
     }
   };
 
