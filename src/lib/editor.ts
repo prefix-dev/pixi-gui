@@ -1,11 +1,14 @@
 import { invoke } from "@tauri-apps/api/core";
 import { LazyStore } from "@tauri-apps/plugin-store";
 
+import type { Workspace } from "@/lib/pixi/workspace/workspace";
+
 export interface Editor {
   command: string;
   name: string;
   description: string;
   packageName?: string;
+  isGui: boolean;
 }
 
 export async function listAvailableEditors(
@@ -37,10 +40,33 @@ function getKey(workspaceRoot: string, environment: string): string {
 export async function getEditorPreference(
   workspaceRoot: string,
   environment: string,
+  availableEditors: Editor[],
 ): Promise<Editor | null> {
   const preferences =
     (await store.get<Record<string, Editor>>("editorPreferences")) ?? {};
-  return preferences[getKey(workspaceRoot, environment)] ?? null;
+  const saved = preferences[getKey(workspaceRoot, environment)];
+
+  if (!saved) return null;
+
+  const matchingEditor = availableEditors.find(
+    (e) =>
+      e.command === saved.command ||
+      (e.packageName && e.packageName === saved.packageName),
+  );
+
+  // Live metadata overrides saved UI state
+  if (matchingEditor) {
+    return {
+      ...saved,
+      ...matchingEditor,
+    };
+  }
+
+  // Fallback to saved values
+  return {
+    ...saved,
+    isGui: saved.isGui ?? false,
+  };
 }
 
 export async function setEditorPreference(
@@ -53,4 +79,17 @@ export async function setEditorPreference(
   preferences[getKey(workspaceRoot, environment)] = editor;
   await store.set("editorPreferences", preferences);
   await store.save();
+}
+
+export async function openEditor(
+  workspace: Workspace,
+  environment: string,
+  command: string,
+): Promise<void> {
+  await invoke<void>("open_editor", {
+    root: workspace.root,
+    manifest: workspace.manifest,
+    environment,
+    command,
+  });
 }

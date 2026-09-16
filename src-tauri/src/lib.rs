@@ -132,6 +132,7 @@ pub fn run(workspace_path: Option<String>) {
             window::open_new_window,
             editor::list_available_editors,
             editor::list_installable_editors,
+            editor::open_editor,
         ])
         .setup(move |app| {
             // On Linux and Windows, file associations launch a new process with the file path in CLI args
