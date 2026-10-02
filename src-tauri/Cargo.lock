@@ -8491,6 +8491,7 @@ dependencies = [
 [[package]]
 name = "reqwest-middleware"
 version = "0.5.99"
+source = "git+https://github.com/prefix-dev/pixi?tag=v0.81.0#abd7c0d32ebaf208939516e95e2776bf5ce2a6c9"
 dependencies = [
  "astral-reqwest-middleware",
 ]

@@ -1,9 +1,20 @@
+import argparse
+import json
 import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
 
 import tomllib
+
+RATTLER_BUILD_ARGS = [
+    "rattler-build",
+    "build",
+    "--recipe",
+    "recipe/recipe.yaml",
+    "--channel",
+    "https://prefix.dev/conda-forge",
+]
 
 
 def get_version_from_cargo() -> str:
@@ -43,19 +54,32 @@ def build() -> None:
     env["PIXI_GUI_VERSION"] = pixi_gui_version
 
     subprocess.run(
-        [
-            "rattler-build",
-            "build",
-            "--recipe",
-            "recipe/recipe.yaml",
-            "--channel",
-            "https://prefix.dev/conda-forge",
-        ],
+        [*RATTLER_BUILD_ARGS, "--no-build-id"],
         env=env,
         check=True,
     )
     print("Build completed successfully")
 
 
+def get_rust_version() -> str:
+    rendered = subprocess.run(
+        [*RATTLER_BUILD_ARGS, "--render-only", "--with-solve"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    resolved = json.loads(rendered)[0]["finalized_dependencies"]["build"]["resolved"]
+    return str(next(package["version"] for package in resolved if package["name"] == "rust"))
+
+
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--rust-version",
+        action="store_true",
+        help="Print the Rust version the build will use instead of building",
+    )
+    if parser.parse_args().rust_version:
+        print(get_rust_version())
+    else:
+        build()

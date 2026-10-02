@@ -69,6 +69,11 @@ def update(gh: Github) -> None:
     if "rev" in dep:
         del dep["rev"]
     dep["tag"] = latest
+
+    # The reqwest-middleware patch comes from pixi's repository as well
+    patch = cast(dict[str, Any], cast(dict[str, Any], doc["patch"])["crates-io"])
+    cast(dict[str, Any], patch["reqwest-middleware"])["tag"] = latest
+
     CARGO_TOML.write_text(tomlkit.dumps(doc))
     subprocess.run(["taplo", "fmt", str(CARGO_TOML)], check=True)
     print(f"Updated Cargo.toml to {latest}")
