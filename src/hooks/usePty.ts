@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { subscribe } from "@/lib/event";
 import {
@@ -24,6 +24,20 @@ export interface PtyState {
   id: string;
 }
 
+const killingPtyIds = new Set<string>();
+const killListeners = new Set<() => void>();
+
+function subscribeKill(callback: () => void) {
+  killListeners.add(callback);
+  return () => {
+    killListeners.delete(callback);
+  };
+}
+
+function notifyKillStatusChange() {
+  killListeners.forEach((callback) => callback());
+}
+
 export function usePty(options: {
   id: string;
   onStart?: (event: PtyStartEvent) => void;
@@ -33,11 +47,14 @@ export function usePty(options: {
 
   const [isRunning, setIsRunning] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
-  const [isKilling, setIsKilling] = useState(false);
+  const isKilling = useSyncExternalStore(
+    subscribeKill,
+    () => killingPtyIds.has(id),
+    () => false,
+  );
 
   // Refs for synchronous guards against concurrent calls
   const startingRef = useRef(false);
-  const killingRef = useRef(false);
 
   const start = async (
     invocation: PtyInvocation,
@@ -59,16 +76,16 @@ export function usePty(options: {
   };
 
   const kill = async () => {
-    if (killingRef.current || !isRunning) return;
+    if (killingPtyIds.has(id) || !isRunning) return;
 
-    killingRef.current = true;
-    setIsKilling(true);
+    killingPtyIds.add(id);
+    notifyKillStatusChange();
     try {
       await killPty(id);
     } catch (error) {
       console.error("Failed to kill PTY:", error);
-      killingRef.current = false;
-      setIsKilling(false);
+      killingPtyIds.delete(id);
+      notifyKillStatusChange();
     }
   };
 
@@ -76,20 +93,24 @@ export function usePty(options: {
     const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
       if (event.id !== id) return;
       startingRef.current = false;
-      killingRef.current = false;
       setIsRunning(true);
       setIsStarting(false);
-      setIsKilling(false);
+
+      killingPtyIds.delete(id);
+      notifyKillStatusChange();
+
       onStart?.(event);
     });
 
     const unsubscribeExit = subscribe<PtyExitEvent>("pty-exit", (event) => {
       if (event.id !== id) return;
       startingRef.current = false;
-      killingRef.current = false;
       setIsRunning(false);
       setIsStarting(false);
-      setIsKilling(false);
+
+      killingPtyIds.delete(id);
+      notifyKillStatusChange();
+
       onExit?.(event);
     });
 
