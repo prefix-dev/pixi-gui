@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { subscribe } from "@/lib/event";
 import {
@@ -47,11 +53,8 @@ export function usePty(options: {
 
   const [isRunning, setIsRunning] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
-  const isKilling = useSyncExternalStore(
-    subscribeKill,
-    () => killingPtyIds.has(id),
-    () => false,
-  );
+  const getSnapshot = useCallback(() => killingPtyIds.has(id), [id]);
+  const isKilling = useSyncExternalStore(subscribeKill, getSnapshot);
 
   // Refs for synchronous guards against concurrent calls
   const startingRef = useRef(false);
