@@ -69,6 +69,7 @@ export function RunningProcesses() {
               environment={envName}
               taskName={kind.task}
               readOnly={true}
+              showEnvironmentName={true}
             />
           );
         }
@@ -78,9 +79,9 @@ export function RunningProcesses() {
               key={pty.id}
               kind="command"
               command={kind.command}
-              // editor={editor} ??
               environment={kind.environment}
               readOnly={true}
+              showEnvironmentName={true}
             />
           );
         }
