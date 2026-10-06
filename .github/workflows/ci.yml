@@ -29,7 +29,6 @@ jobs:
           cache-write: ${{ github.ref == 'refs/heads/main' }}
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
           key: ${{ hashFiles('pixi.lock') }}
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Run lint check
@@ -44,7 +43,6 @@ jobs:
           cache-write: ${{ github.ref == 'refs/heads/main' }}
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
           key: ${{ hashFiles('pixi.lock') }}
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Run tests
@@ -71,7 +69,7 @@ jobs:
         run: echo "version=$(pixi run --environment=packaging build-package --rust-version)" >> "$GITHUB_OUTPUT"
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri -> ../output/bld/target-cache
+          workspaces: ". -> output/bld/target-cache"
           key: rust-${{ steps.rust.outputs.version }}
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Build package
@@ -98,7 +96,7 @@ jobs:
         run: echo "version=$(pixi run --environment=packaging build-package --rust-version)" >> "$GITHUB_OUTPUT"
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri -> ../output/bld/target-cache
+          workspaces: ". -> output/bld/target-cache"
           key: rust-${{ steps.rust.outputs.version }}
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Build package

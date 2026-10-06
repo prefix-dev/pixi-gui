@@ -10,13 +10,13 @@ use pixi_api::{
     manifest::{EnvironmentName, HasFeaturesIter},
     rattler_conda_types::PackageName,
 };
+use pixi_gui_server_macros::command;
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Runtime, Window};
 use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
 use which::which;
 
-use crate::{error::Error, pty::find_pixi_binary, utils};
+use crate::{context::Ctx, error::Error, pty::find_pixi_binary, utils};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -133,13 +133,13 @@ const INSTALLABLE_EDITORS: &[Editor] = &[
 ];
 
 /// List all available editors for an environment (system editors + installed tools)
-#[tauri::command]
-pub async fn list_available_editors<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_available_editors(
+    ctx: Ctx,
     workspace: PathBuf,
     environment: EnvironmentName,
 ) -> Result<Vec<Editor>, Error> {
-    let ctx = utils::workspace_context(window, workspace)?;
+    let ctx = utils::workspace_context(ctx, workspace)?;
 
     let feature_names: Vec<_> = ctx
         .workspace()
@@ -186,14 +186,14 @@ pub async fn list_available_editors<R: Runtime>(
 }
 
 /// List editors that can be installed in an environment (not yet installed)
-#[tauri::command]
-pub async fn list_installable_editors<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_installable_editors(
+    ctx: Ctx,
     workspace: PathBuf,
     environment: EnvironmentName,
 ) -> Result<Vec<Editor>, Error> {
     // Get all available editors (system + installed tools)
-    let available = list_available_editors(window, workspace, environment).await?;
+    let available = list_available_editors(ctx, workspace, environment).await?;
 
     // Return INSTALLABLE_EDITORS minus those already available
     let installable: Vec<Editor> = INSTALLABLE_EDITORS
@@ -259,9 +259,9 @@ impl Default for OutputBuffer {
 }
 
 /// Open editor in the OS as a detached process
-#[tauri::command]
-pub async fn open_editor<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn open_editor(
+    ctx: Ctx,
     root: String,
     manifest: String,
     environment: String,
@@ -307,7 +307,7 @@ pub async fn open_editor<R: Runtime>(
         .ok_or_else(|| miette::miette!("failed to capture stderr from pixi process"))?;
 
     // Move to a new thread and emit errors coming from the editor thread
-    tauri::async_runtime::spawn(async move {
+    tokio::spawn(async move {
         let drain_task = async move {
             let mut reader = tokio::io::BufReader::new(stderr);
             let mut output_buffer = OutputBuffer::new();
@@ -355,9 +355,7 @@ pub async fn open_editor<R: Runtime>(
             signal,
             stderr: output_buffer.into_vec(),
         };
-        if let Err(err) = window.emit_to(window.label(), "editor-failed", payload) {
-            log::error!("failed to emit editor-failed event to frontend: {}", err);
-        }
+        ctx.send_event("editor-failed", payload);
     });
 
     Ok(())

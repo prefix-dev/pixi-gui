@@ -1,4 +1,3 @@
-import { openUrl } from "@tauri-apps/plugin-opener";
 import { FitAddon } from "@xterm/addon-fit";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
@@ -12,6 +11,7 @@ import {
   resizePty,
   writePty,
 } from "@/lib/pty";
+import { openExternal } from "@/lib/utils";
 
 interface TerminalProps {
   id: string;
@@ -119,9 +119,7 @@ export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
 
     // Clickable links
     const webLinksAddon = new WebLinksAddon((_event, uri) => {
-      openUrl(uri).catch((error) => {
-        console.error("Failed to open URL:", error, uri);
-      });
+      openExternal(uri);
     });
     instance.loadAddon(webLinksAddon);
 

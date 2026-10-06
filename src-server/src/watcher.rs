@@ -4,25 +4,28 @@ use log::{debug, error};
 use miette::IntoDiagnostic;
 use notify::{EventKind, RecursiveMode};
 use notify_debouncer_full::{DebounceEventResult, Debouncer, RecommendedCache, new_debouncer};
-use tauri::{AppHandle, Emitter, Manager, Runtime, Window};
+use pixi_gui_server_macros::command;
+use tokio::sync::mpsc;
 
+use crate::context::{Ctx, SessionId};
 use crate::error::Error;
+use crate::event::Event;
 
 #[derive(Default)]
 pub struct Watcher {
-    watchers: HashMap<String, Debouncer<notify::RecommendedWatcher, RecommendedCache>>,
+    watchers: HashMap<SessionId, Debouncer<notify::RecommendedWatcher, RecommendedCache>>,
 }
 
 impl Watcher {
-    pub fn watch<R: Runtime>(
+    pub fn watch(
         &mut self,
-        app: AppHandle<R>,
-        window_label: String,
+        sender: mpsc::UnboundedSender<Event>,
+        session: SessionId,
         manifest: PathBuf,
     ) -> Result<(), miette::Error> {
-        self.unwatch(&window_label);
+        self.unwatch(&session);
 
-        let window_label_clone = window_label.clone();
+        let session_clone = session.clone();
         let manifest_path_clone = manifest.clone();
 
         // Create debounced watcher with 500ms delay
@@ -42,12 +45,11 @@ impl Watcher {
 
                     if manifest_modified {
                         debug!("Manifest changed: {:?}", manifest_path_clone);
-                        if let Some(window) = app.get_webview_window(&window_label_clone)
-                            && let Err(e) =
-                                window.emit_to(&window_label_clone, "manifest-changed", ())
-                        {
-                            error!("Failed to emit manifest-changed event: {}", e);
-                        }
+                        let _ = sender.send(Event::new(
+                            &session_clone,
+                            "manifest-changed",
+                            serde_json::Value::Null,
+                        ));
                     }
                 }
                 Err(errs) => {
@@ -67,40 +69,33 @@ impl Watcher {
         debouncer
             .watch(watch_dir, RecursiveMode::NonRecursive)
             .into_diagnostic()?;
-        debug!(
-            "Started watching {:?} for window {}",
-            manifest, window_label
-        );
+        debug!("Started watching {:?} for session {}", manifest, session);
 
-        self.watchers.insert(window_label, debouncer);
+        self.watchers.insert(session, debouncer);
         Ok(())
     }
 
-    pub fn unwatch(&mut self, window_label: &str) {
-        if self.watchers.remove(window_label).is_some() {
-            debug!("Stopped watcher for window {}", window_label);
+    pub fn unwatch(&mut self, session: &str) {
+        if self.watchers.remove(session).is_some() {
+            debug!("Stopped watcher for session {}", session);
         }
     }
 }
 
-#[tauri::command]
-pub async fn watch_manifest<R: Runtime>(
-    app: AppHandle<R>,
-    window: Window<R>,
-    state: tauri::State<'_, crate::state::AppState>,
-    manifest_path: PathBuf,
-) -> Result<(), Error> {
-    let mut watcher = state.watcher().lock().await;
-    watcher.watch(app, window.label().to_string(), manifest_path)?;
+#[command]
+pub async fn watch_manifest(ctx: Ctx, manifest_path: PathBuf) -> Result<(), Error> {
+    let mut watcher = ctx.state.watcher().lock().await;
+    watcher.watch(
+        ctx.state.event_sender().clone(),
+        ctx.session.clone(),
+        manifest_path,
+    )?;
     Ok(())
 }
 
-#[tauri::command]
-pub async fn unwatch_manifest<R: Runtime>(
-    window: Window<R>,
-    state: tauri::State<'_, crate::state::AppState>,
-) -> Result<(), Error> {
-    let mut watcher = state.watcher().lock().await;
-    watcher.unwatch(window.label());
+#[command]
+pub async fn unwatch_manifest(ctx: Ctx) -> Result<(), Error> {
+    let mut watcher = ctx.state.watcher().lock().await;
+    watcher.unwatch(&ctx.session);
     Ok(())
 }

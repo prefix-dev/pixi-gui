@@ -6110,21 +6110,10 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "dunce",
- "humantime",
- "indexmap 2.14.2",
- "libc",
  "log",
- "memchr",
- "miette 7.6.0",
- "nix 0.31.3",
- "notify",
- "notify-debouncer-full",
  "percent-encoding",
- "pixi_api",
- "portable-pty",
- "serde",
+ "pixi-gui-server",
  "serde_json",
- "strip-ansi-escapes",
  "tao 0.35.3",
  "tauri",
  "tauri-build",
@@ -6134,11 +6123,43 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-single-instance",
  "tauri-plugin-store",
+ "uuid",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "pixi-gui-server"
+version = "0.1.0"
+dependencies = [
+ "humantime",
+ "indexmap 2.14.2",
+ "libc",
+ "log",
+ "memchr",
+ "miette 7.6.0",
+ "nix 0.31.3",
+ "notify",
+ "notify-debouncer-full",
+ "pixi-gui-server-macros",
+ "pixi_api",
+ "portable-pty",
+ "serde",
+ "serde_json",
+ "strip-ansi-escapes",
+ "tempfile",
  "tokio",
  "tokio-test",
- "uuid",
  "which",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "pixi-gui-server-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]

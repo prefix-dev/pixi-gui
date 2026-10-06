@@ -1,5 +1,3 @@
-import { documentDir, homeDir, join } from "@tauri-apps/api/path";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { ChevronDownIcon, ChevronUpIcon, PencilIcon } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
@@ -30,7 +28,9 @@ import {
   SelectValue,
 } from "@/components/shadcn/select";
 
+import { documentsDir, joinPath } from "@/lib/fs";
 import { GitAttributes, ManifestFormat, init } from "@/lib/pixi/workspace/init";
+import { platform } from "@/lib/platform";
 import { getPlatformName } from "@/lib/utils";
 
 interface NewWorkspaceDialogProps {
@@ -58,17 +58,17 @@ export function NewWorkspaceDialog({
 
   useEffect(() => {
     if (location && name.trim()) {
-      join(location, name.trim()).then(setFullPath).catch(console.error);
+      joinPath(location, name.trim()).then(setFullPath).catch(console.error);
     }
   }, [location, name]);
 
   const handleSelectLocation = async () => {
     setSubmitError("");
     try {
-      const selectedPath = await openDialog({
+      const selectedPath = await platform.pickPath({
         directory: true,
         canCreateDirectories: true,
-        defaultPath: await documentDir().catch(() => homeDir()),
+        defaultPath: await documentsDir(),
       });
 
       if (selectedPath) {

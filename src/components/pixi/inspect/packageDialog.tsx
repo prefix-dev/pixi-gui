@@ -1,4 +1,3 @@
-import { openUrl } from "@tauri-apps/plugin-opener";
 import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -15,7 +14,7 @@ import {
 } from "@/components/shadcn/dialog";
 
 import type { Package } from "@/lib/pixi/workspace/list";
-import { isUrl } from "@/lib/utils";
+import { isUrl, openExternal } from "@/lib/utils";
 
 interface PackageDialogProps {
   pkg: Package;
@@ -247,7 +246,7 @@ function EntryList({
               <button
                 type="button"
                 className="block max-w-full truncate cursor-pointer hover:underline"
-                onClick={() => openUrl(value)}
+                onClick={() => openExternal(value)}
               >
                 {value}
               </button>

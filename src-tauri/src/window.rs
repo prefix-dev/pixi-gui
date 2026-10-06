@@ -48,7 +48,20 @@ pub fn create_window<R: Runtime, M: Manager<R>>(manager: &M, path: &str) {
     let builder = WebviewWindowBuilder::new(manager, &label, url)
         .inner_size(900.0, 700.0)
         .min_inner_size(500.0, 400.0)
-        .title("Pixi GUI");
+        .title("Pixi GUI")
+        .on_new_window(|url, _features| {
+            // Links opened by the frontend (`window.open`) go to the system browser
+            if let Err(e) = tauri_plugin_opener::open_url(url.as_str(), None::<&str>) {
+                log::error!("Failed to open {url}: {e}");
+            }
+            tauri::webview::NewWindowResponse::Deny
+        })
+        .on_document_title_changed(|window, title| {
+            // The window title follows `document.title`
+            if let Err(e) = window.set_title(&title) {
+                log::error!("Failed to set window title: {e}");
+            }
+        });
 
     // Needed, otherwise you get a gliched transparent look when you use macOS Tahoe (26) or newer
     #[cfg(target_os = "macos")]

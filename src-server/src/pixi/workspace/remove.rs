@@ -9,14 +9,15 @@ use pixi_api::pep508::Requirement;
 use pixi_api::pypi_spec::PypiPackageName;
 use pixi_api::rattler_conda_types::{MatchSpec, PackageName};
 use pixi_api::workspace::DependencyOptions;
-use tauri::{Runtime, Window};
+use pixi_gui_server_macros::command;
 
+use crate::context::Ctx;
 use crate::error::Error;
 use crate::utils::{self, spawn_local};
 
-#[tauri::command]
-pub async fn remove_conda_deps<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn remove_conda_deps(
+    ctx: Ctx,
     workspace: PathBuf,
     specs: HashMap<String, MatchSpec>,
     dep_options: DependencyOptions,
@@ -30,7 +31,7 @@ pub async fn remove_conda_deps<R: Runtime>(
             })
             .collect();
 
-        Ok(utils::workspace_context(window, workspace)?
+        Ok(utils::workspace_context(ctx, workspace)?
             .remove_conda_deps(specs, SpecType::Run, dep_options)
             .await
             .map_err(miette::Report::new)?)
@@ -38,9 +39,9 @@ pub async fn remove_conda_deps<R: Runtime>(
     .await
 }
 
-#[tauri::command]
-pub async fn remove_pypi_deps<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn remove_pypi_deps(
+    ctx: Ctx,
     workspace: PathBuf,
     pypi_deps: IndexMap<PypiPackageName, Requirement>,
     dep_options: DependencyOptions,
@@ -51,7 +52,7 @@ pub async fn remove_pypi_deps<R: Runtime>(
             .map(|(name, req)| (name, (req, None, None)))
             .collect();
 
-        utils::workspace_context(window, workspace)?
+        utils::workspace_context(ctx, workspace)?
             .remove_pypi_deps(pypi_deps, dep_options)
             .await
             .map_err(miette::Report::new)?;

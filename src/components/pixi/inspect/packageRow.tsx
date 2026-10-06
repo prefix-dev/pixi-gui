@@ -1,4 +1,3 @@
-import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   ChevronRightIcon,
   MicrochipIcon,
@@ -12,7 +11,7 @@ import {
 } from "@/components/pixi/inspect/columns";
 
 import type { Package } from "@/lib/pixi/workspace/list";
-import { isUrl } from "@/lib/utils";
+import { isUrl, openExternal } from "@/lib/utils";
 
 export interface PackageRowProps {
   pkg: Package;
@@ -90,7 +89,7 @@ export function PackageRow({
                 className="cursor-pointer hover:underline"
                 onClick={(e) => {
                   e.stopPropagation();
-                  openUrl(value);
+                  openExternal(value);
                 }}
               >
                 {highlightMatch(value)}

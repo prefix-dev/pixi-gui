@@ -12,9 +12,10 @@ use pixi_api::pypi_spec::{PixiPypiSpec, PypiPackageName};
 use pixi_api::rattler_conda_types::{NamedChannelOrUrl, PackageName, Platform};
 use pixi_api::spec::PixiSpec;
 use pixi_api::workspace::ChannelOptions;
+use pixi_gui_server_macros::command;
 use serde::{Deserialize, Serialize};
-use tauri::{Runtime, Window};
 
+use crate::context::Ctx;
 use crate::error::Error;
 use crate::utils::{self, spawn_local};
 
@@ -26,79 +27,72 @@ pub struct Environment {
     no_default_feature: bool,
 }
 
-#[tauri::command]
-pub async fn root<R: Runtime>(window: Window<R>, workspace: PathBuf) -> Result<PathBuf, Error> {
+#[command]
+pub async fn root(ctx: Ctx, workspace: PathBuf) -> Result<PathBuf, Error> {
     let workspace = utils::workspace(workspace)?;
     Ok(workspace.root().to_path_buf())
 }
 
-#[tauri::command]
-pub async fn manifest<R: Runtime>(window: Window<R>, workspace: PathBuf) -> Result<PathBuf, Error> {
+#[command]
+pub async fn manifest(ctx: Ctx, workspace: PathBuf) -> Result<PathBuf, Error> {
     let workspace = utils::workspace(workspace)?;
     Ok(workspace.workspace.provenance.absolute_path())
 }
 
-#[tauri::command]
-pub async fn name<R: Runtime>(window: Window<R>, workspace: PathBuf) -> Result<String, Error> {
-    Ok(utils::workspace_context(window, workspace)?.name().await)
+#[command]
+pub async fn name(ctx: Ctx, workspace: PathBuf) -> Result<String, Error> {
+    Ok(utils::workspace_context(ctx, workspace)?.name().await)
 }
 
-#[tauri::command]
-pub async fn set_name<R: Runtime>(
-    window: Window<R>,
-    workspace: PathBuf,
-    name: String,
-) -> Result<(), Error> {
-    utils::workspace_context(window, workspace)?
+#[command]
+pub async fn set_name(ctx: Ctx, workspace: PathBuf, name: String) -> Result<(), Error> {
+    utils::workspace_context(ctx, workspace)?
         .set_name(&name)
         .await?;
 
     Ok(())
 }
 
-#[tauri::command]
-pub async fn description<R: Runtime>(
-    window: Window<R>,
-    workspace: PathBuf,
-) -> Result<Option<String>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+#[command]
+pub async fn description(ctx: Ctx, workspace: PathBuf) -> Result<Option<String>, Error> {
+    Ok(utils::workspace_context(ctx, workspace)?
         .description()
         .await)
 }
 
-#[tauri::command]
-pub async fn set_description<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn set_description(
+    ctx: Ctx,
     workspace: PathBuf,
     description: String,
 ) -> Result<(), Error> {
-    utils::workspace_context(window, workspace)?
+    utils::workspace_context(ctx, workspace)?
         .set_description(&description)
         .await?;
 
     Ok(())
 }
 
-#[tauri::command]
-pub async fn list_channels<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_channels(
+    ctx: Ctx,
     workspace: PathBuf,
 ) -> Result<HashMap<EnvironmentName, Vec<NamedChannelOrUrl>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_channel()
         .await)
 }
 
-#[tauri::command]
-pub async fn add_channel<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn add_channel(
+    ctx: Ctx,
     workspace: PathBuf,
     options: ChannelOptions,
     priority: Option<i32>,
     prepend: bool,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
-        utils::workspace_context(window, workspace)?
+        utils::workspace_context(ctx, workspace)?
             .add_channel(options, priority, prepend)
             .await?;
 
@@ -107,15 +101,15 @@ pub async fn add_channel<R: Runtime>(
     .await
 }
 
-#[tauri::command]
-pub async fn remove_channel<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn remove_channel(
+    ctx: Ctx,
     workspace: PathBuf,
     options: ChannelOptions,
     priority: Option<i32>,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
-        utils::workspace_context(window, workspace)?
+        utils::workspace_context(ctx, workspace)?
             .remove_channel(options, priority)
             .await?;
 
@@ -124,14 +118,14 @@ pub async fn remove_channel<R: Runtime>(
     .await
 }
 
-#[tauri::command]
-pub async fn set_channels<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn set_channels(
+    ctx: Ctx,
     workspace: PathBuf,
     options: ChannelOptions,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
-        utils::workspace_context(window, workspace)?
+        utils::workspace_context(ctx, workspace)?
             .set_channels(options)
             .await?;
 
@@ -140,19 +134,19 @@ pub async fn set_channels<R: Runtime>(
     .await
 }
 
-#[tauri::command]
-pub async fn list_platforms<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_platforms(
+    ctx: Ctx,
     workspace: PathBuf,
 ) -> Result<HashMap<EnvironmentName, Vec<PixiPlatformName>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_platforms()
         .await)
 }
 
-#[tauri::command]
-pub async fn add_platforms<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn add_platforms(
+    ctx: Ctx,
     workspace: PathBuf,
     platforms: Vec<Platform>,
     no_install: bool,
@@ -160,7 +154,7 @@ pub async fn add_platforms<R: Runtime>(
     lock_file_usage: LockFileUsage,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
-        utils::workspace_context(window, workspace)?
+        utils::workspace_context(ctx, workspace)?
             .add_platforms(
                 platforms.into_iter().map(PixiPlatform::from).collect(),
                 no_install,
@@ -174,9 +168,9 @@ pub async fn add_platforms<R: Runtime>(
     .await
 }
 
-#[tauri::command]
-pub async fn remove_platforms<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn remove_platforms(
+    ctx: Ctx,
     workspace: PathBuf,
     platforms: Vec<Platform>,
     no_install: bool,
@@ -184,7 +178,7 @@ pub async fn remove_platforms<R: Runtime>(
     lock_file_usage: LockFileUsage,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
-        utils::workspace_context(window, workspace)?
+        utils::workspace_context(ctx, workspace)?
             .remove_platforms(
                 platforms.into_iter().map(PixiPlatform::from).collect(),
                 no_install,
@@ -198,17 +192,14 @@ pub async fn remove_platforms<R: Runtime>(
     .await
 }
 
-#[tauri::command]
+#[command]
 pub fn current_platform() -> String {
     Platform::current().to_string()
 }
 
-#[tauri::command]
-pub async fn list_features<R: Runtime>(
-    window: Window<R>,
-    workspace: PathBuf,
-) -> Result<Vec<FeatureName>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+#[command]
+pub async fn list_features(ctx: Ctx, workspace: PathBuf) -> Result<Vec<FeatureName>, Error> {
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_features()
         .await
         .iter()
@@ -216,58 +207,58 @@ pub async fn list_features<R: Runtime>(
         .collect())
 }
 
-#[tauri::command]
-pub async fn list_feature_channels<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_feature_channels(
+    ctx: Ctx,
     workspace: PathBuf,
     feature: &str,
 ) -> Result<Option<IndexSet<PrioritizedChannel>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_feature_channels(feature.into())
         .await)
 }
 
-#[tauri::command]
-pub async fn list_feature_dependencies<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_feature_dependencies(
+    ctx: Ctx,
     workspace: PathBuf,
     feature: &str,
 ) -> Result<Option<HashMap<PackageName, Vec<PixiSpec>>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_feature_dependencies(feature.into(), None)
         .await)
 }
 
-#[tauri::command]
-pub async fn list_feature_pypi_dependencies<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_feature_pypi_dependencies(
+    ctx: Ctx,
     workspace: PathBuf,
     feature: &str,
 ) -> Result<Option<HashMap<PypiPackageName, Vec<PixiPypiSpec>>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_feature_pypi_dependencies(feature.into(), None)
         .await)
 }
 
-#[tauri::command]
-pub async fn list_feature_tasks<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_feature_tasks(
+    ctx: Ctx,
     workspace: PathBuf,
     feature: &str,
 ) -> Result<Option<HashMap<TaskName, Task>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_feature_tasks(feature.into(), None)
         .await)
 }
 
-#[tauri::command]
-pub async fn feature_by_task<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn feature_by_task(
+    ctx: Ctx,
     workspace: PathBuf,
     task: &str,
     environment: &str,
 ) -> Result<Option<FeatureName>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .feature_by_task(
             &task.into(),
             &EnvironmentName::from_str(environment).unwrap(),
@@ -275,13 +266,9 @@ pub async fn feature_by_task<R: Runtime>(
         .await)
 }
 
-#[tauri::command]
-pub async fn remove_feature<R: Runtime>(
-    window: Window<R>,
-    workspace: PathBuf,
-    name: &str,
-) -> Result<bool, Error> {
-    let context = utils::workspace_context(window, workspace)?;
+#[command]
+pub async fn remove_feature(ctx: Ctx, workspace: PathBuf, name: &str) -> Result<bool, Error> {
+    let context = utils::workspace_context(ctx, workspace)?;
     let feature_name = FeatureName::from_str(name).unwrap();
 
     context.remove_feature(&feature_name).await?;
@@ -289,12 +276,9 @@ pub async fn remove_feature<R: Runtime>(
     Ok(!context.list_features().await.contains_key(&feature_name))
 }
 
-#[tauri::command]
-pub async fn list_environments<R: Runtime>(
-    window: Window<R>,
-    workspace: PathBuf,
-) -> Result<Vec<Environment>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+#[command]
+pub async fn list_environments(ctx: Ctx, workspace: PathBuf) -> Result<Vec<Environment>, Error> {
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_environments()
         .await
         .into_iter()
@@ -307,9 +291,9 @@ pub async fn list_environments<R: Runtime>(
         .collect())
 }
 
-#[tauri::command]
-pub async fn add_environment<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn add_environment(
+    ctx: Ctx,
     workspace: PathBuf,
     name: &str,
     features: Option<Vec<String>>,
@@ -317,7 +301,7 @@ pub async fn add_environment<R: Runtime>(
     no_default_feature: bool,
     force: bool,
 ) -> Result<(), Error> {
-    utils::workspace_context(window, workspace)?
+    utils::workspace_context(ctx, workspace)?
         .add_environment(
             EnvironmentName::from_str(name).unwrap(),
             features,
@@ -330,13 +314,9 @@ pub async fn add_environment<R: Runtime>(
     Ok(())
 }
 
-#[tauri::command]
-pub async fn remove_environment<R: Runtime>(
-    window: Window<R>,
-    workspace: PathBuf,
-    name: &str,
-) -> Result<(), Error> {
-    utils::workspace_context(window, workspace)?
+#[command]
+pub async fn remove_environment(ctx: Ctx, workspace: PathBuf, name: &str) -> Result<(), Error> {
+    utils::workspace_context(ctx, workspace)?
         .remove_environment(name)
         .await?;
 

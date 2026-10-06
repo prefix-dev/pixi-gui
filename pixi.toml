@@ -36,7 +36,7 @@ zlib = ">=1.3.1,<2"
 
 [tasks]
 app = { cmd = "pnpm tauri dev", depends-on = ["frontend-install-deps"] }
-backend-test = "cargo test --manifest-path src-tauri/Cargo.toml --workspace"
+backend-test = "cargo test --workspace"
 frontend-install-deps = "pnpm install"
 react-devtools = { cmd = "pnpm react-devtools", depends-on = [
   "frontend-install-deps",
@@ -62,8 +62,8 @@ pre-commit-install = "lefthook install"
 pre-commit-install-minimal = "lefthook install pre-commit"
 
 # Backend
-backend-format = "cargo fmt --manifest-path src-tauri/Cargo.toml --all"
-backend-lint = "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --workspace -- -D warnings"
+backend-format = "cargo fmt --all"
+backend-lint = "cargo clippy --all-targets --workspace -- -D warnings"
 
 # Frontend
 frontend-format = { cmd = "pnpm exec prettier . --write" }
@@ -73,15 +73,15 @@ frontend-lint = { cmd = "pnpm exec eslint . --fix --max-warnings=0 ", depends-on
 
 # Other
 actionlint = { cmd = "actionlint" }
-cargo-deny = "cargo deny --manifest-path src-tauri/Cargo.toml check license --deny warnings"
+cargo-deny = "cargo deny check license --deny warnings"
 license-check = { cmd = "pnpm license-checker --onlyAllow 'Apache-2.0;BSD-3-Clause;MIT;ISC'", depends-on = [
   "frontend-install-deps",
 ] }
 python-typecheck = "mypy ./scripts"
 ruff-format = "ruff format --exit-non-zero-on-format --force-exclude"
 ruff-lint = "ruff check --fix --exit-non-zero-on-fix --force-exclude"
-toml-format = { cmd = "taplo fmt *.toml src-tauri/*.toml", env = { RUST_LOG = "warn" } }
-toml-lint = "taplo lint *.toml src-tauri/*.toml --verbose"
+toml-format = { cmd = "taplo fmt *.toml src-server/*.toml src-server-macros/*.toml src-tauri/*.toml", env = { RUST_LOG = "warn" } }
+toml-lint = "taplo lint *.toml src-server/*.toml src-server-macros/*.toml src-tauri/*.toml --verbose"
 typos = "typos --force-exclude"
 
 # Combined

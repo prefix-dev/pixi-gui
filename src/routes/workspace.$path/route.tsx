@@ -5,15 +5,10 @@ import {
   useBlocker,
   useRouter,
 } from "@tanstack/react-router";
-import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { confirm, message } from "@tauri-apps/plugin-dialog";
-import {
-  isPermissionGranted,
-  requestPermission,
-  sendNotification,
-} from "@tauri-apps/plugin-notification";
 import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
+
+import { showConfirm, showMessage } from "@/components/common/genericDialog";
 
 import { subscribe } from "@/lib/event";
 import type { PixiNotification } from "@/lib/pixi/notification";
@@ -29,6 +24,7 @@ import {
   listFeatures,
   listPlatforms,
 } from "@/lib/pixi/workspace/workspace";
+import { platform } from "@/lib/platform";
 import { type PtyExitEvent, killPty, listPtys } from "@/lib/pty";
 import { addRecentWorkspace } from "@/lib/recentWorkspaces";
 import { unwatchManifest, watchManifest } from "@/lib/watcher";
@@ -69,10 +65,7 @@ export const Route = createFileRoute("/workspace/$path")({
   },
   staleTime: 1_000,
   onError: async (error) => {
-    await message(error, {
-      title: "Could not open workspace",
-      kind: "error",
-    });
+    await showMessage("Could not open workspace", String(error));
   },
   component: WorkspaceLayout,
   errorComponent: () => <Navigate to="/" />,
@@ -84,11 +77,10 @@ function WorkspaceLayout() {
 
   // Set window title to workspace name
   useEffect(() => {
-    const window = getCurrentWebviewWindow();
-    window.setTitle(`${workspace.name} - Pixi GUI`);
+    document.title = `${workspace.name} - Pixi GUI`;
 
     return () => {
-      window.setTitle("Pixi GUI");
+      document.title = "Pixi GUI";
     };
   }, [workspace.name]);
 
@@ -140,24 +132,6 @@ function WorkspaceLayout() {
 
   // Receive pty/task events
   useEffect(() => {
-    const appWebview = getCurrentWebviewWindow();
-
-    const sendTaskNotification = async (title: string, body: string) => {
-      let permissionGranted = await isPermissionGranted();
-
-      if (!permissionGranted) {
-        const permission = await requestPermission();
-        permissionGranted = permission === "granted";
-      }
-
-      // Only show task notifications when the window is not focused
-      if ((await appWebview.isFocused()) || !permissionGranted) {
-        return;
-      }
-
-      sendNotification({ title, body });
-    };
-
     const unsubscribe = subscribe<PtyExitEvent>("pty-exit", (payload) => {
       if (payload.invocation.kind.kind !== "task") {
         return;
@@ -175,11 +149,11 @@ function WorkspaceLayout() {
         body += " was terminated.";
       }
 
-      try {
-        sendTaskNotification(title, body);
-      } catch (error) {
-        console.error("Failed to send task notification:", error);
-      }
+      platform
+        .desktopNotification(title, body)
+        .catch((error) =>
+          console.error("Failed to send task notification:", error),
+        );
     });
 
     return () => {
@@ -198,13 +172,10 @@ function WorkspaceLayout() {
       return true;
     }
 
-    const shouldKill = await confirm(
+    const shouldKill = await showConfirm(
+      "Close Workspace?",
       "Do you want to terminate running processes in this workspace?",
-      {
-        title: "Close Workspace?",
-        kind: "warning",
-        okLabel: "Terminate",
-      },
+      "Terminate",
     );
 
     if (!shouldKill) {
@@ -220,13 +191,7 @@ function WorkspaceLayout() {
 
   // Window gets closed
   useEffect(() => {
-    const appWebview = getCurrentWebviewWindow();
-    const unlisten = appWebview.onCloseRequested(async (event) => {
-      if (!(await closeWorkspace())) {
-        // Prevent that window gets closed
-        event.preventDefault();
-      }
-    });
+    const unlisten = platform.onCloseRequested(closeWorkspace);
 
     return () => {
       unlisten

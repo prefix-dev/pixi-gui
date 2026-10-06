@@ -1,16 +1,17 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use pixi_api::manifest::{EnvironmentName, Task, TaskName};
-use tauri::{Runtime, Window};
+use pixi_gui_server_macros::command;
 
+use crate::context::Ctx;
 use crate::{error::Error, utils};
 
-#[tauri::command]
-pub async fn list_tasks<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn list_tasks(
+    ctx: Ctx,
     workspace: PathBuf,
 ) -> Result<HashMap<EnvironmentName, HashMap<TaskName, Task>>, Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .list_tasks(None)
         .await?
         .into_iter()
@@ -18,27 +19,27 @@ pub async fn list_tasks<R: Runtime>(
         .collect())
 }
 
-#[tauri::command]
-pub async fn add_task<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn add_task(
+    ctx: Ctx,
     workspace: PathBuf,
     name: String,
     task: Task,
     feature: String,
 ) -> Result<(), Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .add_task(name.into(), task, feature.into(), None)
         .await?)
 }
 
-#[tauri::command]
-pub async fn remove_task<R: Runtime>(
-    window: Window<R>,
+#[command]
+pub async fn remove_task(
+    ctx: Ctx,
     workspace: PathBuf,
     name: String,
     feature: String,
 ) -> Result<(), Error> {
-    Ok(utils::workspace_context(window, workspace)?
+    Ok(utils::workspace_context(ctx, workspace)?
         .remove_task(vec![name.into()], None, feature.into())
         .await?)
 }

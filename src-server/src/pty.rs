@@ -7,12 +7,13 @@ use log::warn;
 use miette::{IntoDiagnostic, Result};
 use portable_pty::{Child, CommandBuilder, MasterPty, PtySize, native_pty_system};
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Runtime, Window};
 use tokio::sync::Mutex;
 use tokio::sync::watch;
 use tokio::time::timeout;
 
-use crate::{error::Error, state::AppState};
+use pixi_gui_server_macros::command;
+
+use crate::{context::Ctx, error::Error, state::State};
 
 /// How the PTY process was terminated.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -392,18 +393,17 @@ impl PtyHandle {
     }
 }
 
-#[tauri::command]
-pub async fn pty_create<R: Runtime>(
-    window: Window<R>,
-    state: tauri::State<'_, AppState>,
+#[command]
+pub async fn pty_create(
+    ctx: Ctx,
     id: String,
     invocation: PtyInvocation,
     cols: u16,
     rows: u16,
 ) -> Result<(), Error> {
-    let window_label = window.label().to_string();
-    let app_state = state.inner().clone();
+    let state = ctx.state.clone();
     let id_clone = id.clone();
+    let runtime = tokio::runtime::Handle::current();
 
     let (handle, child) = PtyHandle::new(id.clone(), invocation.clone(), cols, rows)?;
     let exit_tx = handle.exit_tx.lock().unwrap().take().unwrap();
@@ -411,26 +411,22 @@ pub async fn pty_create<R: Runtime>(
 
     state.add_pty(id.clone(), pty.clone()).await;
 
-    window
-        .emit_to(
-            &window_label,
-            "pty-start",
-            PtyStartEvent {
-                id: id.clone(),
-                invocation: invocation.clone(),
-            },
-        )
-        .into_diagnostic()?;
+    ctx.send_event(
+        "pty-start",
+        PtyStartEvent {
+            id: id.clone(),
+            invocation: invocation.clone(),
+        },
+    );
 
     // Channel for the reader thread to signal it has finished reading all data.
     let (reader_done_tx, reader_done_rx) = std::sync::mpsc::channel::<()>();
 
     // Reader thread: reads PTY output and emits pty-data events.
     let pty_reader = pty.clone();
-    let window_reader = window.clone();
-    let window_label_reader = window_label.clone();
+    let ctx_reader = ctx.clone();
     let id_reader = id.clone();
-    tauri::async_runtime::spawn_blocking(move || {
+    tokio::task::spawn_blocking(move || {
         while let Some(data) = {
             match pty_reader.read() {
                 Ok(Some(data)) => Some(data),
@@ -445,21 +441,19 @@ pub async fn pty_create<R: Runtime>(
                 id: id_reader.clone(),
                 data,
             };
-            window_reader
-                .emit_to(&window_label_reader, "pty-data", data_event)
-                .unwrap();
+            ctx_reader.send_event("pty-data", data_event);
         }
         let _ = reader_done_tx.send(());
     });
 
     // Exit watcher thread: blocks on child.wait() until the process exits,
     // then closes PTY handles to unblock the reader and emits the exit event.
-    tauri::async_runtime::spawn_blocking(move || {
+    tokio::task::spawn_blocking(move || {
         let mut child = child;
         let exit_status = child.wait().expect("failed to wait for PTY child");
 
         // Close PTY streams to unblock the reader thread.
-        tauri::async_runtime::block_on(async {
+        runtime.block_on(async {
             *pty.writer.lock().await = None;
             *pty.master.lock().await = None;
         });
@@ -487,9 +481,7 @@ pub async fn pty_create<R: Runtime>(
             id: id.clone(),
             data: terminated_msg,
         };
-        window
-            .emit_to(&window_label, "pty-data", data_event)
-            .unwrap();
+        ctx.send_event("pty-data", data_event);
 
         let exit_event = PtyExitEvent {
             id: id_clone.clone(),
@@ -500,13 +492,11 @@ pub async fn pty_create<R: Runtime>(
             success: exit_status.success(),
         };
 
-        tauri::async_runtime::block_on(async {
-            app_state.remove_pty(&id_clone, exit_event.clone()).await;
+        runtime.block_on(async {
+            state.remove_pty(&id_clone, exit_event.clone()).await;
         });
 
-        window
-            .emit_to(&window_label, "pty-exit", &exit_event)
-            .unwrap();
+        ctx.send_event("pty-exit", &exit_event);
 
         // Signal that the process has fully exited and cleanup is complete.
         let _ = exit_tx.send(true);
@@ -515,72 +505,57 @@ pub async fn pty_create<R: Runtime>(
     Ok(())
 }
 
-#[tauri::command]
-pub async fn pty_write(
-    state: tauri::State<'_, AppState>,
-    id: String,
-    data: String,
-) -> Result<(), Error> {
-    let pty = require_pty(&state, &id).await?;
+#[command]
+pub async fn pty_write(ctx: Ctx, id: String, data: String) -> Result<(), Error> {
+    let pty = require_pty(&ctx.state, &id).await?;
     pty.write(data).await?;
     Ok(())
 }
 
-#[tauri::command]
-pub async fn pty_resize(
-    state: tauri::State<'_, AppState>,
-    id: String,
-    cols: u16,
-    rows: u16,
-) -> Result<(), Error> {
-    let pty = require_pty(&state, &id).await?;
+#[command]
+pub async fn pty_resize(ctx: Ctx, id: String, cols: u16, rows: u16) -> Result<(), Error> {
+    let pty = require_pty(&ctx.state, &id).await?;
     pty.resize(cols, rows).await?;
     Ok(())
 }
 
-#[tauri::command]
-pub async fn pty_get_buffer(
-    state: tauri::State<'_, AppState>,
-    id: String,
-) -> Result<String, Error> {
-    if let Some(pty) = state.pty(&id).await {
+#[command]
+pub async fn pty_get_buffer(ctx: Ctx, id: String) -> Result<String, Error> {
+    if let Some(pty) = ctx.state.pty(&id).await {
         return Ok(pty.buffered_output()?);
     }
 
     // PTY doesn't exist anymore -> return saved buffer
-    if let Some(record) = state.exit_event(&id).await {
+    if let Some(record) = ctx.state.exit_event(&id).await {
         return Ok(record.buffer);
     }
 
     Ok(String::new())
 }
 
-#[tauri::command]
-pub async fn pty_kill(state: tauri::State<'_, AppState>, id: String) -> Result<(), Error> {
-    let pty = require_pty(&state, &id).await?;
+#[command]
+pub async fn pty_kill(ctx: Ctx, id: String) -> Result<(), Error> {
+    let pty = require_pty(&ctx.state, &id).await?;
     pty.kill().await?;
     Ok(())
 }
 
-async fn require_pty(
-    state: &tauri::State<'_, AppState>,
-    id: &str,
-) -> Result<Arc<PtyHandle>, Error> {
+async fn require_pty(state: &State, id: &str) -> Result<Arc<PtyHandle>, Error> {
     state
         .pty(id)
         .await
         .ok_or_else(|| Error::from(miette::miette!("PTY `{id}` not found")))
 }
 
-#[tauri::command]
-pub async fn pty_is_running(state: tauri::State<'_, AppState>, id: String) -> Result<bool, Error> {
-    let Some(pty) = state.pty(&id).await else {
+#[command]
+pub async fn pty_is_running(ctx: Ctx, id: String) -> Result<bool, Error> {
+    let Some(pty) = ctx.state.pty(&id).await else {
         return Ok(false);
     };
     Ok(pty.is_running())
 }
 
-#[tauri::command]
-pub async fn pty_list(state: tauri::State<'_, AppState>) -> Result<Vec<Arc<PtyHandle>>, Error> {
-    Ok(state.ptys().await)
+#[command]
+pub async fn pty_list(ctx: Ctx) -> Result<Vec<Arc<PtyHandle>>, Error> {
+    Ok(ctx.state.ptys().await)
 }

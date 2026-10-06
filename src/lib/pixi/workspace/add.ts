@@ -1,5 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
-
+import { invoke } from "@/lib/api/transport";
 import type { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 
 export interface DependencyOptions {

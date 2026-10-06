@@ -25,7 +25,7 @@ fn main() {
 
     // Relaunch as detached process when started from terminal (like VSCode does)
     #[cfg(not(debug_assertions))]
-    if pixi_gui_lib::utils::launched_via_terminal() && !cli.no_relaunch {
+    if pixi_gui_lib::platform::launched_via_terminal() && !cli.no_relaunch {
         #[cfg(target_os = "macos")]
         if pixi_gui_lib::platform::osx::relaunch_via_launchd(workspace.as_deref()) {
             return;

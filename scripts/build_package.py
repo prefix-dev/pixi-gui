@@ -18,8 +18,8 @@ RATTLER_BUILD_ARGS = [
 
 
 def get_version_from_cargo() -> str:
-    toml = Path("src-tauri/Cargo.toml").read_text()
-    version = tomllib.loads(toml)["package"]["version"]
+    toml = Path("Cargo.toml").read_text()
+    version = tomllib.loads(toml)["workspace"]["package"]["version"]
     assert isinstance(version, str)
     return version
 

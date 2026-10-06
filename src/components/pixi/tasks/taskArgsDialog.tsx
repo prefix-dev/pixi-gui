@@ -1,4 +1,3 @@
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { FolderOpenIcon, PencilIcon } from "lucide-react";
 import React, { useState } from "react";
 
@@ -23,6 +22,7 @@ import {
 } from "@/components/shadcn/select";
 
 import type { TaskArgument } from "@/lib/pixi/workspace/task";
+import { platform } from "@/lib/platform";
 import {
   type TaskArgumentValues,
   isDirectoryArgument,
@@ -160,7 +160,7 @@ export function TaskArgumentsDialog({
                           size="icon"
                           title={isDirectory ? "Select folder" : "Select file"}
                           onClick={async () => {
-                            const selected = await openDialog({
+                            const selected = await platform.pickPath({
                               directory: isDirectory,
                             });
                             if (selected) {

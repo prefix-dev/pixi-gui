@@ -4,6 +4,9 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import { showConfirm } from "@/components/common/genericDialog";
+
+import { type ConfirmRequest, answerConfirm } from "@/lib/confirm";
 import { subscribe } from "@/lib/event";
 import "@/styles/fonts.css";
 import "@/styles/globals.css";
@@ -56,6 +59,22 @@ function RootComponent() {
 
     return () => {
       unsubscribeEditorError();
+    };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeConfirm = subscribe<ConfirmRequest>(
+      "confirm-request",
+      async ({ id, message }) => {
+        const value = await showConfirm("Confirm", message, "Yes", "No");
+        answerConfirm(id, value).catch((error) =>
+          console.error("Failed to answer confirm request:", error),
+        );
+      },
+    );
+
+    return () => {
+      unsubscribeConfirm();
     };
   }, []);
 

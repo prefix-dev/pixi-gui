@@ -41,7 +41,7 @@ pre-commit:
       stage_fixed: true
 
     - name: lint-cargo-deny
-      glob: "src-tauri/Cargo.{lock,toml}"
+      glob: "*Cargo.{lock,toml}"
       run: pixi {run} cargo-deny
       stage_fixed: true
 
@@ -78,4 +78,4 @@ pre-push:
   jobs:
     - name: lint-backend
       run: pixi {run} backend-lint
-      glob: "src-tauri/**/*"
+      glob: "{*.rs,*Cargo.toml,Cargo.lock}"

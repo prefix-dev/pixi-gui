@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   AppWindowIcon,
   BookOpenTextIcon,
@@ -19,7 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
 
-import { openNewWindow } from "@/lib/window";
+import { platform } from "@/lib/platform";
+import { openExternal } from "@/lib/utils";
 
 interface AppMenuProps {
   showChangeWorkspace?: boolean;
@@ -30,18 +30,14 @@ export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
 
   const handleNewWindow = async () => {
     try {
-      await openNewWindow();
+      await platform.openNewWindow();
     } catch (error) {
       console.error("Failed to open new window:", error);
     }
   };
 
-  const handleDocumentation = async () => {
-    try {
-      await openUrl("https://pixi.prefix.dev/");
-    } catch (error) {
-      console.error("Failed to open help URL:", error);
-    }
+  const handleDocumentation = () => {
+    openExternal("https://pixi.prefix.dev/");
   };
 
   return (

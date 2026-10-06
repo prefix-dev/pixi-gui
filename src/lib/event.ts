@@ -1,4 +1,4 @@
-import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { listen } from "@/lib/api/transport";
 
 type EventHandler<T = unknown> = (payload: T) => void;
 
@@ -49,20 +49,19 @@ function getEntry(eventName: string): EventEntry {
   // Add entry to registry immediately so subsequent calls get the same entry
   registry.set(eventName, newEntry);
 
-  // Setup Tauri event listener
-  getCurrentWebviewWindow()
-    .listen(eventName, (event) => {
-      // If no handlers are registered yet, queue the event
-      if (newEntry.handlers.size === 0) {
-        newEntry.pendingEvents.push(event.payload);
-        return;
-      }
+  // Setup backend event listener
+  listen(eventName, (payload) => {
+    // If no handlers are registered yet, queue the event
+    if (newEntry.handlers.size === 0) {
+      newEntry.pendingEvents.push(payload);
+      return;
+    }
 
-      const handlers = Array.from(newEntry.handlers);
-      for (const handler of handlers) {
-        handler(event.payload);
-      }
-    })
+    const handlers = Array.from(newEntry.handlers);
+    for (const handler of handlers) {
+      handler(payload);
+    }
+  })
     .then(() => {
       newEntry.ready = true;
     })
