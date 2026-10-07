@@ -1,5 +1,4 @@
 import { usePty } from "@/hooks/usePty";
-import { listTask } from "@/lib/pixi/workspace/task";
 import type { Workspace } from "@/lib/pixi/workspace/workspace";
 
 export interface ProcessState {
@@ -49,12 +48,6 @@ export function useProcess(options: ProcessOptions): ProcessState {
       return;
     }
 
-    // Only pass environment if task name exists in multiple environments
-    const allTasks = await listTask(workspace.root);
-    const envCount = Object.values(allTasks).filter(
-      (tasks) => options.taskName in tasks,
-    ).length;
-
     await startPty(
       {
         cwd: workspace.root,
@@ -62,7 +55,7 @@ export function useProcess(options: ProcessOptions): ProcessState {
         kind: {
           kind: "task",
           task: options.taskName,
-          environment: envCount > 1 ? environment : undefined,
+          environment: environment,
           args,
         },
       },

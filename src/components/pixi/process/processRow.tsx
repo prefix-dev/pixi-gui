@@ -25,12 +25,20 @@ import {
   saveTaskArgs,
 } from "@/lib/taskArgs";
 
-export type ProcessRowProps = { environment: string } & (
+export type ProcessRowProps = {
+  environment: string;
+  readOnly?: boolean;
+  showEnvironmentName?: boolean;
+} & (
   | { kind: "task"; task: Task; taskName: string }
   | { kind: "command"; command: string; editor?: Editor }
 );
 
-export function ProcessRow(props: ProcessRowProps) {
+export function ProcessRow({
+  readOnly = false,
+  showEnvironmentName = false,
+  ...props
+}: ProcessRowProps) {
   const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
   const navigate = getRouteApi("/workspace/$path").useNavigate();
 
@@ -77,10 +85,20 @@ export function ProcessRow(props: ProcessRowProps) {
     props.kind === "task"
       ? props.taskName
       : (props.editor?.name ?? props.command);
-  const subtitle =
+  const description =
     props.kind === "task"
       ? getTaskDescription(props.task)
       : props.editor?.description;
+  const subtitle = showEnvironmentName ? (
+    <span className="flex items-center gap-2 truncate">
+      <span className="inline-flex items-center rounded-full border-2 border-pfxgsl-300 dark:border-pfxgsl-600 px-1.5 text-xs font-bold text-foreground shrink-0">
+        <code>{props.environment}</code>
+      </span>
+      {description && <span className="truncate">{description}</span>}
+    </span>
+  ) : (
+    description
+  );
 
   const navigateToProcess = (autoStart?: boolean, autoStartArgs?: string[]) => {
     const search =
@@ -142,19 +160,22 @@ export function ProcessRow(props: ProcessRowProps) {
         suffix={
           props.kind === "task" ? (
             <>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                title="Set Task Arguments"
-                disabled={isRunning}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setArgsDialogOpen(true);
-                }}
-              >
-                <PencilLineIcon />
-              </Button>
+              {" "}
+              {!readOnly && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  title="Set Task Arguments"
+                  disabled={isRunning}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setArgsDialogOpen(true);
+                  }}
+                >
+                  <PencilLineIcon />
+                </Button>
+              )}
               {(runnable || isRunning) && (
                 <Button
                   type="button"
