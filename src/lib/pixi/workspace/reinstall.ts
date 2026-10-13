@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/platform";
 
 export type ReinstallPackages = "None" | "All" | { Some: string[] };
 

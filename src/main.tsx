@@ -1,8 +1,8 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { attachConsole } from "@tauri-apps/plugin-log";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 
+import { GenericDialogHost } from "@/components/common/genericDialog";
 import { Toaster } from "@/components/shadcn/sonner";
 
 // Import the generated route tree
@@ -25,9 +25,6 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// Forward Rust logging to console
-attachConsole().catch(console.error);
-
 // Render the app
 const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
@@ -36,6 +33,7 @@ if (rootElement && !rootElement.innerHTML) {
     <StrictMode>
       <RouterProvider router={router} />
       <Toaster />
+      <GenericDialogHost />
     </StrictMode>,
   );
 }

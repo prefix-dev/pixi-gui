@@ -23,6 +23,24 @@ export default defineConfig([
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   tseslint.configs.recommended,
+  // Tauri APIs are only used behind `@/lib/platform`,
+  // so the frontend also works in a browser
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/lib/platform/tauri/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@tauri-apps/*"],
+            },
+          ],
+        },
+      ],
+    },
+  },
   // React Specific
   {
     files: ["**/*.{jsx,tsx}"],

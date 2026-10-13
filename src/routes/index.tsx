@@ -1,5 +1,4 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { open } from "@tauri-apps/plugin-dialog";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -10,6 +9,7 @@ import { NewWorkspaceDialog } from "@/components/pixi/newWorkspaceDialog";
 import { Button } from "@/components/shadcn/button";
 
 import { type Workspace, getWorkspace } from "@/lib/pixi/workspace/workspace";
+import { platform } from "@/lib/platform";
 import {
   type RecentWorkspaceEntry,
   listRecentWorkspaces,
@@ -31,7 +31,7 @@ function AppComponent() {
 
   const handleOpenWorkspace = async () => {
     try {
-      const path = await open({
+      const path = await platform.pickPath({
         directory: true,
         title: "Open Workspace",
         canCreateDirectories: false,

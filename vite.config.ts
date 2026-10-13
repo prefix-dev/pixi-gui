@@ -30,6 +30,15 @@ export default defineConfig({
       // tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
+
+    // Only for development. The page is served by Vite here, so its WebSocket to
+    // `/api/ws` reaches Vite instead of actual server. Forward it to the server.
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:5174",
+        ws: true,
+      },
+    },
   },
   // Env variables starting with the item of `envPrefix` will be exposed in tauri's source code through `import.meta.env`.
   envPrefix: ["VITE_", "TAURI_ENV_*"],

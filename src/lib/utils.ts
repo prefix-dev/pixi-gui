@@ -11,6 +11,11 @@ export function toPixiName(value: string): string {
   return value.toLowerCase().replace(/\s+/g, "-");
 }
 
+// Opens a URL outside the app (system browser on desktop, new tab in a browser)
+export function openExternal(url: string): void {
+  window.open(url, "_blank", "noopener");
+}
+
 export function isUrl(value: string): boolean {
   return value.startsWith("http://") || value.startsWith("https://");
 }

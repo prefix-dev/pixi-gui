@@ -1,5 +1,3 @@
-import { getName } from "@tauri-apps/api/app";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import { ExternalLinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -12,7 +10,8 @@ import {
   DialogTitle,
 } from "@/components/shadcn/dialog";
 
-import { getAppVersion, getPixiVersion } from "@/lib/pixi/version";
+import { getAppName, getAppVersion, getPixiVersion } from "@/lib/pixi/version";
+import { openExternal } from "@/lib/utils";
 
 interface AboutDialogProps {
   open: boolean;
@@ -27,7 +26,7 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
   useEffect(() => {
     const loadAppInfo = async () => {
       const [name, version, pixi] = await Promise.all([
-        getName(),
+        getAppName(),
         getAppVersion(),
         getPixiVersion(),
       ]);
@@ -66,7 +65,7 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
             variant="ghost"
             className="mt-pfx-m"
             onClick={() =>
-              openUrl("https://github.com/prefix-dev/pixi-gui/issues")
+              openExternal("https://github.com/prefix-dev/pixi-gui/issues")
             }
           >
             Report Issue <ExternalLinkIcon />

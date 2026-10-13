@@ -1,0 +1,75 @@
+[package]
+edition.workspace = true
+name = "pixi-gui-server"
+publish = false
+version.workspace = true
+
+[lib]
+name = "pixi_gui_server"
+
+[[bin]]
+name = "pixi-gui-server"
+required-features = ["server"]
+
+[features]
+# HTTP/WebSocket server and the `pixi-gui-server` binary, for using Pixi GUI in a browser
+server = [
+  "dep:axum",
+  "dep:clap",
+  "dep:env_logger",
+  "dep:listenfd",
+  "dep:memory-serve",
+  "dep:open",
+  "dep:uuid",
+  "tokio/net",
+]
+
+[dependencies]
+axum = { version = "0.8", features = ["ws"], optional = true }
+clap = { version = "4.5", features = ["derive"], optional = true }
+dirs = "6"
+env_logger = { version = "0.11", optional = true }
+humantime = "2.3.0"
+indexmap = "2"
+libc = "0.2"
+listenfd = { version = "1", optional = true }
+log = "0.4"
+memchr = "2.8.3"
+memory-serve = { version = "2", optional = true }
+miette = "7"
+nix = "0.31.3"
+notify = "8"
+notify-debouncer-full = "0.7"
+open = { version = "5", optional = true }
+pixi-gui-server-macros.workspace = true
+pixi_api.workspace = true
+portable-pty = "0.9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+strip-ansi-escapes = "0.2"
+strum = { version = "0.28", features = ["derive"] }
+tokio = { version = "1.47", features = [
+  "io-util",
+  "macros",
+  "process",
+  "rt",
+  "rt-multi-thread",
+  "sync",
+  "time",
+] }
+uuid = { version = "1", features = ["v4"], optional = true }
+which = "8.0.0"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_System_Threading",
+] }
+
+[build-dependencies]
+# Embeds the frontend, see build.rs
+memory-serve = { version = "2", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+tokio-test = "0.4.5"

@@ -1,9 +1,8 @@
-import { invoke } from "@tauri-apps/api/core";
-
 import {
   type DependencyOptions,
   type MatchSpec,
 } from "@/lib/pixi/workspace/add";
+import { invoke } from "@/lib/platform";
 
 export async function removeCondaDeps(
   workspace: string,

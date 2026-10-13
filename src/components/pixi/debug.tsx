@@ -1,7 +1,7 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { message } from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from "react";
 
+import { showMessage } from "@/components/common/genericDialog";
 import { Row } from "@/components/common/row";
 import { Button } from "@/components/shadcn/button";
 
@@ -76,7 +76,7 @@ export function Debug() {
               title={`${pty.invocation.kind.kind}PTY`}
               subtitle={pty.id}
               onClick={() =>
-                message(JSON.stringify(pty, null, 2), { title: "PTY Details" })
+                showMessage("PTY Details", JSON.stringify(pty, null, 2))
               }
               suffix={
                 <Button size="sm" onClick={() => handleKill(pty.id)}>

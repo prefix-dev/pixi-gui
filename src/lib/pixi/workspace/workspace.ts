@@ -1,7 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
-
 import { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 import type { Task } from "@/lib/pixi/workspace/task";
+import { invoke } from "@/lib/platform";
 
 export interface Workspace {
   root: string;

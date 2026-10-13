@@ -1,4 +1,3 @@
-import { openUrl } from "@tauri-apps/plugin-opener";
 import { FitAddon } from "@xterm/addon-fit";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
@@ -6,12 +5,8 @@ import { useEffect, useRef } from "react";
 import { useXTerm } from "react-xtermjs";
 
 import { subscribe } from "@/lib/event";
-import {
-  type PtyDataEvent,
-  getPtyBuffer,
-  resizePty,
-  writePty,
-} from "@/lib/pty";
+import { getPtyBuffer, resizePty, writePty } from "@/lib/pty";
+import { openExternal } from "@/lib/utils";
 
 interface TerminalProps {
   id: string;
@@ -76,7 +71,7 @@ export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
       });
 
     // Reset terminal when a new PTY session starts
-    const unsubscribeStart = subscribe<{ id: string }>("pty-start", (event) => {
+    const unsubscribeStart = subscribe("pty-start", (event) => {
       if (id !== event.id) return;
       instance.reset();
       bufferLoadedRef.current = true;
@@ -84,7 +79,7 @@ export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
     });
 
     // PTY Data -> Terminal
-    const unsubscribeData = subscribe<PtyDataEvent>("pty-data", (event) => {
+    const unsubscribeData = subscribe("pty-data", (event) => {
       if (id !== event.id) return;
       if (!bufferLoadedRef.current) {
         pendingDataRef.current.push(event.data);
@@ -119,9 +114,7 @@ export function Terminal({ id, isRunning, onDimensionsChange }: TerminalProps) {
 
     // Clickable links
     const webLinksAddon = new WebLinksAddon((_event, uri) => {
-      openUrl(uri).catch((error) => {
-        console.error("Failed to open URL:", error, uri);
-      });
+      openExternal(uri);
     });
     instance.loadAddon(webLinksAddon);
 

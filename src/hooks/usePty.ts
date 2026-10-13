@@ -73,7 +73,7 @@ export function usePty(options: {
   };
 
   useEffect(() => {
-    const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
+    const unsubscribeStart = subscribe("pty-start", (event) => {
       if (event.id !== id) return;
       startingRef.current = false;
       killingRef.current = false;
@@ -83,7 +83,7 @@ export function usePty(options: {
       onStart?.(event);
     });
 
-    const unsubscribeExit = subscribe<PtyExitEvent>("pty-exit", (event) => {
+    const unsubscribeExit = subscribe("pty-exit", (event) => {
       if (event.id !== id) return;
       startingRef.current = false;
       killingRef.current = false;

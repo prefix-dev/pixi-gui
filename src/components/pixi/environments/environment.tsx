@@ -27,7 +27,7 @@ import { subscribe } from "@/lib/event";
 import { addCondaDeps } from "@/lib/pixi/workspace/add";
 import { LockFileUsage } from "@/lib/pixi/workspace/reinstall";
 import type { Task } from "@/lib/pixi/workspace/task";
-import { type PtyExitEvent, type PtyStartEvent, listPtys } from "@/lib/pty";
+import { listPtys } from "@/lib/pty";
 
 interface EnvironmentProps {
   name: string;
@@ -85,7 +85,6 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       const commands = new Map<string, { command: string; editor?: Editor }>();
       for (const pty of ptys) {
         if (
-          pty.invocation.cwd === workspace.root &&
           pty.invocation.kind.kind === "command" &&
           pty.invocation.kind.environment === name
         ) {
@@ -101,13 +100,9 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
 
     void loadRunningCommands();
 
-    const unsubscribeStart = subscribe<PtyStartEvent>("pty-start", (event) => {
-      const { kind, cwd } = event.invocation;
-      if (
-        cwd === workspace.root &&
-        kind.kind === "command" &&
-        kind.environment === name
-      ) {
+    const unsubscribeStart = subscribe("pty-start", (event) => {
+      const { kind } = event.invocation;
+      if (kind.kind === "command" && kind.environment === name) {
         setRunningCommands((prev) =>
           new Map(prev).set(event.id, {
             command: kind.command,
@@ -117,7 +112,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       }
     });
 
-    const unsubscribeExit = subscribe<PtyExitEvent>("pty-exit", (event) => {
+    const unsubscribeExit = subscribe("pty-exit", (event) => {
       if (event.invocation.kind.kind === "command") {
         setRunningCommands((prev) => {
           const next = new Map(prev);
@@ -131,7 +126,7 @@ export function Environment({ name, tasks, filter }: EnvironmentProps) {
       unsubscribeStart();
       unsubscribeExit();
     };
-  }, [name, availableEditors, workspace.root]);
+  }, [name, availableEditors]);
 
   const runFreeformTask = async () => {
     if (!commandInput.trim()) return;
