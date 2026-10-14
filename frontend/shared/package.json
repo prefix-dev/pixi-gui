@@ -1,0 +1,24 @@
+{
+  "name": "shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./assets/*": "./src/assets/*",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./lib/platform": "./src/lib/platform/index.ts",
+    "./lib/platform/*": null,
+    "./lib/*": "./src/lib/*.ts",
+    "./styles/*": "./src/styles/*"
+  },
+  "imports": {
+    "#assets/*": "./src/assets/*",
+    "#components/*": "./src/components/*.tsx",
+    "#hooks/*": "./src/hooks/*.ts",
+    "#lib/platform": "./src/lib/platform/index.ts",
+    "#lib/platform/tauri": "./src/lib/platform/tauri/index.ts",
+    "#lib/platform/web": "./src/lib/platform/web/index.ts",
+    "#lib/*": "./src/lib/*.ts",
+    "#styles/*": "./src/styles/*"
+  }
+}

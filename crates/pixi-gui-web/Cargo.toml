@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+name = "pixi-gui-web"
+publish = false
+version.workspace = true
+
+[dependencies]
+memory-serve.workspace = true
+pixi-platform-web.workspace = true
+
+[build-dependencies]
+# Embeds the frontend, see build.rs
+memory-serve.workspace = true

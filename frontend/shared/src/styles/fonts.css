@@ -1,0 +1,180 @@
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 200;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-200.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 200;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-200italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 300;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-300.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 300;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-300italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-regular.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 400;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-500.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 500;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-500italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-600.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 600;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-600italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-700.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 700;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-700italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 800;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-800.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 800;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-800italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 900;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-900.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 900;
+  src: url("../assets/fonts/SourceSerif4/source-serif-4-900italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 300;
+  font-style: normal;
+  src: url("../assets/fonts/InterLight/font.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: normal;
+  src: url("../assets/fonts/InterRegular/font.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 500;
+  font-style: normal;
+  src: url("../assets/fonts/InterMedium/font.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 600;
+  font-style: normal;
+  src: url("../assets/fonts/InterSemiBold/font.woff2") format("woff2");
+  font-display: swap;
+}
+
+:root {
+  --source-serif-font: "Source Serif 4", serif;
+  --inter-font: "Inter", sans-serif;
+}

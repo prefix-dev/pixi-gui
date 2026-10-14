@@ -3,14 +3,16 @@
     "prettier-plugin-tailwindcss",
     "@trivago/prettier-plugin-sort-imports"
   ],
-  "tailwindStylesheet": "src/styles/globals.css",
+  "tailwindStylesheet": "frontend/shared/src/styles/globals.css",
   "tailwindFunctions": ["clsx", "cva", "cn"],
   "importOrder": [
     "<THIRD_PARTY_MODULES>",
-    "^@/components/(.*)$",
-    "^@/(hooks|lib|routes|styles)/(.*)$",
+    "^shared/(.*)$",
+    "^(#|@/)components/(.*)$",
+    "^(#|@/)(assets|hooks|lib|routes|styles)/(.*)$",
     "^[./]"
   ],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrderSortSpecifiers": true,
+  "quoteProps": "consistent"
 }

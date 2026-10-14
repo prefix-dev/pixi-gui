@@ -1,0 +1,49 @@
+[workspace]
+members = ["crates/*"]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+
+[workspace.dependencies]
+pixi-backend = { path = "crates/pixi-backend" }
+pixi-backend-macros = { path = "crates/pixi-backend-macros" }
+pixi-platform-tauri = { path = "crates/pixi-platform-tauri" }
+pixi-platform-web = { path = "crates/pixi-platform-web" }
+
+pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi", tag = "v0.81.0" }
+
+clap = { version = "4.5", features = ["derive"] }
+log = "0.4"
+memory-serve = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "~2.12", features = ["devtools"] }
+tauri-build = { version = "2", features = [] }
+tauri-plugin-dialog = "~2.6"
+tauri-plugin-log = "~2.8"
+tauri-plugin-notification = "~2.3"
+tauri-plugin-opener = "~2.5"
+tauri-plugin-single-instance = "2"
+tokio = "1.47"
+
+[patch.crates-io]
+# Redirect crates.io's `reqwest-middleware` to pixi's shim that re-exports
+# `astral-reqwest-middleware`. This unifies the `Middleware` trait identity
+# between consumers that depend on the original crate name (e.g.
+# `http-cache-reqwest`) and consumers that depend on the renamed
+# `astral-reqwest-middleware` (rattler, rattler-build, uv). pixi's own workspace
+# applies this patch, but `[patch]` sections do not propagate through the
+# `pixi_api` git dependency, so it has to be repeated here. Keep the tag in sync
+# with `pixi_api`. 
+reqwest-middleware = { git = "https://github.com/prefix-dev/pixi", tag = "v0.81.0" }
+version-ranges = { git = "https://github.com/astral-sh/pubgrub", rev = "d8efd77673c9a90792da9da31b6c0da7ea8a324b" }
+
+# Enable a small amount of optimization in the dev profile.
+[profile.dev]
+opt-level = 1
+
+# Enable a large amount of optimization in the dev profile for dependencies.
+[profile.dev.package."*"]
+opt-level = 3

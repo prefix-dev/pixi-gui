@@ -12,13 +12,14 @@ from github import Github
 
 PIXI_REPO = "prefix-dev/pixi"
 PIXI_GUI_REPO = "prefix-dev/pixi-gui"
-CARGO_TOML = Path("src-tauri/Cargo.toml")
+CARGO_TOML = Path("Cargo.toml")
 
 
 def get_pixi_api_dep(toml_content: str) -> dict[str, Any]:
     """Parse the pixi_api dependency table from a Cargo.toml string."""
     doc = tomlkit.parse(toml_content)
-    return cast(dict[str, Any], cast(dict[str, Any], doc["dependencies"])["pixi_api"])
+    workspace = cast(dict[str, Any], doc["workspace"])
+    return cast(dict[str, Any], cast(dict[str, Any], workspace["dependencies"])["pixi_api"])
 
 
 def get_current_ref() -> tuple[str | None, str | None]:
@@ -65,7 +66,8 @@ def update(gh: Github) -> None:
 
     # Update Cargo.toml
     doc = tomlkit.parse(CARGO_TOML.read_text())
-    dep = cast(dict[str, Any], cast(dict[str, Any], doc["dependencies"])["pixi_api"])
+    workspace = cast(dict[str, Any], doc["workspace"])
+    dep = cast(dict[str, Any], cast(dict[str, Any], workspace["dependencies"])["pixi_api"])
     if "rev" in dep:
         del dep["rev"]
     dep["tag"] = latest
@@ -80,7 +82,7 @@ def update(gh: Github) -> None:
 
     # Update Cargo.lock
     subprocess.run(
-        ["cargo", "update", "--manifest-path", "src-tauri/Cargo.toml", "-p", "pixi_api"],
+        ["cargo", "update", "-p", "pixi_api"],
         check=True,
     )
 
@@ -88,7 +90,9 @@ def update(gh: Github) -> None:
 def pr(gh: Github) -> None:
     """Create branch, commit, push, and open PR. Assumes update was already run."""
     # Check if there are changes to commit
-    result = subprocess.run(["git", "diff", "--quiet", "src-tauri/"], capture_output=True)
+    result = subprocess.run(
+        ["git", "diff", "--quiet", "Cargo.toml", "Cargo.lock"], capture_output=True
+    )
     if result.returncode == 0:
         print("No changes to commit.")
         return
@@ -102,7 +106,7 @@ def pr(gh: Github) -> None:
 
     # Read old version from git HEAD
     original = subprocess.run(
-        ["git", "show", "HEAD:src-tauri/Cargo.toml"],
+        ["git", "show", "HEAD:Cargo.toml"],
         capture_output=True,
         text=True,
         check=True,
@@ -129,7 +133,7 @@ def pr(gh: Github) -> None:
     subprocess.run(
         ["git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"], check=True
     )
-    subprocess.run(["git", "add", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock"], check=True)
+    subprocess.run(["git", "add", "Cargo.toml", "Cargo.lock"], check=True)
     subprocess.run(["git", "commit", "-m", f"chore: bump pixi to {latest}"], check=True)
     subprocess.run(["git", "push", "--force", "origin", branch], check=True)
 

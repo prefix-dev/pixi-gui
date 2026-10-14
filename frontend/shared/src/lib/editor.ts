@@ -1,0 +1,102 @@
+import type { Workspace } from "#lib/pixi/workspace/workspace";
+import { invoke } from "#lib/platform";
+import { createStore } from "#lib/settings";
+
+export interface Editor {
+  command: string;
+  name: string;
+  description: string;
+  packageName?: string;
+  isGui: boolean;
+}
+
+export interface OpenEditorError {
+  workspace: string;
+  command: string;
+  environment: string;
+  exitCode: number | null;
+  signal: string | null;
+  stderr: string[];
+}
+
+export async function listAvailableEditors(
+  workspace: string,
+  environment: string,
+): Promise<Editor[]> {
+  return await invoke<Editor[]>("list_available_editors", {
+    workspace,
+    environment,
+  });
+}
+
+export async function listInstallableEditors(
+  workspace: string,
+  environment: string,
+): Promise<Editor[]> {
+  return await invoke<Editor[]>("list_installable_editors", {
+    workspace,
+    environment,
+  });
+}
+
+const store = createStore("editor-preferences.json");
+
+function getKey(workspaceRoot: string, environment: string): string {
+  return `${workspaceRoot}:${environment}`;
+}
+
+export async function getEditorPreference(
+  workspaceRoot: string,
+  environment: string,
+  availableEditors: Editor[],
+): Promise<Editor | null> {
+  const preferences =
+    (await store.get<Record<string, Editor>>("editorPreferences")) ?? {};
+  const saved = preferences[getKey(workspaceRoot, environment)];
+
+  if (!saved) return null;
+
+  const matchingEditor = availableEditors.find(
+    (e) =>
+      e.command === saved.command ||
+      (e.packageName && e.packageName === saved.packageName),
+  );
+
+  // Live metadata overrides saved UI state
+  if (matchingEditor) {
+    return {
+      ...saved,
+      ...matchingEditor,
+    };
+  }
+
+  // Fallback to saved values
+  return {
+    ...saved,
+    isGui: saved.isGui ?? false,
+  };
+}
+
+export async function setEditorPreference(
+  workspaceRoot: string,
+  environment: string,
+  editor: Editor,
+): Promise<void> {
+  const preferences =
+    (await store.get<Record<string, Editor>>("editorPreferences")) ?? {};
+  preferences[getKey(workspaceRoot, environment)] = editor;
+  await store.set("editorPreferences", preferences);
+}
+
+export async function openEditor(
+  workspace: Workspace,
+  environment: string,
+  command: string,
+): Promise<void> {
+  await invoke<void>("open_editor", {
+    root: workspace.root,
+    manifest: workspace.manifest,
+    environment,
+    command,
+  });
+}
