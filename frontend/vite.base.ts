@@ -1,9 +1,9 @@
+import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
-import type { Plugin } from "vite";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -53,23 +53,19 @@ export function defineAppConfig({ root, port, apiPort }: AppConfig) {
       target:
         process.env.TAURI_ENV_PLATFORM == "windows" ? "chrome105" : "safari13",
       // don't minify for debug builds
-      minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+      minify: !process.env.TAURI_ENV_DEBUG ? "oxc" : false,
       // produce sourcemaps for debug builds
       sourcemap: !!process.env.TAURI_ENV_DEBUG,
     },
     plugins: [
-      reactDevTools(),
       tanstackRouter({
         autoCodeSplitting: true,
         routesDirectory: resolve(root, "src/routes"),
         generatedRouteTree: resolve(root, "src/routeTree.gen.ts"),
       }),
       tailwindcss(),
-      react({
-        babel: {
-          plugins: ["babel-plugin-react-compiler"],
-        },
-      }),
+      react(),
+      babel({ presets: [reactCompilerPreset()] }),
     ],
     resolve: {
       alias: {
@@ -77,23 +73,4 @@ export function defineAppConfig({ root, port, apiPort }: AppConfig) {
       },
     },
   });
-}
-
-// Plugin to inject React DevTools only in development builds
-function reactDevTools(): Plugin {
-  return {
-    name: "react-devtools",
-    transformIndexHtml() {
-      if (process.env.NODE_ENV === "development") {
-        return [
-          {
-            tag: "script",
-            attrs: { src: "http://localhost:8097" },
-            injectTo: "head",
-          },
-        ];
-      }
-      return;
-    },
-  };
 }

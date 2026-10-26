@@ -13,8 +13,7 @@ export interface ProcessState {
 }
 
 export type ProcessOptions = { workspace: Workspace; environment: string } & (
-  | { taskName: string }
-  | { command: string }
+  { taskName: string } | { command: string }
 );
 
 export function useProcess(options: ProcessOptions): ProcessState {

@@ -6,6 +6,9 @@
   "commitMessagePrefix": "chore(ci):",
   "automerge": true,
   "minimumReleaseAge": "14 days",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "packageRules": [
     {
       "groupName": "GitHub Actions",
@@ -19,6 +22,12 @@
       "groupName": "Cargo and npm",
       "matchManagers": ["cargo", "npm"],
       "separateMajorMinor": false
+    },
+    {
+      "description": "TODO: Allow TypeScript 7 once typescript-eslint, ts-api-utils and @eslint-react support it: https://github.com/typescript-eslint/typescript-eslint/issues/10940",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
     }
   ]
 }

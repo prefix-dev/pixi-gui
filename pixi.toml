@@ -41,9 +41,6 @@ zlib = ">=1.3.1,<2"
 [tasks]
 backend-test = "cargo test --workspace"
 frontend-install-deps = "pnpm install"
-react-devtools = { cmd = "pnpm react-devtools", depends-on = [
-  "frontend-install-deps",
-], env = { HOST = "localhost" } }
 
 [tasks.tauri]
 args = [{ arg = "app", choices = ["pixi-gui"] }]
