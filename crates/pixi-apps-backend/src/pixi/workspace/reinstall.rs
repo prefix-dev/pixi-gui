@@ -16,7 +16,8 @@ pub async fn reinstall(
     lock_file_usage: LockFileUsage,
 ) -> Result<(), Error> {
     spawn_local(move || async move {
-        utils::workspace_context(session, workspace)?
+        utils::workspace_context(session, workspace)
+            .await?
             .reinstall(options, lock_file_usage)
             .await?;
 

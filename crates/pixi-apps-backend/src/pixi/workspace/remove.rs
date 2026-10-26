@@ -31,7 +31,8 @@ pub async fn remove_conda_deps(
             })
             .collect();
 
-        Ok(utils::workspace_context(session, workspace)?
+        Ok(utils::workspace_context(session, workspace)
+            .await?
             .remove_conda_deps(specs, SpecType::Run, dep_options)
             .await
             .map_err(miette::Report::new)?)
@@ -52,7 +53,8 @@ pub async fn remove_pypi_deps(
             .map(|(name, req)| (name, (req, None, None)))
             .collect();
 
-        utils::workspace_context(session, workspace)?
+        utils::workspace_context(session, workspace)
+            .await?
             .remove_pypi_deps(pypi_deps, dep_options)
             .await
             .map_err(miette::Report::new)?;

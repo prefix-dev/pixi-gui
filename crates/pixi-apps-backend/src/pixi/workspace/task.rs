@@ -11,7 +11,8 @@ pub async fn list_tasks(
     session: Session,
     workspace: PathBuf,
 ) -> Result<HashMap<EnvironmentName, HashMap<TaskName, Task>>, Error> {
-    Ok(utils::workspace_context(session, workspace)?
+    Ok(utils::workspace_context(session, workspace)
+        .await?
         .list_tasks(None)
         .await?
         .into_iter()
@@ -27,7 +28,8 @@ pub async fn add_task(
     task: Task,
     feature: String,
 ) -> Result<(), Error> {
-    Ok(utils::workspace_context(session, workspace)?
+    Ok(utils::workspace_context(session, workspace)
+        .await?
         .add_task(name.into(), task, feature.into(), None)
         .await?)
 }
@@ -39,7 +41,8 @@ pub async fn remove_task(
     name: String,
     feature: String,
 ) -> Result<(), Error> {
-    Ok(utils::workspace_context(session, workspace)?
+    Ok(utils::workspace_context(session, workspace)
+        .await?
         .remove_task(vec![name.into()], None, feature.into())
         .await?)
 }

@@ -28,7 +28,8 @@ pub async fn add_conda_deps(
             subdir: None,
         };
 
-        utils::workspace_context(session, workspace)?
+        utils::workspace_context(session, workspace)
+            .await?
             .add_conda_deps(specs, SpecType::Run, dep_options, git_options)
             .await?;
 
@@ -51,7 +52,8 @@ pub async fn add_pypi_deps(
             .map(|(name, req)| (name, (req, None, None)))
             .collect();
 
-        utils::workspace_context(session, workspace)?
+        utils::workspace_context(session, workspace)
+            .await?
             .add_pypi_deps(pypi_deps, editable, dep_options)
             .await?;
 

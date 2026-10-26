@@ -25,11 +25,12 @@ where
         .map_err(|e| E::from(format!("Execution failed: {}", e)))?
 }
 
-pub fn workspace(workspace: PathBuf) -> Result<Workspace, Error> {
+pub async fn workspace(workspace: PathBuf) -> Result<Workspace, Error> {
     let workspace_result = WorkspaceLocator::for_cli()
         .with_consider_environment(false)
         .with_search_start(DiscoveryStart::SearchRoot(workspace))
-        .locate();
+        .locate()
+        .await;
 
     workspace_result.map_err(|err| match err {
         WorkspaceLocatorError::PixiVersionMismatch(mismatch) => {
@@ -43,11 +44,11 @@ pub fn workspace(workspace: PathBuf) -> Result<Workspace, Error> {
     })
 }
 
-pub fn workspace_context(
+pub async fn workspace_context(
     session: Session,
     path: PathBuf,
 ) -> Result<WorkspaceContext<Session>, Error> {
-    let workspace = workspace(path)?;
+    let workspace = workspace(path).await?;
 
     Ok(WorkspaceContext::new(session, workspace))
 }

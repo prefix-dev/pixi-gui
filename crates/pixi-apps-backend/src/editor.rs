@@ -139,7 +139,7 @@ pub async fn list_available_editors(
     workspace: PathBuf,
     environment: EnvironmentName,
 ) -> Result<Vec<Editor>, Error> {
-    let ctx = utils::workspace_context(session, workspace)?;
+    let ctx = utils::workspace_context(session, workspace).await?;
 
     let feature_names: Vec<_> = ctx
         .workspace()

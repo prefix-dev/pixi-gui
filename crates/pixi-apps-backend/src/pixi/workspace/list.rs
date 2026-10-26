@@ -6,7 +6,7 @@ use crate::{
     utils::{self, spawn_local},
 };
 use pixi_api::{
-    core::environment::LockFileUsage, manifest::PixiPlatformName, rattler_conda_types::Platform,
+    core::environment::LockFileUsage, manifest::PixiPlatformName, rattler_conda_types::Subdir,
     workspace::Package,
 };
 use pixi_apps_backend_macros::command;
@@ -25,12 +25,13 @@ pub async fn list_packages(
 ) -> Result<Vec<Package>, Error> {
     spawn_local(move || async move {
         let platform: Option<PixiPlatformName> = platform
-            .map(|p| p.parse::<Platform>())
+            .map(|p| p.parse::<Subdir>())
             .transpose()
             .unwrap()
             .map(PixiPlatformName::from);
 
-        let packages = utils::workspace_context(session, workspace)?
+        let packages = utils::workspace_context(session, workspace)
+            .await?
             .list_packages(
                 regex,
                 platform,

@@ -9,7 +9,7 @@ use miette::{Context, IntoDiagnostic};
 use pixi_api::{
     manifest::FeaturesExt,
     rattler_conda_types::{
-        MatchSpec, ParseStrictness, ParseStrictnessWithNameMatcher, Platform, RepoDataRecord,
+        MatchSpec, ParseStrictness, ParseStrictnessWithNameMatcher, RepoDataRecord, Subdir,
     },
 };
 use pixi_apps_backend_macros::command;
@@ -20,7 +20,7 @@ pub async fn search_wildcard(
     workspace: PathBuf,
     package_name_filter: &str,
 ) -> Result<Option<Vec<RepoDataRecord>>, Error> {
-    let ctx = utils::workspace_context(session, workspace)?;
+    let ctx = utils::workspace_context(session, workspace).await?;
 
     let channels = ctx
         .workspace()
@@ -46,7 +46,7 @@ pub async fn search_wildcard(
         .search(
             match_spec,
             channels,
-            vec![Platform::current(), Platform::NoArch],
+            vec![Subdir::current().unwrap_or(Subdir::NoArch), Subdir::NoArch],
             None,
         )
         .await?;
@@ -68,7 +68,7 @@ pub async fn search_exact(
     workspace: PathBuf,
     match_spec: MatchSpec,
 ) -> Result<Option<Vec<RepoDataRecord>>, Error> {
-    let ctx = utils::workspace_context(session, workspace)?;
+    let ctx = utils::workspace_context(session, workspace).await?;
 
     let channels = ctx
         .workspace()
@@ -85,7 +85,7 @@ pub async fn search_exact(
         ctx.search(
             match_spec,
             channels,
-            vec![Platform::current(), Platform::NoArch],
+            vec![Subdir::current().unwrap_or(Subdir::NoArch), Subdir::NoArch],
             Some(0),
         )
         .await?
