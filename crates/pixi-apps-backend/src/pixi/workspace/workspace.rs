@@ -4,6 +4,7 @@ use std::str::FromStr;
 
 use indexmap::IndexSet;
 use pixi_api::core::environment::LockFileUsage;
+use pixi_api::core::workspace::DiscoveryStart;
 use pixi_api::manifest::HasFeaturesIter;
 use pixi_api::manifest::{EnvironmentName, FeatureName, PrioritizedChannel};
 use pixi_api::manifest::{PixiPlatform, PixiPlatformName};
@@ -29,13 +30,13 @@ pub struct Environment {
 
 #[command]
 pub async fn root(session: Session, workspace: PathBuf) -> Result<PathBuf, Error> {
-    let workspace = utils::workspace(workspace).await?;
+    let workspace = utils::workspace(DiscoveryStart::SearchRoot(workspace)).await?;
     Ok(workspace.root().to_path_buf())
 }
 
 #[command]
 pub async fn manifest(session: Session, workspace: PathBuf) -> Result<PathBuf, Error> {
-    let workspace = utils::workspace(workspace).await?;
+    let workspace = utils::workspace(DiscoveryStart::SearchRoot(workspace)).await?;
     Ok(workspace.workspace.provenance.absolute_path())
 }
 

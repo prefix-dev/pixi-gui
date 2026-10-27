@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use crate::{
     pty::{PtyInvocation, PtyInvocationKind},
     utils,
@@ -7,6 +5,7 @@ use crate::{
 use miette::IntoDiagnostic;
 use pixi_api::{
     Interface, WorkspaceContext,
+    core::workspace::DiscoveryStart,
     reporters::TopLevelProgress,
     workspace::{RunOptions, ShellOptions},
 };
@@ -35,10 +34,8 @@ pub fn run_and_exit_if_runner() {
         let invocation: PtyInvocation = serde_json::from_str(&json).into_diagnostic()?;
 
         // Retrieve workspace context
-        let path = Path::new(&invocation.manifest).parent().unwrap();
-        let workspace = utils::workspace(path.to_path_buf())
-            .await
-            .map_err(|err| err.0)?;
+        let start = DiscoveryStart::ExplicitManifest(invocation.manifest.into());
+        let workspace = utils::workspace(start).await.map_err(|err| err.0)?;
         let progress = TopLevelProgress::from_global();
         let context = WorkspaceContext::new(RunnerInterface, workspace).with_progress(progress);
 
