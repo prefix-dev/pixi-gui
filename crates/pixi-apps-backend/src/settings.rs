@@ -2,9 +2,10 @@
 //! `<data dir>/<app identifier>/<store>` containing a `{key: value}` JSON object.
 
 use std::fs::{self, File};
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Write};
 use std::path::PathBuf;
 
+use log::warn;
 use miette::{IntoDiagnostic, miette};
 use pixi_apps_backend_macros::command;
 use serde_json::{Map, Value};
@@ -34,13 +35,14 @@ pub fn settings_set(
     let mut values = read_store(&path)?;
     values.insert(key, value);
 
-    // Replace the store atomically, so readers never see a truncated or partially written file
+    // Replace the store atomically, so readers never see a truncated or partially written file.
+    // Sync before the rename, otherwise a crash could leave an empty store behind.
     let tmp_path = path.with_added_extension("tmp");
-    fs::write(
-        &tmp_path,
-        serde_json::to_vec_pretty(&values).into_diagnostic()?,
-    )
-    .into_diagnostic()?;
+    let mut tmp = File::create(&tmp_path).into_diagnostic()?;
+    tmp.write_all(&serde_json::to_vec_pretty(&values).into_diagnostic()?)
+        .into_diagnostic()?;
+    tmp.sync_all().into_diagnostic()?;
+    drop(tmp);
     fs::rename(&tmp_path, &path).into_diagnostic()?;
 
     Ok(())
@@ -53,7 +55,11 @@ fn store_path(session: Session, store: &str) -> Result<PathBuf, Error> {
 
 fn read_store(path: &PathBuf) -> Result<Map<String, Value>, Error> {
     match fs::read(path) {
-        Ok(content) => Ok(serde_json::from_slice(&content).into_diagnostic()?),
+        // A broken store, e.g. emptied by a crash, only loses its settings
+        Ok(content) => Ok(serde_json::from_slice(&content).unwrap_or_else(|err| {
+            warn!("Ignoring invalid store {}: {err}", path.display());
+            Map::new()
+        })),
         Err(err) if err.kind() == ErrorKind::NotFound => Ok(Map::new()),
         Err(err) => Err(miette!("Failed to read {}: {err}", path.display()).into()),
     }
