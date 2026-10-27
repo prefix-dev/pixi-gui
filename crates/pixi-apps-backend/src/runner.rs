@@ -21,9 +21,6 @@ pub fn run_and_exit_if_runner() {
         return;
     }
 
-    #[cfg(windows)]
-    attach_console();
-
     // Like "pixi run", show warnings and the task headers
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::WARN)
@@ -114,78 +111,5 @@ impl Interface for RunnerInterface {
 
     async fn error(&self, msg: &str) {
         eprintln!("{msg}");
-    }
-}
-
-/// Connects the runner to the terminal's console. Release builds of the app
-/// are GUI programs, which Windows starts without one.
-// TODO: Remove the log once the Windows test is done.
-#[cfg(windows)]
-fn attach_console() {
-    use std::io::Write;
-    use windows_sys::Win32::{
-        Foundation::{GENERIC_READ, GENERIC_WRITE, GetLastError, HANDLE, INVALID_HANDLE_VALUE},
-        Storage::FileSystem::{CreateFileW, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING},
-        System::Console::{
-            ATTACH_PARENT_PROCESS, AttachConsole, GetConsoleWindow, STD_ERROR_HANDLE,
-            STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, SetStdHandle,
-        },
-    };
-
-    let mut log = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(std::env::temp_dir().join("pixi-gui-runner.log"))
-        .ok();
-    let mut log = |msg: String| {
-        if let Some(log) = log.as_mut() {
-            let _ = writeln!(log, "{msg}");
-        }
-    };
-
-    // Opens the console's input or output, which only works while attached
-    let open = |name: &str| -> HANDLE {
-        let name: Vec<u16> = name.encode_utf16().chain(Some(0)).collect();
-        unsafe {
-            CreateFileW(
-                name.as_ptr(),
-                GENERIC_READ | GENERIC_WRITE,
-                FILE_SHARE_READ | FILE_SHARE_WRITE,
-                std::ptr::null(),
-                OPEN_EXISTING,
-                0,
-                std::ptr::null_mut(),
-            )
-        }
-    };
-
-    log(format!("--- runner pid {}", std::process::id()));
-    log(format!("console window: {:?}", unsafe {
-        GetConsoleWindow()
-    }));
-
-    let mut output = open("CONOUT$");
-    log(format!("CONOUT$ before attach: {output:?}"));
-    if output == INVALID_HANDLE_VALUE {
-        let attached = unsafe { AttachConsole(ATTACH_PARENT_PROCESS) };
-        let error = unsafe { GetLastError() };
-        log(format!(
-            "AttachConsole(parent): {attached}, last error {error}"
-        ));
-        output = open("CONOUT$");
-        log(format!("CONOUT$ after attach: {output:?}"));
-    }
-    if output == INVALID_HANDLE_VALUE {
-        return;
-    }
-
-    let input = open("CONIN$");
-    log(format!("CONIN$: {input:?}"));
-    unsafe {
-        SetStdHandle(STD_OUTPUT_HANDLE, output);
-        SetStdHandle(STD_ERROR_HANDLE, output);
-        if input != INVALID_HANDLE_VALUE {
-            SetStdHandle(STD_INPUT_HANDLE, input);
-        }
     }
 }
