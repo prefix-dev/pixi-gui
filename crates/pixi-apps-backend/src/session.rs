@@ -244,6 +244,11 @@ impl Interface for Session {
         Ok(self.request_confirm("Confirm", &message, "Yes", "No").await)
     }
 
+    async fn select(&self, _msg: &str, _options: &[String]) -> Result<Option<usize>> {
+        // TODO: Implement select dialog in frontend, once needed
+        Ok(None)
+    }
+
     async fn info(&self, msg: &str) {
         self.send_event(EventPayload::Notification(Notification {
             level: NotificationLevel::Info,

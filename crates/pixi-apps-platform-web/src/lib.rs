@@ -75,6 +75,8 @@ struct Cli {
 }
 
 pub fn run(config: Config) {
+    pixi_apps_backend::runner::run_and_exit_if_runner();
+
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     let cli: Cli = config.app.parse();
     let port = cli.port.unwrap_or(config.port);
