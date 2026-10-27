@@ -56,10 +56,6 @@ pub fn create_window<R: Runtime, M: Manager<R>>(manager: &M, path: &str) {
             }
         });
 
-    // Needed, otherwise you get a gliched transparent look when you use macOS Tahoe (26) or newer
-    #[cfg(target_os = "macos")]
-    let builder = builder.title_bar_style(tauri::TitleBarStyle::Transparent);
-
     match builder.build() {
         Ok(_) => {}
         Err(e) => log::error!("Failed to create window: {}", e),
