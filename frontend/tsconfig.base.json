@@ -9,6 +9,7 @@
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     /* Linting */
     "skipLibCheck": true,
     "strict": true,

@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 
-import { defineAppConfig } from "../vite.base";
+import { defineAppConfig } from "../vite.base.ts";
 
 export default defineAppConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
