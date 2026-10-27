@@ -1,11 +1,12 @@
+#!/usr/bin/env python3
+
 import argparse
 import json
 import os
 import subprocess
+import tomllib
 from datetime import datetime
 from pathlib import Path
-
-import tomllib
 
 RATTLER_BUILD_ARGS = [
     "rattler-build",

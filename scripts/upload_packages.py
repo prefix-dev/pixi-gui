@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import subprocess
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 
 def find_packages() -> Generator[Path, None, None]:

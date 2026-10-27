@@ -87,7 +87,7 @@ frontend-lint = { cmd = "pnpm exec eslint . --fix --max-warnings=0 ", depends-on
 
 # Other
 actionlint = { cmd = "actionlint" }
-cargo-deny = "cargo deny check license --deny warnings"
+cargo-deny = "cargo deny check licenses --deny warnings"
 license-check = { cmd = "pnpm license-checker --onlyAllow 'Apache-2.0;BSD-3-Clause;MIT;ISC'", depends-on = [
   "frontend-install-deps",
 ] }

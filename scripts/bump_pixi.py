@@ -91,7 +91,9 @@ def pr(gh: Github) -> None:
     """Create branch, commit, push, and open PR. Assumes update was already run."""
     # Check if there are changes to commit
     result = subprocess.run(
-        ["git", "diff", "--quiet", "Cargo.toml", "Cargo.lock"], capture_output=True
+        ["git", "diff", "--quiet", "Cargo.toml", "Cargo.lock"],
+        capture_output=True,
+        check=False,
     )
     if result.returncode == 0:
         print("No changes to commit.")
