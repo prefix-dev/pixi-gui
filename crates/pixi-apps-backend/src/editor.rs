@@ -281,7 +281,7 @@ pub async fn open_editor(
             environment: environment.clone(),
         }),
     };
-    let argv = invocation.argv();
+    let argv = invocation.argv()?;
 
     let mut cmd = Command::new(&argv[0]);
     cmd.current_dir(root.clone());

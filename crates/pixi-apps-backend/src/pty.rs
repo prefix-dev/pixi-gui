@@ -60,12 +60,15 @@ pub struct PtyCommandInvocation {
 
 impl PtyInvocation {
     /// The command line that starts the runner for this invocation
-    pub fn argv(&self) -> Vec<String> {
+    pub fn argv(&self) -> Result<Vec<String>> {
         let exe = std::env::current_exe()
-            .map(|exe| exe.to_string_lossy().into_owned())
-            .unwrap_or_default();
-        let invocation = serde_json::to_string(self).unwrap();
-        vec![exe, RUNNER_ARG.into(), invocation]
+            .map_err(|err| miette::miette!("failed to locate the app executable: {err}"))?;
+        let invocation = serde_json::to_string(self).into_diagnostic()?;
+        Ok(vec![
+            exe.to_string_lossy().into_owned(),
+            RUNNER_ARG.into(),
+            invocation,
+        ])
     }
 }
 
@@ -165,7 +168,7 @@ impl PtyHandle {
             .openpty(size)
             .map_err(|err| miette::miette!("failed to open PTY: {err}"))?;
 
-        let argv = invocation.argv().into_iter().map(OsString::from).collect();
+        let argv = invocation.argv()?.into_iter().map(OsString::from).collect();
         let mut command = CommandBuilder::from_argv(argv);
         command.env("TERM", "xterm-256color");
         command.cwd(invocation.cwd.clone());
