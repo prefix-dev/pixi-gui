@@ -30,6 +30,8 @@ struct Cli {
 }
 
 pub fn run(config: Config, context: tauri::Context) {
+    pixi_apps_backend::runner::run_and_exit_if_runner();
+
     // Disable DMA-BUF renderer for WebKit on Linux to avoid graphics glitches with AMDGPU drivers
     #[cfg(target_os = "linux")]
     unsafe {

@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{collections::VecDeque, ffi::OsString, io::Write};
@@ -13,7 +12,7 @@ use tokio::time::timeout;
 
 use pixi_apps_backend_macros::command;
 
-use crate::{error::Error, event::EventPayload, session::Session};
+use crate::{error::Error, event::EventPayload, runner::RUNNER_ARG, session::Session};
 
 /// How the PTY process was terminated.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,52 +23,6 @@ enum TerminationKind {
     Stopped,
     /// Process had to be force-killed (SIGKILL).
     Killed,
-}
-
-/// Find the pixi binary with fallback locations.
-///
-/// Search order:
-/// 1. System PATH (using `which`)
-/// 2. `$PIXI_HOME/bin/pixi` if PIXI_HOME is set
-/// 3. `~/.pixi/bin/pixi` as last resort
-///
-/// Returns the full path if found, otherwise falls back to "pixi" for PATH resolution.
-pub(crate) fn find_pixi_binary() -> String {
-    // 1. Check PATH first
-    if let Ok(path) = which::which("pixi") {
-        return path.to_string_lossy().into_owned();
-    }
-
-    // 2. Check $PIXI_HOME/bin/pixi if PIXI_HOME is set
-    if let Ok(pixi_home) = std::env::var("PIXI_HOME") {
-        let pixi_path = PathBuf::from(&pixi_home).join("bin").join("pixi");
-        if pixi_path.is_file() {
-            return pixi_path.to_string_lossy().into_owned();
-        }
-    }
-
-    // 3. Try ~/.pixi/bin/pixi as last resort
-    if let Some(home) = home_dir() {
-        let pixi_path = home.join(".pixi").join("bin").join("pixi");
-        if pixi_path.is_file() {
-            return pixi_path.to_string_lossy().into_owned();
-        }
-    }
-
-    // Fall back to "pixi" and let the system resolve it
-    "pixi".into()
-}
-
-/// Get the user's home directory.
-fn home_dir() -> Option<PathBuf> {
-    #[cfg(windows)]
-    {
-        std::env::var("USERPROFILE").ok().map(PathBuf::from)
-    }
-    #[cfg(not(windows))]
-    {
-        std::env::var("HOME").ok().map(PathBuf::from)
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -106,46 +59,16 @@ pub struct PtyCommandInvocation {
 }
 
 impl PtyInvocation {
-    pub fn argv(&self) -> Vec<String> {
-        let pixi = find_pixi_binary();
-        match &self.kind {
-            PtyInvocationKind::Shell(data) => {
-                vec![
-                    pixi,
-                    "shell".into(),
-                    "--manifest-path".into(),
-                    self.manifest.clone(),
-                    "--environment".into(),
-                    data.environment.clone(),
-                ]
-            }
-            PtyInvocationKind::Task(data) => {
-                let mut argv = vec![
-                    pixi,
-                    "run".into(),
-                    "--manifest-path".into(),
-                    self.manifest.clone(),
-                ];
-                if let Some(env) = &data.environment {
-                    argv.push("--environment".into());
-                    argv.push(env.clone());
-                }
-                argv.push(data.task.clone());
-                argv.extend(data.args.clone());
-                argv
-            }
-            PtyInvocationKind::Command(data) => {
-                vec![
-                    pixi,
-                    "run".into(),
-                    "--manifest-path".into(),
-                    self.manifest.clone(),
-                    "--environment".into(),
-                    data.environment.clone(),
-                    data.command.clone(),
-                ]
-            }
-        }
+    /// The command line that starts the runner for this invocation
+    pub fn argv(&self) -> Result<Vec<String>> {
+        let exe = std::env::current_exe()
+            .map_err(|err| miette::miette!("failed to locate the app executable: {err}"))?;
+        let invocation = serde_json::to_string(self).into_diagnostic()?;
+        Ok(vec![
+            exe.to_string_lossy().into_owned(),
+            RUNNER_ARG.into(),
+            invocation,
+        ])
     }
 }
 
@@ -245,7 +168,7 @@ impl PtyHandle {
             .openpty(size)
             .map_err(|err| miette::miette!("failed to open PTY: {err}"))?;
 
-        let argv = invocation.argv().into_iter().map(OsString::from).collect();
+        let argv = invocation.argv()?.into_iter().map(OsString::from).collect();
         let mut command = CommandBuilder::from_argv(argv);
         command.env("TERM", "xterm-256color");
         command.cwd(invocation.cwd.clone());

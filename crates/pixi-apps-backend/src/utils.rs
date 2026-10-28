@@ -25,10 +25,10 @@ where
         .map_err(|e| E::from(format!("Execution failed: {}", e)))?
 }
 
-pub async fn workspace(workspace: PathBuf) -> Result<Workspace, Error> {
+pub async fn workspace(start: DiscoveryStart) -> Result<Workspace, Error> {
     let workspace_result = WorkspaceLocator::for_cli()
         .with_consider_environment(false)
-        .with_search_start(DiscoveryStart::SearchRoot(workspace))
+        .with_search_start(start)
         .locate()
         .await;
 
@@ -48,7 +48,7 @@ pub async fn workspace_context(
     session: Session,
     path: PathBuf,
 ) -> Result<WorkspaceContext<Session>, Error> {
-    let workspace = workspace(path).await?;
+    let workspace = workspace(DiscoveryStart::SearchRoot(path)).await?;
 
     Ok(WorkspaceContext::new(session, workspace))
 }

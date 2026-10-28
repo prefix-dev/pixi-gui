@@ -1,6 +1,3 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 // Increase stack size on Windows to prevent stack overflow (8MB like Linux)
 #[cfg(target_os = "windows")]
 #[unsafe(link_section = ".drectve")]

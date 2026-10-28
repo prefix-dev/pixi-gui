@@ -16,7 +16,13 @@ use tokio::io::AsyncBufReadExt;
 use tokio::process::Command;
 use which::which;
 
-use crate::{error::Error, event::EventPayload, pty::find_pixi_binary, session::Session, utils};
+use crate::{
+    error::Error,
+    event::EventPayload,
+    pty::{PtyCommandInvocation, PtyInvocation, PtyInvocationKind},
+    session::Session,
+    utils,
+};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -267,20 +273,19 @@ pub async fn open_editor(
     environment: String,
     command: String,
 ) -> Result<(), Error> {
-    let pixi = find_pixi_binary();
+    let invocation = PtyInvocation {
+        cwd: root.clone(),
+        manifest,
+        kind: PtyInvocationKind::Command(PtyCommandInvocation {
+            command: command.clone(),
+            environment: environment.clone(),
+        }),
+    };
+    let argv = invocation.argv()?;
 
-    let mut cmd = Command::new(pixi);
-
+    let mut cmd = Command::new(&argv[0]);
     cmd.current_dir(root.clone());
-
-    cmd.args([
-        "run",
-        "--manifest-path",
-        &manifest,
-        "--environment",
-        &environment,
-        &command,
-    ]);
+    cmd.args(&argv[1..]);
 
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())

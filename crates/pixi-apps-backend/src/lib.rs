@@ -12,6 +12,7 @@ pub mod notification;
 pub mod pixi;
 pub mod pty;
 pub mod router;
+pub mod runner;
 pub mod session;
 pub mod settings;
 pub mod state;
