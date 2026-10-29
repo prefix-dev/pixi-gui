@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
+  "menu_name": "__DISPLAY_NAME__",
+  "menu_items": [
+    {
+      "name": "__DISPLAY_NAME__",
+      "description": "__DESCRIPTION__",
+      "icon": "{{ MENU_DIR }}/__PKG_NAME__.{{ ICON_EXT }}",
+      "activate": true,
+      "command": [""],
+      "platforms": {
+        "linux": {
+          "command": ["{{ PREFIX }}/bin/__PKG_NAME__", "%f"],
+          "StartupNotify": true,
+          "MimeType": ["application/toml"],
+          "StartupWMClass": "__PKG_NAME__"
+        },
+        "osx": {
+          "CFBundleIdentifier": "__APP_ID__",
+          "CFBundleVersion": "__PKG_VERSION__",
+          "command": ["{{ PREFIX }}/bin/__PKG_NAME__", "$@"],
+          "CFBundleDocumentTypes": [
+            {
+              "CFBundleTypeName": "__APP_ID__.toml",
+              "CFBundleTypeRole": "Editor",
+              "LSItemContentTypes": ["__APP_ID__.toml-uti"],
+              "LSHandlerRank": "Alternate"
+            }
+          ],
+          "UTExportedTypeDeclarations": [
+            {
+              "UTTypeConformsTo": [
+                "public.data",
+                "public.content",
+                "public.sourceCode"
+              ],
+              "UTTypeIdentifier": "__APP_ID__.toml-uti",
+              "UTTypeTagSpecification": {
+                "public.filename-extension": ["toml"]
+              }
+            }
+          ]
+        },
+        "win": {
+          "command": ["{{ PREFIX }}/bin/__PKG_NAME__", "%1"],
+          "file_extensions": [".toml"]
+        }
+      }
+    }
+  ]
+}

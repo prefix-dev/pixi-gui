@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import os
+import subprocess
+import tomllib
+from datetime import datetime
+from pathlib import Path
+
+RATTLER_BUILD_ARGS = [
+    "rattler-build",
+    "build",
+    "--recipe",
+    "recipe/recipe.yaml",
+    "--channel",
+    "https://prefix.dev/conda-forge",
+]
+
+
+def get_version_from_cargo() -> str:
+    toml = Path("Cargo.toml").read_text()
+    version = tomllib.loads(toml)["workspace"]["package"]["version"]
+    assert isinstance(version, str)
+    return version
+
+
+def get_git_short_hash() -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "--short=7", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+
+def get_current_date() -> str:
+    return datetime.now().strftime("%Y%m%d")
+
+
+def get_current_time() -> str:
+    return datetime.now().strftime("%H%M")
+
+
+def build() -> None:
+    cargo_version = get_version_from_cargo()
+    timestamp = get_current_date()
+    time = get_current_time()
+    short_hash = get_git_short_hash()
+    version = f"{cargo_version}.{timestamp}.{time}.{short_hash}"
+
+    print(f"Building packages {version}")
+
+    env = os.environ.copy()
+    env["PIXI_APPS_VERSION"] = version
+
+    subprocess.run(
+        [*RATTLER_BUILD_ARGS, "--no-build-id"],
+        env=env,
+        check=True,
+    )
+    print("Build completed successfully")
+
+
+def get_rust_version() -> str:
+    rendered = subprocess.run(
+        [*RATTLER_BUILD_ARGS, "--render-only", "--with-solve"],
+        capture_output=True,
+        encoding="utf-8",
+        check=True,
+    ).stdout
+    # Not every output has build dependencies, e.g. one that inherits them from a staging output
+    return next(
+        str(package["version"])
+        for output in json.loads(rendered)
+        for package in (output["finalized_dependencies"]["build"] or {}).get("resolved", [])
+        if package["name"] == "rust"
+    )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--rust-version",
+        action="store_true",
+        help="Print the Rust version the build will use instead of building",
+    )
+    if parser.parse_args().rust_version:
+        print(get_rust_version())
+    else:
+        build()

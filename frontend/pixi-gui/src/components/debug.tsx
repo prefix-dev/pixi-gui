@@ -1,0 +1,91 @@
+import { getRouteApi } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+
+import { showMessage } from "shared/components/common/genericDialog";
+import { Row } from "shared/components/common/row";
+import { Button } from "shared/components/shadcn/button";
+import { reinstall } from "shared/lib/pixi/workspace/reinstall";
+import { type PtyHandle, killPty, listPtys } from "shared/lib/pty";
+
+export function Debug() {
+  const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
+
+  const [isReinstalling, setIsReinstalling] = useState(false);
+  const [activePtys, setActivePtys] = useState<PtyHandle[]>([]);
+
+  const refreshPtys = async () => {
+    try {
+      const handles = await listPtys();
+      setActivePtys(handles);
+    } catch (err) {
+      console.error("Failed to list PTYs:", err);
+    }
+  };
+
+  const handleKill = async (id: string) => {
+    try {
+      await killPty(id);
+      await refreshPtys();
+    } catch (err) {
+      console.error("Unable to kill PTY:", err);
+    }
+  };
+
+  useEffect(() => {
+    listPtys()
+      .then(setActivePtys)
+      .catch((err) => console.error("Failed to list PTYs:", err));
+  }, []);
+
+  const handleReinstall = async () => {
+    setIsReinstalling(true);
+
+    try {
+      await reinstall(workspace.root);
+    } catch (err) {
+      console.error("Unable to reinstall:", err);
+    } finally {
+      setIsReinstalling(false);
+    }
+  };
+
+  return (
+    <div className="my-pfx-m space-y-pfx-s">
+      <p>Workspace Actions</p>
+      <Button
+        variant="secondary"
+        onClick={handleReinstall}
+        disabled={isReinstalling}
+      >
+        {isReinstalling ? "Reinstalling..." : "Reinstall"}
+      </Button>
+      <p>Active PTYs</p>
+      <div className="flex items-center gap-pfx-s">
+        <Button variant="secondary" onClick={refreshPtys}>
+          Refresh
+        </Button>
+      </div>
+      {activePtys.length === 0 ? (
+        <p>No PTYs active.</p>
+      ) : (
+        <ul className="space-y-pfx-xs">
+          {activePtys.map((pty) => (
+            <Row
+              key={pty.id}
+              title={`${pty.invocation.kind.kind}PTY`}
+              subtitle={pty.id}
+              onClick={() =>
+                showMessage("PTY Details", JSON.stringify(pty, null, 2))
+              }
+              suffix={
+                <Button size="sm" onClick={() => handleKill(pty.id)}>
+                  Kill
+                </Button>
+              }
+            />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

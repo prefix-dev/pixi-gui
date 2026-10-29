@@ -16,50 +16,41 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  CARGO_INCREMENTAL: 0
+
 jobs:
   lint:
     runs-on: ubuntu-latest
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      ACTIONS_CACHE_SERVICE_V2: on
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Configure sccache
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      - uses: prefix-dev/setup-pixi@v0.11.0
         with:
-          script: |
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - uses: prefix-dev/setup-pixi@v0.10.2
-
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          key: ${{ hashFiles('pixi.lock', 'Cargo.lock', 'Cargo.toml', 'crates/*/Cargo.toml') }}
+          # Rust comes from pixi, not from the CI runner
+          add-rust-environment-hash-key: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Run lint check
         run: pixi run lint
 
-      - name: Show sccache stats
-        run: pixi run sccache --stop-server
-
   test:
     runs-on: ubuntu-latest
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      ACTIONS_CACHE_SERVICE_V2: on
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Configure sccache
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      - uses: prefix-dev/setup-pixi@v0.11.0
         with:
-          script: |
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - uses: prefix-dev/setup-pixi@v0.10.2
-
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          key: ${{ hashFiles('pixi.lock', 'Cargo.lock', 'Cargo.toml', 'crates/*/Cargo.toml') }}
+          # Rust comes from pixi, not from the CI runner
+          add-rust-environment-hash-key: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Run tests
         run: pixi run backend-test
-
-      - name: Show sccache stats
-        run: pixi run sccache --stop-server
 
   build:
     strategy:
@@ -70,56 +61,69 @@ jobs:
           - macos-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      ACTIONS_CACHE_SERVICE_V2: on
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Configure sccache
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          script: |
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - uses: prefix-dev/setup-pixi@v0.10.2
+      - uses: prefix-dev/setup-pixi@v0.11.0
         with:
           environments: packaging
-
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+      - name: Resolve Rust version
+        id: rust
+        shell: bash
+        run: |
+          version=$(pixi run --environment=packaging build-packages --rust-version)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: ". -> output/bld/target-cache"
+          key: rust-${{ steps.rust.outputs.version }}-${{ hashFiles('recipe/recipe.yaml', 'recipe/variants.yaml', 'Cargo.lock', 'Cargo.toml', 'crates/*/Cargo.toml') }}
+          # Rust comes from rattler-build's build environment, not from the CI runner
+          add-rust-environment-hash-key: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Build package
-        run: pixi run --environment=packaging build-package
+        run: pixi run --environment=packaging build-packages
         env:
           RATTLER_BUILD_ENABLE_GITHUB_INTEGRATION: true
           RATTLER_BUILD_COLOR: always
-
+      - name: Remove build cache
+        shell: bash
+        run: rm -rf output/build_cache
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: conda-packages-${{ matrix.os }}-${{ github.sha }}
+          path: output/**/*.conda
+          retention-days: 14
       - name: Upload package
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: pixi run --environment=packaging upload-package
+        run: pixi run --environment=packaging upload-packages
 
   build-intel-mac:
     if: github.ref == 'refs/heads/main'
-    runs-on: macos-15-intel
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      ACTIONS_CACHE_SERVICE_V2: on
+    runs-on: macos-26-intel
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Configure sccache
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          script: |
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - uses: prefix-dev/setup-pixi@v0.10.2
+      - uses: prefix-dev/setup-pixi@v0.11.0
         with:
           environments: packaging
-
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+      - name: Resolve Rust version
+        id: rust
+        shell: bash
+        run: |
+          version=$(pixi run --environment=packaging build-packages --rust-version)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: ". -> output/bld/target-cache"
+          key: rust-${{ steps.rust.outputs.version }}-${{ hashFiles('recipe/recipe.yaml', 'recipe/variants.yaml', 'Cargo.lock', 'Cargo.toml', 'crates/*/Cargo.toml') }}
+          # Rust comes from rattler-build's build environment, not from the CI runner
+          add-rust-environment-hash-key: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Build package
-        run: pixi run --environment=packaging build-package
+        run: pixi run --environment=packaging build-packages
         env:
           RATTLER_BUILD_ENABLE_GITHUB_INTEGRATION: true
           RATTLER_BUILD_COLOR: always
-
       - name: Upload package
-        run: pixi run --environment=packaging upload-package
+        run: pixi run --environment=packaging upload-packages

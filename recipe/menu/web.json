@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
+  "menu_name": "__DISPLAY_NAME__",
+  "menu_items": [
+    {
+      "name": "__DISPLAY_NAME__",
+      "description": "__DESCRIPTION__",
+      "icon": "{{ MENU_DIR }}/__PKG_NAME__.{{ ICON_EXT }}",
+      "command": ["{{ PREFIX }}/bin/__PKG_NAME__"],
+      "activate": true,
+      "terminal": true,
+      "platforms": {
+        "linux": {},
+        "osx": {
+          "CFBundleIdentifier": "__APP_ID__",
+          "CFBundleVersion": "__PKG_VERSION__"
+        },
+        "win": {}
+      }
+    }
+  ]
+}

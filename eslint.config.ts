@@ -23,6 +23,39 @@ export default defineConfig([
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   tseslint.configs.recommended,
+  // Tauri APIs are only used behind `shared/lib/platform`
+  {
+    files: ["frontend/*/src/**/*.{ts,tsx}"],
+    ignores: ["frontend/shared/src/lib/platform/tauri/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@tauri-apps/*"],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // Shared code doesn't depend on the code of an app
+  {
+    files: ["frontend/shared/src/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/*"],
+            },
+          ],
+        },
+      ],
+    },
+  },
   // React Specific
   {
     files: ["**/*.{jsx,tsx}"],

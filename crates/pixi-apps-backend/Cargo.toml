@@ -1,0 +1,46 @@
+[package]
+edition.workspace = true
+name = "pixi-apps-backend"
+publish = false
+version.workspace = true
+
+[dependencies]
+clap.workspace = true
+dirs.workspace = true
+dunce.workspace = true
+humantime.workspace = true
+indexmap.workspace = true
+libc.workspace = true
+log.workspace = true
+memchr.workspace = true
+miette.workspace = true
+nix.workspace = true
+notify.workspace = true
+notify-debouncer-full.workspace = true
+percent-encoding.workspace = true
+pixi-apps-backend-macros.workspace = true
+pixi_api.workspace = true
+portable-pty.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+strip-ansi-escapes.workspace = true
+strum.workspace = true
+tokio = { workspace = true, features = [
+  "io-util",
+  "macros",
+  "process",
+  "rt",
+  "rt-multi-thread",
+  "sync",
+  "time",
+] }
+which.workspace = true
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { workspace = true, features = [
+  "Win32_Foundation",
+  "Win32_System_Threading",
+] }
+
+[dev-dependencies]
+tokio-test.workspace = true

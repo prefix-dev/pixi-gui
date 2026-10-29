@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["on tuesday"],
+  "enabledManagers": ["github-actions", "pixi", "cargo", "npm"],
+  "commitMessagePrefix": "chore(ci):",
+  "automerge": true,
+  "minimumReleaseAge": "14 days",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "groupName": "Pixi",
+      "matchManagers": ["pixi"]
+    },
+    {
+      "groupName": "Cargo and npm",
+      "matchManagers": ["cargo", "npm"],
+      "separateMajorMinor": false
+    },
+    {
+      "description": "TODO: Allow TypeScript 7 once typescript-eslint, ts-api-utils and @eslint-react support it: https://github.com/typescript-eslint/typescript-eslint/issues/10940",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
+    }
+  ]
+}

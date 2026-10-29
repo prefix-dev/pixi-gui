@@ -1,3 +1,20 @@
 c_compiler:
   - if: win
     then: vs2019
+
+# Minimum supported OS versions, the same as conda-forge uses
+c_stdlib:
+  - if: linux
+    then: sysroot
+  - if: osx
+    then: macosx_deployment_target
+  - if: win
+    then: vs
+c_stdlib_version:
+  - if: linux
+    # webkit2gtk4.1 requires glibc 2.34
+    then: "2.34"
+  - if: osx
+    then: "11.0"
+  - if: win
+    then: "2019.11"

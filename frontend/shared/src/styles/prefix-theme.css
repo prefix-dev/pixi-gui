@@ -1,0 +1,124 @@
+@theme {
+  /**
+	 * global colors
+	 */
+  --color-pfx-primary: #ffd432;
+  --color-pfx-primary-alt: #ffca16;
+  --color-pfx-secondary: #5773ff;
+  --color-pfx-good: #70c038;
+  --color-pfx-bad: #ff6b38;
+  --color-pfx-button-dark: #000f24;
+
+  /**
+	 * light-theme colors
+	 */
+  --color-pfxl-text: #001d38;
+  --color-pfxl-text-contrast-lower: var(--color-pfxgsl-50);
+  --color-pfxl-text-contrast-low: var(--color-pfxgsl-300);
+  --color-pfxl-text-contrast-medium: var(--color-pfxgsl-400);
+  --color-pfxl-text-contrast-high: var(--color-pfxgsl-600);
+  --color-pfxl-text-contrast-higher: var(--color-pfxgsl-700);
+  --color-pfxl-card-border: var(--color-pfxgsl-100);
+
+  /**
+	 * gray-scale light-theme colors
+	 */
+  --color-pfxgsl-50: #f8f6f2;
+  --color-pfxgsl-100: #f1ede4;
+  --color-pfxgsl-200: #e2e2df;
+  --color-pfxgsl-300: #b5b7ba;
+  --color-pfxgsl-400: #8b8e93;
+  --color-pfxgsl-500: #777a7f;
+  --color-pfxgsl-600: #62656a;
+  --color-pfxgsl-700: #383d3f;
+  --color-pfxgsl-800: #2b2d2f;
+  --color-pfxgsl-900: #191910;
+
+  /**
+	 * dark-theme colors
+	 */
+  --color-pfxd-text: var(--color-pfxgsd-50);
+  --color-pfxd-text-contrast-lower: var(--color-pfxgsd-600);
+  --color-pfxd-text-contrast-low: var(--color-pfxgsd-500);
+  --color-pfxd-text-contrast-medium: var(--color-pfxgsd-400);
+  --color-pfxd-text-contrast-high: var(--color-pfxgsd-300);
+  --color-pfxd-text-contrast-higher: var(--color-pfxgsd-200);
+  --color-pfxd-card-border: var(--color-pfxgsd-900);
+
+  /**
+	 * gray-scale dark-theme colors
+	 */
+  --color-pfxgsd-50: #f8f6f2;
+  --color-pfxgsd-100: #f1ede4;
+  --color-pfxgsd-200: #dee0e3;
+  --color-pfxgsd-300: #b2b7bd;
+  --color-pfxgsd-400: #868e93;
+  --color-pfxgsd-500: #5e656e;
+  --color-pfxgsd-600: #383d42;
+  --color-pfxgsd-700: #181f25;
+  --color-pfxgsd-800: #111518;
+  --color-pfxgsd-900: #101519;
+
+  /**
+	 * typefaces
+	 */
+  --font-display: "Times New Roman", Times, serif;
+  --font-body: var(--inter-font);
+
+  --text-pfxh-xs: 1.5rem;
+  --text-pfxh-xs--line-height: 2rem;
+  --text-pfxh-s: 1.5rem;
+  --text-pfxh-s--line-height: 1.75rem;
+  --text-pfxh-ms: 2rem;
+  --text-pfxh-ms--line-height: 2.5rem;
+  --text-pfxh-m: 2.5rem;
+  --text-pfxh-m--line-height: 3rem;
+  --text-pfxh-l: 3.5rem;
+  --text-pfxh-l--line-height: 4rem;
+  --text-pfxh-xl: 4rem;
+  --text-pfxh-xl--line-height: 4.5rem;
+
+  /**
+	 * body font sizes
+	 */
+  --text-pfxb-xs: 0.75rem;
+  --text-pfxb-xs--line-height: normal;
+  --text-pfxb-s: 1rem;
+  --text-pfxb-s--line-height: normal;
+  --text-pfxb-m: 1.25rem;
+  --text-pfxb-m--line-height: normal;
+  --text-pfxb-l: 2rem;
+  --text-pfxb-l--line-height: normal;
+
+  /**
+	 * spacing
+	 */
+  --radius-pfx-xs: 0.5rem;
+  --radius-pfx-s: 1rem;
+  --radius-pfx-m: 1.5rem;
+  --radius-pfx-l: 2rem;
+
+  --spacing-pfx-xs: 0.375rem;
+  --spacing-pfx-s: 0.5rem;
+  --spacing-pfx-sm: 0.75rem;
+  --spacing-pfx-m: 1rem;
+  --spacing-pfx-mml: 1.5rem;
+  --spacing-pfx-ml: 2rem;
+  --spacing-pfx-l: 3rem;
+  --spacing-pfx-xl: 6rem;
+
+  --spacing-pfx-button: 2.5rem;
+  --spacing-pfx-bar: 5rem;
+  --spacing-pfx-nav: 1.125rem;
+
+  /**
+	 * effects
+	 */
+  --shadow-pfx-l: 0 0 2.5rem 0;
+  --shadow-pfx-m: 0 0 1.5rem 0;
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+}

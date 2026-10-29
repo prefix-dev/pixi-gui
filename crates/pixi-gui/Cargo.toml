@@ -1,0 +1,25 @@
+[package]
+description = "Graphical user interface for Pixi"
+edition.workspace = true
+name = "pixi-gui"
+publish = false
+version.workspace = true
+
+[package.metadata]
+display-name = "Pixi GUI"
+
+[build-dependencies]
+tauri-build.workspace = true
+toml.workspace = true
+
+[dependencies]
+pixi-apps-platform-tauri.workspace = true
+tauri.workspace = true
+# Not used directly, but Tauri only grants the permissions of plugins the app depends on
+tauri-plugin-dialog.workspace = true
+tauri-plugin-log.workspace = true
+tauri-plugin-notification.workspace = true
+tauri-plugin-opener.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+tao.workspace = true

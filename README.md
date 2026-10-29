@@ -44,10 +44,16 @@ pixi global install --path .
 ### Running
 
 ```shell
-pixi run app
+pixi run tauri pixi-gui
 ```
 
 This will install all frontend dependencies via pnpm and start the Tauri development server.
+
+To use Pixi GUI in the browser instead, run:
+
+```shell
+pixi run web pixi-gui
+```
 
 ### Linting
 
@@ -60,10 +66,10 @@ Runs all linters and formatters for both backend (`clippy`, `rustfmt`) and front
 ### Packaging
 
 ```shell
-pixi run build-package
+pixi run build-packages
 ```
 
-Builds a installable conda package using rattler-build.
+Builds the installable conda packages using rattler-build.
 
 ## Support
 
