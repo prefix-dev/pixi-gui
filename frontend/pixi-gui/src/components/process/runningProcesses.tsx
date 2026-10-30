@@ -6,7 +6,7 @@ import { type Editor, listAvailableEditors } from "shared/lib/editor";
 import { subscribe } from "shared/lib/event";
 import { type PtyHandle, listPtys } from "shared/lib/pty";
 
-import { ProcessRow } from "@/components/process/processRow";
+import { RunningProcess } from "@/components/process/runningProcess";
 
 export function RunningProcesses() {
   const { workspace, tasks } = getRouteApi("/workspace/$path").useLoaderData();
@@ -100,14 +100,12 @@ export function RunningProcesses() {
           if (!taskObj) return null;
 
           return (
-            <ProcessRow
+            <RunningProcess
               key={pty.id}
               kind="task"
               task={taskObj}
               environment={envName}
               taskName={kind.task}
-              readOnly
-              showEnvironmentName
             />
           );
         }
@@ -118,14 +116,12 @@ export function RunningProcesses() {
           const editor = envEditors.find((e) => e.command === kind.command);
 
           return (
-            <ProcessRow
+            <RunningProcess
               key={pty.id}
               kind="command"
               command={kind.command}
               editor={editor}
               environment={kind.environment}
-              readOnly
-              showEnvironmentName
             />
           );
         }
