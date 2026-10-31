@@ -40,7 +40,7 @@ importers:
         version: 1.4.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))
+        version: 4.3.3(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))
       '@tanstack/react-devtools':
         specifier: ^0.10.13
         version: 0.10.13(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(csstype@3.2.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.17)
@@ -52,7 +52,7 @@ importers:
         version: 1.167.2(@tanstack/react-router@1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@tanstack/router-core@1.171.39)(csstype@3.2.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/router-plugin':
         specifier: ^1.168.41
-        version: 1.168.48(@tanstack/react-router@1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(rolldown@1.2.15)(supports-color@5.5.0)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))
+        version: 1.168.48(@tanstack/react-router@1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(rolldown@1.2.15)(supports-color@5.5.0)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))
       '@tauri-apps/api':
         specifier: ~2.12.0
         version: 2.12.4
@@ -60,8 +60,8 @@ importers:
         specifier: ~2.8.0
         version: 2.8.3
       '@tauri-apps/plugin-notification':
-        specifier: ~2.6.0
-        version: 2.6.0
+        specifier: ~2.7.0
+        version: 2.7.0
       '@xterm/addon-fit':
         specifier: ^0.11.0
         version: 0.11.0
@@ -131,7 +131,7 @@ importers:
         version: 8.0.3(supports-color@5.5.0)
       '@rolldown/plugin-babel':
         specifier: ^0.2.4
-        version: 0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))
+        version: 0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))
       '@tauri-apps/cli':
         specifier: ^2.12.0
         version: 2.12.4
@@ -145,8 +145,8 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2(prettier@3.9.10)(supports-color@5.5.0)
       '@types/node':
-        specifier: ^24.19.0
-        version: 24.19.2
+        specifier: ^26.0.0
+        version: 26.6.6
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0
@@ -155,7 +155,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^6.0.0
-        version: 6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))
+        version: 6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -191,7 +191,7 @@ importers:
         version: 8.72.0(eslint@10.13.0(jiti@2.7.0)(supports-color@5.5.0))(supports-color@5.5.0)(typescript@6.0.3)
       vite:
         specifier: ^8.0.0
-        version: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)
 
   frontend/pixi-gui:
     dependencies:
@@ -1352,8 +1352,8 @@ packages:
   '@tauri-apps/plugin-dialog@2.8.3':
     resolution: {integrity: sha512-Hd/yBfk2R5v2MFrz/0VArSXeh8xKLLXGunqSiTtcHKn1zNZwaKujuA0VSwUvNfwC4hDoF1PveS+gBDNe3nHspw==}
 
-  '@tauri-apps/plugin-notification@2.6.0':
-    resolution: {integrity: sha512-QvpsQ6L6uSGT/7AmIrEUrfOiqjP1S8HtBU1ieaX6bvOFXGjnoxbNMR9V+8PVhLqRdOntqevpUJ3c52S+1afsIw==}
+  '@tauri-apps/plugin-notification@2.7.0':
+    resolution: {integrity: sha512-kgdHCPSY/3GIi4gSWuLfd3y555U0kwzP0PmnUjT+sGhgO7RdAM6goFjDqayRaKC8yA5oEYi7w2NnA3oQxIjldw==}
 
   '@testing-library/dom@10.4.2':
     resolution: {integrity: sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q==}
@@ -1420,8 +1420,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@24.19.2':
-    resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
+  '@types/node@26.6.6':
+    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
   '@types/react-dom@19.3.0':
     resolution: {integrity: sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==}
@@ -2831,8 +2831,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@7.24.6:
-    resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
   undici@8.12.3:
     resolution: {integrity: sha512-+fdndUTwBP86cVjihTp21hZHo7d6oj1c/47XPA3lL8mM0XHs+C4EkcjmgRsFnFk2f/UONGDy9ItBItmXsLOQHw==}
@@ -3872,14 +3872,14 @@ snapshots:
   '@rolldown/binding-win32-x64-msvc@1.2.15':
     optional: true
 
-  '@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))':
+  '@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))':
     dependencies:
       '@babel/core': 7.29.7(supports-color@5.5.0)
       picomatch: 4.0.7
       rolldown: 1.2.15
     optionalDependencies:
       '@babel/runtime': 7.29.10
-      vite: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)
 
   '@rolldown/pluginutils@1.0.1': {}
 
@@ -3978,12 +3978,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
 
-  '@tailwindcss/vite@4.3.3(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))':
+  '@tailwindcss/vite@4.3.3(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))':
     dependencies:
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
-      vite: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)
 
   '@tanstack/devtools-client@0.0.8':
     dependencies:
@@ -4095,7 +4095,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.168.48(@tanstack/react-router@1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(rolldown@1.2.15)(supports-color@5.5.0)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))':
+  '@tanstack/router-plugin@1.168.48(@tanstack/react-router@1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(rolldown@1.2.15)(supports-color@5.5.0)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))':
     dependencies:
       '@babel/core': 7.29.7(supports-color@5.5.0)
       '@babel/template': 7.29.7
@@ -4104,11 +4104,11 @@ snapshots:
       '@tanstack/router-generator': 1.167.46(supports-color@5.5.0)
       '@tanstack/router-utils': 1.162.4(supports-color@5.5.0)
       chokidar: 5.0.0
-      unplugin: 3.4.0(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))
+      unplugin: 3.4.0(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))
       zod: 4.6.7
     optionalDependencies:
       '@tanstack/react-router': 1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      vite: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)
     transitivePeerDependencies:
       - '@farmfe/core'
       - '@rspack/core'
@@ -4189,7 +4189,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.12.4
 
-  '@tauri-apps/plugin-notification@2.6.0':
+  '@tauri-apps/plugin-notification@2.7.0':
     dependencies:
       '@tauri-apps/api': 2.12.4
 
@@ -4252,9 +4252,9 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@24.19.2':
+  '@types/node@26.6.6':
     dependencies:
-      undici-types: 7.24.6
+      undici-types: 8.9.0
 
   '@types/react-dom@19.3.0(@types/react@19.3.0)':
     dependencies:
@@ -4357,12 +4357,12 @@ snapshots:
       '@typescript-eslint/types': 8.72.0
       eslint-visitor-keys: 5.0.1
 
-  '@vitejs/plugin-react@6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))':
+  '@vitejs/plugin-react@6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)
     optionalDependencies:
-      '@rolldown/plugin-babel': 0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0))
+      '@rolldown/plugin-babel': 0.2.4(@babel/core@7.29.7(supports-color@5.5.0))(@babel/runtime@7.29.10)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0))
       babel-plugin-react-compiler: 1.0.0
 
   '@xterm/addon-fit@0.11.0': {}
@@ -5791,7 +5791,7 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  undici-types@7.24.6: {}
+  undici-types@8.9.0: {}
 
   undici@8.12.3: {}
 
@@ -5819,14 +5819,14 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.1.0
 
-  unplugin@3.4.0(rolldown@1.2.15)(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0)):
+  unplugin@3.4.0(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)):
     dependencies:
       '@jridgewell/remapping': 2.3.5
       picomatch: 4.0.7
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
       rolldown: 1.2.15
-      vite: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)
 
   update-browserslist-db@1.3.4(browserslist@4.29.4):
     dependencies:
@@ -5866,7 +5866,7 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0):
+  vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -5874,7 +5874,7 @@ snapshots:
       rolldown: 1.2.15
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       fsevents: 2.3.3
       jiti: 2.7.0
 
