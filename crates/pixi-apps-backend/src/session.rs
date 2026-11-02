@@ -6,12 +6,10 @@ use std::sync::{Arc, Mutex as SyncMutex};
 use log::debug;
 use miette::Result;
 use pixi_api::{Interface, InterfaceError};
-use pixi_apps_backend_macros::command;
 use tokio::sync::{Mutex, mpsc, oneshot};
 
 use crate::app::AppInfo;
 use crate::confirm::ConfirmRequest;
-use crate::error::Error;
 use crate::event::{Event, EventPayload};
 use crate::notification::{Notification, NotificationLevel};
 use crate::pty::{PtyExitEvent, PtyHandle};
@@ -157,26 +155,12 @@ impl Session {
         self.confirms.lock().unwrap().clear();
     }
 
-    pub async fn open_workspace(&self, manifest: PathBuf) -> Result<()> {
-        // Start watching the workspace manifest
-        let mut watcher = self.watcher.lock().await;
-        *watcher = None;
-
-        *watcher = Some(watcher::watch(
-            self.event_sender.clone(),
-            self.id.clone(),
-            manifest,
-        )?);
-
-        Ok(())
-    }
-
-    pub async fn close_workspace(&self) -> bool {
+    pub async fn kill_all_ptys_confirm(&self) -> bool {
         if !self.ptys().await.is_empty() {
             let terminate = self
                 .request_confirm(
-                    "Close Workspace?",
-                    "Do you want to terminate running processes in this workspace?",
+                    "Terminate Processes?",
+                    "Do you want to terminate the running processes?",
                     "Terminate",
                     "Cancel",
                 )
@@ -186,20 +170,12 @@ impl Session {
             }
         }
 
-        self.force_close_workspace().await;
+        self.kill_all_ptys().await;
         true
     }
 
-    /// Cleans up what an open workspace left behind, without asking
-    async fn force_close_workspace(&self) {
-        self.cancel_confirms();
-
-        // Stop watching the manifest
-        if self.watcher.lock().await.take().is_some() {
-            debug!("Stopped watcher for session {}", self.id);
-        }
-
-        // Terminate running processes, and wait until they are gone
+    /// Kills all running PTYs without asking
+    async fn kill_all_ptys(&self) {
         let kills: Vec<_> = self
             .ptys()
             .await
@@ -216,21 +192,32 @@ impl Session {
         // Set before the cleanup, so nothing gets added again afterwards
         self.closed.store(true, Ordering::SeqCst);
 
+        self.cancel_confirms();
+        self.unwatch_manifest().await;
+
         // The frontend is gone, so the user can't be asked anymore.
         // Terminate the processes without a confirm.
-        self.force_close_workspace().await;
+        self.kill_all_ptys().await;
     }
-}
 
-#[command]
-pub async fn open_workspace(session: Session, manifest: PathBuf) -> Result<(), Error> {
-    session.open_workspace(manifest).await?;
-    Ok(())
-}
+    pub async fn watch_manifest(&self, manifest: PathBuf) -> Result<()> {
+        let mut watcher = self.watcher.lock().await;
+        *watcher = None;
 
-#[command]
-pub async fn close_workspace(session: Session) -> bool {
-    session.close_workspace().await
+        *watcher = Some(watcher::watch(
+            self.event_sender.clone(),
+            self.id.clone(),
+            manifest,
+        )?);
+
+        Ok(())
+    }
+
+    pub async fn unwatch_manifest(&self) {
+        if self.watcher.lock().await.take().is_some() {
+            debug!("Stopped watcher for session {}", self.id);
+        }
+    }
 }
 
 /// Forwards messages from pixi_api to the session that called the command.

@@ -22,8 +22,9 @@ import {
   listPlatforms,
 } from "shared/lib/pixi/workspace/workspace";
 import { platform } from "shared/lib/platform";
-import { closeWorkspace, openWorkspace } from "shared/lib/session";
+import { killAllPtysConfirm } from "shared/lib/pty";
 import { getAppName } from "shared/lib/version";
+import { unwatchManifest, watchManifest } from "shared/lib/watcher";
 
 import { addRecentWorkspace } from "@/lib/recentWorkspaces";
 
@@ -82,8 +83,8 @@ function WorkspaceLayout() {
 
   // Auto refresh when manifest changes
   useEffect(() => {
-    openWorkspace(workspace.manifest).catch((error) => {
-      console.error("Failed to open workspace in the backend:", error);
+    watchManifest(workspace.manifest).catch((error) => {
+      console.error("Failed to watch the workspace manifest:", error);
     });
 
     const unsubscribe = subscribe("manifest-changed", async () => {
@@ -93,6 +94,9 @@ function WorkspaceLayout() {
 
     return () => {
       unsubscribe();
+      unwatchManifest().catch((error) => {
+        console.error("Failed to unwatch the workspace manifest:", error);
+      });
     };
   }, [workspace.manifest, router]);
 
@@ -131,7 +135,7 @@ function WorkspaceLayout() {
   useBlocker({
     shouldBlockFn: async ({ next }) => {
       if (!next.fullPath.startsWith("/workspace"))
-        return !(await closeWorkspace());
+        return !(await killAllPtysConfirm());
       return false;
     },
     // Disable "Leave Site?" prompt, closing the window gets handled by Tauri / by the Websocket transport

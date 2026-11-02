@@ -466,6 +466,11 @@ pub async fn pty_kill(session: Session, id: String) -> Result<(), Error> {
     Ok(())
 }
 
+#[command]
+pub async fn pty_kill_all_confirm(session: Session) -> bool {
+    session.kill_all_ptys_confirm().await
+}
+
 async fn require_pty(session: &Session, id: &str) -> Result<Arc<PtyHandle>, Error> {
     session
         .pty(id)

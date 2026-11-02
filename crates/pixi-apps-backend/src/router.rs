@@ -12,9 +12,10 @@ use crate::pixi;
 use crate::pixi::global;
 use crate::pixi::workspace;
 use crate::pty;
-use crate::session::{self, Session};
+use crate::session::Session;
 use crate::settings;
 use crate::utils;
+use crate::watcher;
 
 #[derive(Debug)]
 pub enum DispatchError {
@@ -50,6 +51,7 @@ pub async fn dispatch(session: Session, cmd: &str, args: Value) -> Result<Value,
         cmd,
         args,
         [
+            global::global::manifest,
             global::list::list_environments,
             global::list::get_environment,
             workspace::add::add_conda_deps,
@@ -97,14 +99,15 @@ pub async fn dispatch(session: Session, cmd: &str, args: Value) -> Result<Value,
             pty::pty_resize,
             pty::pty_get_buffer,
             pty::pty_kill,
+            pty::pty_kill_all_confirm,
             pty::pty_is_running,
             pty::pty_list,
             editor::list_available_editors,
             editor::list_installable_editors,
             editor::open_editor,
             confirm::answer_confirm,
-            session::open_workspace,
-            session::close_workspace,
+            watcher::watch_manifest,
+            watcher::unwatch_manifest,
             settings::settings_get,
             settings::settings_set,
             fs::fs_home_dir,

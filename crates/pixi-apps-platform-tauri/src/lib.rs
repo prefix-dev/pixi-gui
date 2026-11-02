@@ -103,7 +103,7 @@ pub fn run(config: Config, context: tauri::Context) {
         }
     })
     .on_window_event(|window, event| match event {
-        // Close the workspace first, which asks the user if it still has running processes
+        // Kill the running PTYs first, which asks the user
         WindowEvent::CloseRequested { api, .. } => {
             api.prevent_close();
 
@@ -111,8 +111,8 @@ pub fn run(config: Config, context: tauri::Context) {
             let window = window.clone();
 
             tauri::async_runtime::spawn(async move {
-                // The user wants to keep the workspace open
-                if !session.close_workspace().await {
+                // The user wants to keep the processes running
+                if !session.kill_all_ptys_confirm().await {
                     return;
                 }
 
