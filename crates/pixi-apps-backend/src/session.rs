@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex as SyncMutex};
 
 use log::debug;
 use miette::Result;
-use pixi_api::Interface;
+use pixi_api::{Interface, InterfaceError};
 use pixi_apps_backend_macros::command;
 use tokio::sync::{Mutex, mpsc, oneshot};
 
@@ -239,9 +239,18 @@ impl Interface for Session {
         false
     }
 
-    async fn confirm(&self, msg: &str) -> Result<bool> {
+    async fn confirm(&self, msg: &str) -> Result<bool, InterfaceError> {
         let message = utils::strip_ansi_escapes(msg);
         Ok(self.request_confirm("Confirm", &message, "Yes", "No").await)
+    }
+
+    async fn select(
+        &self,
+        _msg: &str,
+        _options: &[String],
+    ) -> Result<Option<usize>, InterfaceError> {
+        // TODO: Implement select dialog in frontend, once needed
+        Ok(None)
     }
 
     async fn info(&self, msg: &str) {
