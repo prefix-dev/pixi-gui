@@ -7,6 +7,6 @@ use pixi_apps_backend_macros::command;
 pub async fn init(session: Session, options: InitOptions) -> Result<(), String> {
     let _ = WorkspaceContext::init(session, options)
         .await
-        .map_err(|e| format_error_chain(&e))?;
+        .map_err(|e| format_error_chain(&miette::Report::new(e)))?;
     Ok(())
 }

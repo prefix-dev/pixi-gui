@@ -1,5 +1,7 @@
 use std::{error::Error as StdError, fmt};
 
+use miette::Diagnostic;
+
 use crate::utils;
 
 #[derive(Debug)]
@@ -13,15 +15,9 @@ impl fmt::Display for Error {
 
 impl StdError for Error {}
 
-impl From<miette::Error> for Error {
-    fn from(value: miette::Error) -> Self {
-        Self(value)
-    }
-}
-
-impl From<String> for Error {
-    fn from(value: String) -> Self {
-        Self(miette::miette!(value))
+impl<E: Into<Box<dyn Diagnostic + Send + Sync>>> From<E> for Error {
+    fn from(value: E) -> Self {
+        Self(miette::Report::new_boxed(value.into()))
     }
 }
 

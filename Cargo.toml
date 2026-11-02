@@ -12,8 +12,7 @@ pixi-apps-backend-macros = { path = "crates/pixi-apps-backend-macros" }
 pixi-apps-platform-tauri = { path = "crates/pixi-apps-platform-tauri" }
 pixi-apps-platform-web = { path = "crates/pixi-apps-platform-web" }
 
-# TODO: Switch back to a pixi release tag once the run/shell API is released
-pixi_api = { package = "pixi_api", git = "https://github.com/haecker-felix/pixi.git", branch = "pixi_api_run" }
+pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi.git", branch = "main" }
 
 axum = { version = "0.8", features = ["ws"] }
 clap = { version = "4.5", features = ["derive"] }
@@ -72,7 +71,7 @@ windows-sys = "0.61"
 # applies this patch, but `[patch]` sections do not propagate through the
 # `pixi_api` git dependency, so it has to be repeated here. Keep the tag in sync
 # with `pixi_api`. 
-reqwest-middleware = { git = "https://github.com/haecker-felix/pixi", branch = "pixi_api_run" }
+reqwest-middleware = { git = "https://github.com/prefix-dev/pixi", branch = "main" }
 version-ranges = { git = "https://github.com/astral-sh/pubgrub", rev = "d8efd77673c9a90792da9da31b6c0da7ea8a324b" }
 
 # Enable a small amount of optimization in the dev profile.

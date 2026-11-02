@@ -4,7 +4,7 @@ use crate::{
 };
 use miette::IntoDiagnostic;
 use pixi_api::{
-    Interface, WorkspaceContext,
+    Interface, InterfaceError, WorkspaceContext,
     core::workspace::DiscoveryStart,
     reporters::TopLevelProgress,
     workspace::{RunOptions, ShellOptions},
@@ -46,7 +46,7 @@ pub fn run_and_exit_if_runner() {
                     environment: Some(data.environment.parse().into_diagnostic()?),
                     ..Default::default()
                 };
-                context.shell(options).await
+                context.shell(options).await.map_err(miette::Report::new)
             }
             PtyInvocationKind::Task(data) => {
                 let options = RunOptions {
@@ -86,11 +86,15 @@ impl Interface for RunnerInterface {
         false
     }
 
-    async fn confirm(&self, _msg: &str) -> miette::Result<bool> {
+    async fn confirm(&self, _msg: &str) -> Result<bool, InterfaceError> {
         Ok(false)
     }
 
-    async fn select(&self, _msg: &str, _options: &[String]) -> miette::Result<Option<usize>> {
+    async fn select(
+        &self,
+        _msg: &str,
+        _options: &[String],
+    ) -> Result<Option<usize>, InterfaceError> {
         Ok(None)
     }
 
