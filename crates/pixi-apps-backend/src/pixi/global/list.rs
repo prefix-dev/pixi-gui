@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[command]
-pub async fn global_list_environments(
+pub async fn list_environments(
     session: Session,
     regex: Option<String>,
 ) -> Result<Vec<GlobalEnvironment>, Error> {
@@ -26,10 +26,7 @@ pub async fn global_list_environments(
 }
 
 #[command]
-pub async fn global_get_environment(
-    session: Session,
-    name: String,
-) -> Result<GlobalEnvironment, Error> {
+pub async fn get_environment(session: Session, name: String) -> Result<GlobalEnvironment, Error> {
     spawn_local(move || async move {
         let name = EnvironmentName::from_str(&name)?;
         let environment = utils::global_context(session)

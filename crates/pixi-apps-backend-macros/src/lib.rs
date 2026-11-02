@@ -62,10 +62,14 @@ pub fn generate_handler(input: TokenStream) -> TokenStream {
     let mut names = HashSet::new();
     let mut arms = Vec::new();
     for command in commands {
-        let Some(last) = command.segments.last() else {
+        let (Some(first), Some(last)) = (command.segments.first(), command.segments.last()) else {
             continue;
         };
-        let name = last.ident.to_string();
+        let name = if command.segments.len() > 2 {
+            format!("{}/{}", first.ident, last.ident)
+        } else {
+            last.ident.to_string()
+        };
         if !names.insert(name.clone()) {
             return Error::new(command.span(), format!("command `{name}` is listed twice"))
                 .to_compile_error()
