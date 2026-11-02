@@ -5,7 +5,7 @@ import { cn } from "#lib/utils";
 interface RowProps {
   ref?: Ref<HTMLLIElement>;
   title: string;
-  subtitle?: ReactNode;
+  subtitle?: string;
   prefix?: ReactNode;
   suffix?: ReactNode;
   onClick?: () => void;
