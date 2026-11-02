@@ -89,7 +89,7 @@ export function RunningProcesses() {
   if (ptys.length === 0) return null;
 
   return (
-    <PreferencesGroup title="Running Processes" stickyHeader>
+    <PreferencesGroup>
       {ptys.map((pty) => {
         const { kind } = pty.invocation;
 
