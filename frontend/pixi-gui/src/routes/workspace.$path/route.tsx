@@ -83,7 +83,8 @@ function WorkspaceLayout() {
 
   // Auto refresh when manifest changes
   useEffect(() => {
-    watchManifest(workspace.manifest).catch((error) => {
+    const watching = watchManifest(workspace.manifest);
+    watching.catch((error) => {
       console.error("Failed to watch the workspace manifest:", error);
     });
 
@@ -94,7 +95,7 @@ function WorkspaceLayout() {
 
     return () => {
       unsubscribe();
-      unwatchManifest().catch((error) => {
+      watching.then(unwatchManifest).catch((error) => {
         console.error("Failed to unwatch the workspace manifest:", error);
       });
     };

@@ -32,11 +32,10 @@ function AppComponent() {
 
   // Auto refresh when the global manifest changes
   useEffect(() => {
-    getManifest()
-      .then(watchManifest)
-      .catch((error) => {
-        console.error("Failed to watch the global manifest:", error);
-      });
+    const watching = getManifest().then(watchManifest);
+    watching.catch((error) => {
+      console.error("Failed to watch the global manifest:", error);
+    });
 
     const unsubscribe = subscribe("manifest-changed", () => {
       listEnvironments()
@@ -48,7 +47,7 @@ function AppComponent() {
 
     return () => {
       unsubscribe();
-      unwatchManifest().catch((error) => {
+      watching.then(unwatchManifest).catch((error) => {
         console.error("Failed to unwatch the global manifest:", error);
       });
     };
