@@ -107,7 +107,7 @@ function AppComponent() {
             versions and dependencies.
           </p>
         </div>
-        <AppMenu />
+        <AppMenu showNewWindow />
       </div>
       <div className="mt-pfx-l mb-pfx-l flex flex-wrap justify-center gap-pfx-s">
         <Button onClick={handleOpenWorkspace}>Open Workspace</Button>
