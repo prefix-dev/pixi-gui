@@ -66,14 +66,14 @@ export function RunningProcess(props: RunningProcessProps) {
           navigateToProcess();
         }
       }}
-      className="inline-flex items-center gap-2.5 rounded-pfx-s border border-pfxl-card-border bg-white px-3 py-1.5 ring-1 ring-transparent transition-colors hover:border-pfx-primary dark:border-pfxd-card-border dark:bg-pfxgsd-700 text-left cursor-pointer min-w-0"
+      className="inline-flex items-center gap-2.5 rounded-pfx-s border border-pfxl-card-border bg-white px-3 py-1.5 ring-1 ring-transparent transition-colors hover:border-pfx-primary dark:bg-pfxgsd-700 dark:border-pfxd-card-border text-left cursor-pointer min-w-0"
     >
       <div className="flex flex-col justify-center min-w-0">
-        <span className="text-xs font-medium text-foreground truncate max-w-[120px]">
+        <span className="text-xs font-medium truncate max-w-[120px]">
           {title}
         </span>
         <div className="flex items-center gap-1 mt-0.5">
-          <span className="inline-flex items-center rounded-full border border-pfxgsl-300 dark:border-pfxgsl-600 px-1 text-[10px] font-bold text-foreground shrink-0">
+          <span className="text-[10px] text-pfxgsl-400 truncate">
             <code>{props.environment}</code>
           </span>
         </div>
