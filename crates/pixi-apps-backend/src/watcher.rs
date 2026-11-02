@@ -66,10 +66,10 @@ pub fn watch(
 
 #[command]
 pub async fn watch_manifest(session: Session, manifest: PathBuf) -> Result<u64, Error> {
-    Ok(session.watch_manifest(manifest).await?)
+    Ok(session.watch_manifest(manifest)?)
 }
 
 #[command]
 pub async fn unwatch_manifest(session: Session, id: u64) {
-    session.unwatch_manifest(id).await;
+    session.unwatch_manifest(id);
 }

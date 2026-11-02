@@ -95,11 +95,11 @@ pub fn run(config: Config, context: tauri::Context) {
     .on_page_load(|webview, payload| {
         if payload.event() == PageLoadEvent::Started {
             log::info!(
-                "Frontend of session {} loads, cancelling its open confirms",
+                "Frontend of session {} loads, cancelling its open confirms and watchers",
                 webview.label()
             );
             let session = webview.state::<State>().session(webview.label());
-            session.cancel_confirms();
+            session.drop_frontend_state();
         }
     })
     .on_window_event(|window, event| match event {

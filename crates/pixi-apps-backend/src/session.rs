@@ -39,8 +39,8 @@ pub struct Session {
     confirms: Arc<SyncMutex<HashMap<u64, oneshot::Sender<bool>>>>,
     next_confirm_id: Arc<AtomicU64>,
 
-    /// Watches the manifest file for changes, with its watcher id
-    watcher: Arc<Mutex<Option<(u64, ManifestWatcher)>>>,
+    /// Watch manifest files for changes, by watcher id
+    watchers: Arc<SyncMutex<HashMap<u64, ManifestWatcher>>>,
     next_watcher_id: Arc<AtomicU64>,
 
     /// Set once the session has ended, so commands that are still running can't
@@ -58,7 +58,7 @@ impl Session {
             exited_ptys: Default::default(),
             confirms: Default::default(),
             next_confirm_id: Default::default(),
-            watcher: Default::default(),
+            watchers: Default::default(),
             next_watcher_id: Default::default(),
             closed: Default::default(),
         }
@@ -152,10 +152,12 @@ impl Session {
         }
     }
 
-    /// Answers all waiting confirms with "no"
-    pub fn cancel_confirms(&self) {
+    /// Drops what belonged to the previous frontend: waiting confirms get
+    /// answered with "no", and its manifest watchers stop
+    pub fn drop_frontend_state(&self) {
         // Dropping the senders resolves the waiting commands with "no"
         self.confirms.lock().unwrap().clear();
+        self.watchers.lock().unwrap().clear();
     }
 
     pub async fn kill_all_ptys_confirm(&self) -> bool {
@@ -195,34 +197,24 @@ impl Session {
         // Set before the cleanup, so nothing gets added again afterwards
         self.closed.store(true, Ordering::SeqCst);
 
-        self.cancel_confirms();
-        if self.watcher.lock().await.take().is_some() {
-            debug!("Stopped watcher for session {}", self.id);
-        }
+        self.drop_frontend_state();
 
         // The frontend is gone, so the user can't be asked anymore.
         // Terminate the processes without a confirm.
         self.kill_all_ptys().await;
     }
 
-    pub async fn watch_manifest(&self, manifest: PathBuf) -> Result<u64> {
-        let mut watcher = self.watcher.lock().await;
-        *watcher = None;
-
+    pub fn watch_manifest(&self, manifest: PathBuf) -> Result<u64> {
+        let watcher = watcher::watch(self.event_sender.clone(), self.id.clone(), manifest)?;
         let id = self.next_watcher_id.fetch_add(1, Ordering::SeqCst);
-        *watcher = Some((
-            id,
-            watcher::watch(self.event_sender.clone(), self.id.clone(), manifest)?,
-        ));
+        self.watchers.lock().unwrap().insert(id, watcher);
 
         Ok(id)
     }
 
-    pub async fn unwatch_manifest(&self, id: u64) {
-        let mut watcher = self.watcher.lock().await;
-        if watcher.as_ref().is_some_and(|(current, _)| *current == id) {
-            *watcher = None;
-            debug!("Stopped watcher for session {}", self.id);
+    pub fn unwatch_manifest(&self, id: u64) {
+        if self.watchers.lock().unwrap().remove(&id).is_some() {
+            debug!("Stopped watcher {id} for session {}", self.id);
         }
     }
 }
