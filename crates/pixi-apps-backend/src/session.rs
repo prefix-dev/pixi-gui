@@ -207,7 +207,12 @@ impl Session {
     pub fn watch_manifest(&self, manifest: PathBuf) -> Result<u64> {
         let watcher = watcher::watch(self.event_sender.clone(), self.id.clone(), manifest)?;
         let id = self.next_watcher_id.fetch_add(1, Ordering::SeqCst);
-        self.watchers.lock().unwrap().insert(id, watcher);
+
+        let mut watchers = self.watchers.lock().unwrap();
+        if self.closed.load(Ordering::SeqCst) {
+            miette::bail!("Session {} has ended", self.id);
+        }
+        watchers.insert(id, watcher);
 
         Ok(id)
     }
