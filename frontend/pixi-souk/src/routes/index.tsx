@@ -56,7 +56,7 @@ function AppComponent() {
 
   return (
     <div className="mx-auto max-w-5xl p-pfx-l">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between mb-pfx-l">
         <div>
           <h1 className="font-display text-pfxh-s">Installed Packages</h1>
           <p>
