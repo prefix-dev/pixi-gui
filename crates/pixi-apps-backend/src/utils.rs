@@ -1,7 +1,7 @@
 use std::{future::Future, path::PathBuf};
 
 use pixi_api::{
-    PIXI_VERSION, WorkspaceContext,
+    GlobalContext, PIXI_VERSION, WorkspaceContext,
     core::{Workspace, WorkspaceLocator, WorkspaceLocatorError, workspace::DiscoveryStart},
 };
 use strip_ansi_escapes::strip;
@@ -51,6 +51,12 @@ pub async fn workspace_context(
     let workspace = workspace(DiscoveryStart::SearchRoot(path)).await?;
 
     Ok(WorkspaceContext::new(session, workspace))
+}
+
+pub async fn global_context(session: Session) -> Result<GlobalContext<Session>, Error> {
+    let project = pixi_api::global::Project::discover_or_create().await?;
+
+    Ok(GlobalContext::new(session, project))
 }
 
 /// Removes ANSI escape sequences from a string

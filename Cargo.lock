@@ -1227,7 +1227,7 @@ dependencies = [
 [[package]]
 name = "barrier_cell"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "parking_lot",
  "thiserror 2.0.21",
@@ -3022,7 +3022,7 @@ dependencies = [
 [[package]]
 name = "fancy_display"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "console",
 ]
@@ -6632,7 +6632,7 @@ dependencies = [
 [[package]]
 name = "pixi_api"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "console",
  "deno_task_shell",
@@ -6650,6 +6650,7 @@ dependencies = [
  "pixi_config",
  "pixi_consts",
  "pixi_core",
+ "pixi_global",
  "pixi_install_pypi",
  "pixi_manifest",
  "pixi_progress",
@@ -6687,7 +6688,7 @@ dependencies = [
 [[package]]
 name = "pixi_auth"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "pixi_config",
  "rattler_networking",
@@ -6697,7 +6698,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_discovery"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "dunce",
  "itertools 0.15.0",
@@ -6720,7 +6721,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_frontend"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "fs-err",
  "futures",
@@ -6741,7 +6742,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_type_conversions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "itertools 0.15.0",
  "ordermap",
@@ -6755,7 +6756,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_types"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "hex",
  "ordermap",
@@ -6772,7 +6773,7 @@ dependencies = [
 [[package]]
 name = "pixi_command_dispatcher"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "async-fd-lock",
  "base64 0.23.1",
@@ -6837,7 +6838,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_cache_dirs"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "pixi_compute_engine",
  "pixi_compute_env_vars",
@@ -6847,7 +6848,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_engine"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "cmp_any",
  "futures",
@@ -6859,7 +6860,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_env_vars"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "pixi_compute_engine",
 ]
@@ -6867,7 +6868,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_network"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "pixi_compute_engine",
  "rattler_networking",
@@ -6876,7 +6877,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_reporters"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "dashmap",
  "futures",
@@ -6888,7 +6889,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_sources"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "derive_more",
  "dirs 7.0.0",
@@ -6914,7 +6915,7 @@ dependencies = [
 [[package]]
 name = "pixi_config"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "clap",
  "console",
@@ -6945,7 +6946,7 @@ dependencies = [
 [[package]]
 name = "pixi_consts"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "console",
  "rattler_cache",
@@ -6956,7 +6957,7 @@ dependencies = [
 [[package]]
 name = "pixi_core"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "async-once-cell",
  "async-trait",
@@ -7066,7 +7067,7 @@ dependencies = [
 [[package]]
 name = "pixi_diff"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "ahash",
  "console",
@@ -7083,7 +7084,7 @@ dependencies = [
 [[package]]
 name = "pixi_git"
 version = "0.0.1"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "astral-reqwest-middleware",
  "dashmap",
@@ -7105,7 +7106,7 @@ dependencies = [
 [[package]]
 name = "pixi_glob"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "dashmap",
  "fs-err",
@@ -7121,9 +7122,67 @@ dependencies = [
 ]
 
 [[package]]
+name = "pixi_global"
+version = "0.1.0"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
+dependencies = [
+ "ahash",
+ "chrono",
+ "console",
+ "dirs 7.0.0",
+ "dunce",
+ "fancy_display",
+ "fs-err",
+ "futures",
+ "indexmap 2.14.2",
+ "is_executable",
+ "itertools 0.15.0",
+ "miette 7.6.0",
+ "once_cell",
+ "ordermap",
+ "pixi_build_discovery",
+ "pixi_build_frontend",
+ "pixi_command_dispatcher",
+ "pixi_config",
+ "pixi_consts",
+ "pixi_core",
+ "pixi_manifest",
+ "pixi_path",
+ "pixi_progress",
+ "pixi_reporters",
+ "pixi_spec",
+ "pixi_spec_containers",
+ "pixi_toml",
+ "pixi_toml_edit",
+ "pixi_utils",
+ "rattler",
+ "rattler_conda_types",
+ "rattler_lock",
+ "rattler_menuinst",
+ "rattler_networking",
+ "rattler_repodata_gateway",
+ "rattler_shell",
+ "rattler_solve",
+ "regex",
+ "rstest",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.21",
+ "tokio",
+ "toml-span",
+ "toml_edit 0.25.17+spec-1.1.0",
+ "tracing",
+ "url",
+ "xxhash-rust",
+ "zstd 0.14.3",
+]
+
+[[package]]
 name = "pixi_install_pypi"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "ahash",
  "console",
@@ -7189,7 +7248,7 @@ dependencies = [
 [[package]]
 name = "pixi_manifest"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "archspec",
  "chrono",
@@ -7236,7 +7295,7 @@ dependencies = [
 [[package]]
 name = "pixi_path"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "fs-err",
  "serde",
@@ -7247,7 +7306,7 @@ dependencies = [
 [[package]]
 name = "pixi_progress"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "indicatif",
  "parking_lot",
@@ -7256,7 +7315,7 @@ dependencies = [
 [[package]]
 name = "pixi_pty"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "libc",
  "nix 0.31.3",
@@ -7266,7 +7325,7 @@ dependencies = [
 [[package]]
 name = "pixi_pypi_spec"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "itertools 0.15.0",
  "pep440_rs",
@@ -7286,7 +7345,7 @@ dependencies = [
 [[package]]
 name = "pixi_python_status"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "rattler",
 ]
@@ -7294,7 +7353,7 @@ dependencies = [
 [[package]]
 name = "pixi_record"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "file_url",
  "hex",
@@ -7320,7 +7379,7 @@ dependencies = [
 [[package]]
 name = "pixi_reporters"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "console",
  "fs-err",
@@ -7361,7 +7420,7 @@ dependencies = [
 [[package]]
 name = "pixi_spec"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "chrono",
  "dirs 7.0.0",
@@ -7394,7 +7453,7 @@ dependencies = [
 [[package]]
 name = "pixi_spec_containers"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "itertools 0.15.0",
  "ordermap",
@@ -7406,7 +7465,7 @@ dependencies = [
 [[package]]
 name = "pixi_stable_hash"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "ordermap",
  "rattler_conda_types",
@@ -7418,7 +7477,7 @@ dependencies = [
 [[package]]
 name = "pixi_task"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "anyhow",
  "assert_matches",
@@ -7451,7 +7510,7 @@ dependencies = [
 [[package]]
 name = "pixi_toml"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "digest 0.11.3",
  "hex",
@@ -7466,7 +7525,7 @@ dependencies = [
 [[package]]
 name = "pixi_toml_edit"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "thiserror 2.0.21",
  "toml_edit 0.25.17+spec-1.1.0",
@@ -7475,7 +7534,7 @@ dependencies = [
 [[package]]
 name = "pixi_url"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "astral-reqwest-middleware",
  "bzip2",
@@ -7506,7 +7565,7 @@ dependencies = [
 [[package]]
 name = "pixi_utils"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -7547,7 +7606,7 @@ dependencies = [
 [[package]]
 name = "pixi_uv_context"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "fs-err",
  "miette 7.6.0",
@@ -7572,7 +7631,7 @@ dependencies = [
 [[package]]
 name = "pixi_uv_conversions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "chrono",
  "dunce",
@@ -7609,7 +7668,7 @@ dependencies = [
 [[package]]
 name = "pixi_variant"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "pixi_build_types",
  "rattler_lock",
@@ -7987,7 +8046,7 @@ dependencies = [
 [[package]]
 name = "pypi_mapping"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -8018,7 +8077,7 @@ dependencies = [
 [[package]]
 name = "pypi_modifiers"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=feat%2Fpixi-api-global-list#1fec129e7b5f83341c2b7296e17114c50056283c"
 dependencies = [
  "miette 7.6.0",
  "pixi_manifest",
@@ -8888,7 +8947,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "rustix 1.1.6",
- "windows 0.61.3",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -9141,7 +9200,7 @@ dependencies = [
 [[package]]
 name = "reqwest-middleware"
 version = "0.5.99"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#4e8341d8ce7ec21be68ca3ba81a3a3060a4c2527"
+source = "git+https://github.com/prefix-dev/pixi?branch=main#740e3173dc0d88fa15d526b57d86446f6ee6239e"
 dependencies = [
  "astral-reqwest-middleware",
 ]
@@ -11122,7 +11181,7 @@ dependencies = [
  "serde_with",
  "swift-rs",
  "thiserror 2.0.21",
- "toml 0.9.12+spec-1.1.0",
+ "toml 1.1.8+spec-1.1.0",
  "url",
  "urlpattern",
  "uuid",
