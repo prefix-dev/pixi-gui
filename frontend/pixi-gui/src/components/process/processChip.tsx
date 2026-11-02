@@ -1,17 +1,18 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { Square } from "lucide-react";
+import { Square, TerminalIcon } from "lucide-react";
 
+import { Chip } from "shared/components/common/chip";
 import { Button } from "shared/components/shadcn/button";
 import { useProcess } from "shared/hooks/useProcess";
 import type { Editor } from "shared/lib/editor";
 import { type Task } from "shared/lib/pixi/workspace/task";
 
-export type RunningProcessProps = { environment: string } & (
+export type ProcessChipProps = { environment: string } & (
   | { kind: "task"; task: Task; taskName: string }
   | { kind: "command"; command: string; editor?: Editor }
 );
 
-export function RunningProcess(props: RunningProcessProps) {
+export function ProcessChip(props: ProcessChipProps) {
   const { workspace } = getRouteApi("/workspace/$path").useLoaderData();
   const navigate = getRouteApi("/workspace/$path").useNavigate();
 
@@ -56,42 +57,26 @@ export function RunningProcess(props: RunningProcessProps) {
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <Chip
+      title={title}
+      detail={props.environment}
+      prefix={<TerminalIcon className="h-4 w-4 shrink-0" />}
+      suffix={
+        isRunning && (
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            title={props.kind === "task" ? "Stop task" : "Stop command"}
+            onClick={handleKill}
+            disabled={isBusy}
+          >
+            <Square className="h-3 w-3 text-destructive" />
+          </Button>
+        )
+      }
       onClick={() => navigateToProcess()}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          navigateToProcess();
-        }
-      }}
-      className="inline-flex items-center gap-2.5 rounded-pfx-s border border-pfxl-card-border bg-white px-3 py-1.5 ring-1 ring-transparent transition-colors hover:border-pfx-primary dark:bg-pfxgsd-700 dark:border-pfxd-card-border text-left cursor-pointer min-w-0"
-    >
-      <div className="flex flex-col justify-center min-w-0">
-        <span className="text-xs font-medium truncate max-w-[120px]">
-          {title}
-        </span>
-        <div className="flex items-center gap-1 mt-0.5">
-          <span className="text-[10px] text-pfxgsl-400 truncate">
-            <code>{props.environment}</code>
-          </span>
-        </div>
-      </div>
-
-      {isRunning && (
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          title={props.kind === "task" ? "Stop task" : "Stop command"}
-          onClick={handleKill}
-          disabled={isBusy}
-          className="h-6 w-6 shrink-0"
-        >
-          <Square className="text-destructive h-4 w-4" />
-        </Button>
-      )}
-    </div>
+      className="rounded-full [&>button]:text-xs"
+    />
   );
 }

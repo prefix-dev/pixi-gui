@@ -1,12 +1,11 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-import { PreferencesGroup } from "shared/components/common/preferencesGroup";
 import { type Editor, listAvailableEditors } from "shared/lib/editor";
 import { subscribe } from "shared/lib/event";
 import { type PtyHandle, listPtys } from "shared/lib/pty";
 
-import { RunningProcess } from "@/components/process/runningProcess";
+import { ProcessChip } from "@/components/process/processChip";
 
 export function RunningProcesses() {
   const { workspace, tasks } = getRouteApi("/workspace/$path").useLoaderData();
@@ -89,7 +88,7 @@ export function RunningProcesses() {
   if (ptys.length === 0) return null;
 
   return (
-    <PreferencesGroup>
+    <div className="flex flex-wrap gap-pfx-s mt-pfx-m">
       {ptys.map((pty) => {
         const { kind } = pty.invocation;
 
@@ -100,7 +99,7 @@ export function RunningProcesses() {
           if (!taskObj) return null;
 
           return (
-            <RunningProcess
+            <ProcessChip
               key={pty.id}
               kind="task"
               task={taskObj}
@@ -116,7 +115,7 @@ export function RunningProcesses() {
           const editor = envEditors.find((e) => e.command === kind.command);
 
           return (
-            <RunningProcess
+            <ProcessChip
               key={pty.id}
               kind="command"
               command={kind.command}
@@ -128,6 +127,6 @@ export function RunningProcesses() {
 
         return null;
       })}
-    </PreferencesGroup>
+    </div>
   );
 }
