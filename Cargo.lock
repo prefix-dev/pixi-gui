@@ -155,7 +155,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -166,7 +166,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1193,9 +1193,9 @@ dependencies = [
 [[package]]
 name = "barrier_cell"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
- "parking_lot",
+ "parking_lot 0.13.0",
  "thiserror 2.0.21",
  "tokio",
 ]
@@ -1598,7 +1598,7 @@ dependencies = [
  "maybe-owned",
  "rustix 1.1.6",
  "rustix-linux-procfs",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
  "winx",
 ]
 
@@ -2284,9 +2284,9 @@ dependencies = [
  "cfg-if",
  "crossbeam-utils",
  "hashbrown 0.14.5",
- "lock_api",
+ "lock_api 0.4.14",
  "once_cell",
- "parking_lot_core",
+ "parking_lot_core 0.9.12",
 ]
 
 [[package]]
@@ -2558,7 +2558,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2941,7 +2941,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2988,7 +2988,7 @@ dependencies = [
 [[package]]
 name = "fancy_display"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "console",
 ]
@@ -4189,7 +4189,7 @@ dependencies = [
  "tokio",
  "tower-service",
  "tracing",
- "windows-registry 0.5.3",
+ "windows-registry 0.6.1",
 ]
 
 [[package]]
@@ -4204,7 +4204,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -4551,7 +4551,7 @@ version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "82cb6a9f675da968c63b6208c641b9dca58fc0133ae53375736b1767b0cab8bd"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4936,7 +4936,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8cfc352a66ba903c23239ef51e809508b6fc2b0f90e3476ac7a9ff47e863ae95"
 dependencies = [
  "scopeguard",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4946,7 +4946,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cde48f36530cbd91b65f050101e6c056d6eb743cea2a8f0f19beef69c6742ff8"
 dependencies = [
  "scopeguard",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4974,7 +4974,7 @@ version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a1886916523694cd6ea3d175f03a1e5010699a2a4cc13696d83d7bea1d80638"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -5144,6 +5144,15 @@ name = "lock_api"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965"
+dependencies = [
+ "scopeguard",
+]
+
+[[package]]
+name = "lock_api"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65d91b22da179613dcf4d6ec8349563f52a363f6849e03b00dd0a185ec4a59af"
 dependencies = [
  "scopeguard",
 ]
@@ -5396,7 +5405,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "536bfad37a309d62069485248eeaba1e8d9853aaf951caaeaed0585a95346f08"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -5423,7 +5432,7 @@ dependencies = [
  "png",
  "serde",
  "thiserror 2.0.21",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -5637,7 +5646,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6218,8 +6227,18 @@ version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a"
 dependencies = [
- "lock_api",
- "parking_lot_core",
+ "lock_api 0.4.14",
+ "parking_lot_core 0.9.12",
+]
+
+[[package]]
+name = "parking_lot"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9cf937ca4e1d0b7578784559063422fc39ae7c5a00f02471f2614d5486fd226"
+dependencies = [
+ "lock_api 0.5.0",
+ "parking_lot_core 0.10.0",
 ]
 
 [[package]]
@@ -6230,7 +6249,19 @@ checksum = "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1"
 dependencies = [
  "cfg-if",
  "libc",
- "redox_syscall",
+ "redox_syscall 0.5.18",
+ "smallvec",
+ "windows-link 0.2.1",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9cfff060068cc18aa7815010fcaf80c68c7fb9e85fc7f5c0f9bf142c21d19826"
+dependencies = [
+ "libc",
+ "redox_syscall 0.9.5",
  "smallvec",
  "windows-link 0.2.1",
 ]
@@ -6591,7 +6622,7 @@ dependencies = [
 [[package]]
 name = "pixi_api"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "console",
  "deno_task_shell",
@@ -6647,7 +6678,7 @@ dependencies = [
 [[package]]
 name = "pixi_auth"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "pixi_config",
  "rattler_networking",
@@ -6657,7 +6688,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_discovery"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "dunce",
  "itertools 0.15.0",
@@ -6680,7 +6711,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_frontend"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "fs-err",
  "futures",
@@ -6701,7 +6732,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_type_conversions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "itertools 0.15.0",
  "ordermap",
@@ -6715,7 +6746,7 @@ dependencies = [
 [[package]]
 name = "pixi_build_types"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "hex",
  "ordermap",
@@ -6732,7 +6763,7 @@ dependencies = [
 [[package]]
 name = "pixi_command_dispatcher"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "async-fd-lock",
  "base64 0.23.1",
@@ -6746,7 +6777,7 @@ dependencies = [
  "nanoid",
  "once_cell",
  "ordermap",
- "parking_lot",
+ "parking_lot 0.13.0",
  "pin-project-lite",
  "pixi_build_discovery",
  "pixi_build_frontend",
@@ -6797,7 +6828,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_cache_dirs"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "pixi_compute_engine",
  "pixi_compute_env_vars",
@@ -6807,11 +6838,11 @@ dependencies = [
 [[package]]
 name = "pixi_compute_engine"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "cmp_any",
  "futures",
- "parking_lot",
+ "parking_lot 0.13.0",
  "thiserror 2.0.21",
  "tokio",
 ]
@@ -6819,7 +6850,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_env_vars"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "pixi_compute_engine",
 ]
@@ -6827,7 +6858,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_network"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "pixi_compute_engine",
  "rattler_networking",
@@ -6836,7 +6867,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_reporters"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "dashmap",
  "futures",
@@ -6848,7 +6879,7 @@ dependencies = [
 [[package]]
 name = "pixi_compute_sources"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "derive_more",
  "dirs 7.0.0",
@@ -6874,7 +6905,7 @@ dependencies = [
 [[package]]
 name = "pixi_config"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "clap",
  "console",
@@ -6905,7 +6936,7 @@ dependencies = [
 [[package]]
 name = "pixi_consts"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "console",
  "rattler_cache",
@@ -6916,7 +6947,7 @@ dependencies = [
 [[package]]
 name = "pixi_core"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "async-once-cell",
  "async-trait",
@@ -7026,7 +7057,7 @@ dependencies = [
 [[package]]
 name = "pixi_diff"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "ahash",
  "console",
@@ -7043,7 +7074,7 @@ dependencies = [
 [[package]]
 name = "pixi_git"
 version = "0.0.1"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "astral-reqwest-middleware",
  "dashmap",
@@ -7065,14 +7096,14 @@ dependencies = [
 [[package]]
 name = "pixi_glob"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "dashmap",
  "fs-err",
  "ignore",
  "itertools 0.15.0",
  "memchr",
- "parking_lot",
+ "parking_lot 0.13.0",
  "pixi_path",
  "rattler_digest",
  "thiserror 2.0.21",
@@ -7083,7 +7114,7 @@ dependencies = [
 [[package]]
 name = "pixi_global"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "ahash",
  "chrono",
@@ -7127,6 +7158,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+ "serde_with",
  "tempfile",
  "thiserror 2.0.21",
  "tokio",
@@ -7141,7 +7173,7 @@ dependencies = [
 [[package]]
 name = "pixi_install_pypi"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "ahash",
  "console",
@@ -7207,7 +7239,7 @@ dependencies = [
 [[package]]
 name = "pixi_manifest"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "archspec",
  "chrono",
@@ -7255,7 +7287,7 @@ dependencies = [
 [[package]]
 name = "pixi_path"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "fs-err",
  "serde",
@@ -7266,16 +7298,16 @@ dependencies = [
 [[package]]
 name = "pixi_progress"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "indicatif",
- "parking_lot",
+ "parking_lot 0.13.0",
 ]
 
 [[package]]
 name = "pixi_pty"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "libc",
  "nix 0.31.3",
@@ -7285,7 +7317,7 @@ dependencies = [
 [[package]]
 name = "pixi_pypi_spec"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "itertools 0.15.0",
  "pep440_rs",
@@ -7305,7 +7337,7 @@ dependencies = [
 [[package]]
 name = "pixi_python_status"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "rattler",
 ]
@@ -7313,7 +7345,7 @@ dependencies = [
 [[package]]
 name = "pixi_record"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "file_url",
  "hex",
@@ -7339,7 +7371,7 @@ dependencies = [
 [[package]]
 name = "pixi_reporters"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "console",
  "fs-err",
@@ -7349,7 +7381,7 @@ dependencies = [
  "indicatif",
  "itertools 0.15.0",
  "jiff",
- "parking_lot",
+ "parking_lot 0.13.0",
  "pixi_build_discovery",
  "pixi_command_dispatcher",
  "pixi_compute_reporters",
@@ -7380,7 +7412,7 @@ dependencies = [
 [[package]]
 name = "pixi_spec"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "chrono",
  "dirs 7.0.0",
@@ -7414,7 +7446,7 @@ dependencies = [
 [[package]]
 name = "pixi_spec_containers"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "itertools 0.15.0",
  "ordermap",
@@ -7426,7 +7458,7 @@ dependencies = [
 [[package]]
 name = "pixi_stable_hash"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "ordermap",
  "rattler_conda_types",
@@ -7438,7 +7470,7 @@ dependencies = [
 [[package]]
 name = "pixi_task"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "anyhow",
  "assert_matches",
@@ -7471,7 +7503,7 @@ dependencies = [
 [[package]]
 name = "pixi_toml"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "digest 0.11.3",
  "hex",
@@ -7486,7 +7518,7 @@ dependencies = [
 [[package]]
 name = "pixi_toml_edit"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "thiserror 2.0.21",
  "toml_edit 0.25.17+spec-1.1.0",
@@ -7495,7 +7527,7 @@ dependencies = [
 [[package]]
 name = "pixi_url"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "astral-reqwest-middleware",
  "bzip2",
@@ -7526,7 +7558,7 @@ dependencies = [
 [[package]]
 name = "pixi_utils"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -7567,7 +7599,7 @@ dependencies = [
 [[package]]
 name = "pixi_uv_context"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "fs-err",
  "miette 7.6.0",
@@ -7592,7 +7624,7 @@ dependencies = [
 [[package]]
 name = "pixi_uv_conversions"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "chrono",
  "dunce",
@@ -7629,7 +7661,7 @@ dependencies = [
 [[package]]
 name = "pixi_variant"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "pixi_build_types",
  "rattler_lock",
@@ -8007,7 +8039,7 @@ dependencies = [
 [[package]]
 name = "pypi_mapping"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -8038,7 +8070,7 @@ dependencies = [
 [[package]]
 name = "pypi_modifiers"
 version = "0.1.0"
-source = "git+https://github.com/prefix-dev/pixi?branch=main#c755767609851993bc03e1a0a027bbeaf103edf6"
+source = "git+https://github.com/haecker-felix/pixi.git?branch=pixi_api_global_install#0894f88b1277b724c0c006641f8ff73d25cbbf1a"
 dependencies = [
  "miette 7.6.0",
  "pixi_manifest",
@@ -8144,7 +8176,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -8293,7 +8325,7 @@ dependencies = [
  "memchr",
  "memmap2 0.9.12",
  "once_cell",
- "parking_lot",
+ "parking_lot 0.12.5",
  "path_resolver",
  "rattler_cache",
  "rattler_conda_types",
@@ -8346,7 +8378,7 @@ dependencies = [
  "futures",
  "hex",
  "itertools 0.15.0",
- "parking_lot",
+ "parking_lot 0.12.5",
  "rattler_conda_types",
  "rattler_digest",
  "rattler_networking",
@@ -8702,7 +8734,7 @@ dependencies = [
  "json-patch",
  "libc",
  "memmap2 0.9.12",
- "parking_lot",
+ "parking_lot 0.12.5",
  "pin-project-lite",
  "rattler_cache",
  "rattler_conda_types",
@@ -8879,6 +8911,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "redox_syscall"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "580c875845b41ecb1564ad1ae4703044cef774145e3d7a94dc2b3fa7c97868fd"
+dependencies = [
+ "bitflags 2.13.2",
+]
+
+[[package]]
 name = "redox_users"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8917,7 +8958,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "rustix 1.1.6",
- "windows 0.61.3",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -9424,7 +9465,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -9514,7 +9555,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs 1.0.11",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -9798,7 +9839,7 @@ checksum = "609c5606d9d357b26e4ee1a7a01beac396628d0fa01ebbade2a09cefb88e65af"
 dependencies = [
  "fastrand",
  "tempfile",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -10324,7 +10365,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -10342,7 +10383,7 @@ dependencies = [
  "objc2-foundation",
  "objc2-quartz-core",
  "raw-window-handle",
- "redox_syscall",
+ "redox_syscall 0.5.18",
  "tracing",
  "wasm-bindgen",
  "web-sys",
@@ -10467,7 +10508,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a18596f8c785a729f2819c0f6a7eae6ebeebdfffbfe4214ae6b087f690e31901"
 dependencies = [
  "new_debug_unreachable",
- "parking_lot",
+ "parking_lot 0.12.5",
  "phf_shared",
  "precomputed-hash",
 ]
@@ -10750,7 +10791,7 @@ dependencies = [
  "objc2-app-kit",
  "objc2-foundation",
  "objc2-ui-kit",
- "parking_lot",
+ "parking_lot 0.12.5",
  "percent-encoding",
  "raw-window-handle",
  "tao-macros",
@@ -11151,7 +11192,7 @@ dependencies = [
  "serde_with",
  "swift-rs",
  "thiserror 2.0.21",
- "toml 0.9.12+spec-1.1.0",
+ "toml 1.1.8+spec-1.1.0",
  "url",
  "urlpattern",
  "uuid",
@@ -11187,7 +11228,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96374855068f47402c3121c6eed88d29cb1de8f3ab27090e273e420bdabcf050"
 dependencies = [
  "futures",
- "parking_lot",
+ "parking_lot 0.12.5",
 ]
 
 [[package]]
@@ -11200,7 +11241,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix 1.1.6",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -11219,7 +11260,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "230a1b821ccbd75b185820a1f1ff7b14d21da1e442e22c0863ea5f08771a8874"
 dependencies = [
  "rustix 1.1.6",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -11691,7 +11732,7 @@ dependencies = [
  "png",
  "serde",
  "thiserror 2.0.21",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -11742,7 +11783,7 @@ checksum = "f2f6fb2847f6742cd76af783a2a2c49e9375d0a111c7bef6f71cd9e738c72d6e"
 dependencies = [
  "memoffset",
  "tempfile",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -13531,7 +13572,7 @@ checksum = "1c598d6b99ea013e35844697fc4670d08339d5cda15588f193c6beedd12f644b"
 dependencies = [
  "futures",
  "js-sys",
- "parking_lot",
+ "parking_lot 0.12.5",
  "pin-utils",
  "slab",
  "wasm-bindgen",
@@ -13696,7 +13737,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -13717,7 +13758,7 @@ dependencies = [
  "objc2-foundation",
  "objc2-quartz-core",
  "raw-window-handle",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
  "windows-version 0.1.7",
 ]
 
@@ -14316,7 +14357,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d6f32a0ff4a9f6f01231eb2059cc85479330739333e0e58cadf03b6af2cca10"
 dependencies = [
  "cfg-if",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

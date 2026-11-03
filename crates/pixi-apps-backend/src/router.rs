@@ -9,6 +9,7 @@ use crate::editor;
 use crate::error::Error;
 use crate::fs;
 use crate::pixi;
+use crate::pixi::default;
 use crate::pixi::global;
 use crate::pixi::workspace;
 use crate::pty;
@@ -51,9 +52,12 @@ pub async fn dispatch(session: Session, cmd: &str, args: Value) -> Result<Value,
         cmd,
         args,
         [
+            default::search::search_wildcard,
             global::global::manifest,
             global::list::list_environments,
             global::list::get_environment,
+            global::install::install_environment,
+            global::uninstall::uninstall_environment,
             workspace::add::add_conda_deps,
             workspace::add::add_pypi_deps,
             workspace::init::init,
