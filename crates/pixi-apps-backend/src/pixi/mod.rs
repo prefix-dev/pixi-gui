@@ -2,6 +2,7 @@ use pixi_apps_backend_macros::command;
 
 use crate::session::Session;
 
+pub mod global;
 pub mod workspace;
 
 #[command]

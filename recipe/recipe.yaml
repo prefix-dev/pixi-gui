@@ -78,7 +78,7 @@ outputs:
             # All apps in one cargo invocation, so their features get unified and shared
             # dependencies only get compiled once. tauri/custom-protocol makes the Tauri
             # apps serve their embedded frontend.
-            cargo build --release -p pixi-gui -p pixi-gui-web --features tauri/custom-protocol
+            cargo build --release -p pixi-gui -p pixi-gui-web -p pixi-souk -p pixi-souk-web --features tauri/custom-protocol
 
             cargo_toml_field() {
               local re="$2 = \"([^\"]*)\""
@@ -110,6 +110,9 @@ outputs:
 
             install_app tauri pixi-gui
             install_app web pixi-gui-web
+
+            install_app tauri pixi-souk
+            install_app web pixi-souk-web
 
   - package:
       name: pixi-gui
@@ -156,3 +159,49 @@ outputs:
     tests:
       - script:
           - pixi-gui-web --version
+
+  - package:
+      name: pixi-souk
+    inherit: pixi-apps-build
+    requirements:
+      build:
+        - ${{ stdlib('c') }}
+    build:
+      files:
+        - bin/pixi-souk${{ exe_suffix }}
+        - Menu/pixi-souk_menu.json
+        - Menu/pixi-souk.${{ icon_ext }}
+      dynamic_linking:
+        # Part of Windows itself
+        missing_dso_allowlist:
+          - "**/api-ms-win-core-winrt-*.dll"
+    about:
+      license_file:
+        - LICENSE.md
+        - THIRDPARTY-pixi-souk.yml
+    tests:
+      - script:
+          - pixi-souk --version
+
+  - package:
+      name: pixi-souk-web
+    inherit:
+      from: pixi-apps-build
+      run_exports: false
+    requirements:
+      build:
+        - ${{ compiler('rust') }}
+        - ${{ compiler('c') }}
+        - ${{ stdlib('c') }}
+    build:
+      files:
+        - bin/pixi-souk-web${{ exe_suffix }}
+        - Menu/pixi-souk-web_menu.json
+        - Menu/pixi-souk-web.${{ icon_ext }}
+    about:
+      license_file:
+        - LICENSE.md
+        - THIRDPARTY-pixi-souk-web.yml
+    tests:
+      - script:
+          - pixi-souk-web --version

@@ -21,7 +21,7 @@ export async function addCondaDeps(
   specs: Record<string, MatchSpec>,
   depOptions: DependencyOptions,
 ): Promise<void> {
-  await invoke("add_conda_deps", {
+  await invoke("workspace/add_conda_deps", {
     workspace,
     specs,
     depOptions,
@@ -34,7 +34,7 @@ export async function addPypiDeps(
   editable: boolean,
   depOptions: DependencyOptions,
 ): Promise<void> {
-  await invoke("add_pypi_deps", {
+  await invoke("workspace/add_pypi_deps", {
     workspace,
     pypiDeps,
     editable,

@@ -36,8 +36,8 @@ pub async fn root(session: Session, workspace: PathBuf) -> Result<PathBuf, Error
 
 #[command]
 pub async fn manifest(session: Session, workspace: PathBuf) -> Result<PathBuf, Error> {
-    let workspace = utils::workspace(DiscoveryStart::SearchRoot(workspace)).await?;
-    Ok(workspace.workspace.provenance.absolute_path())
+    let context = utils::workspace_context(session, workspace).await?;
+    Ok(context.manifest_path())
 }
 
 #[command]

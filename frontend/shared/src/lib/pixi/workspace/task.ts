@@ -137,7 +137,7 @@ function formatCommand(commandArgs: CommandArguments): string {
 export function listTask(
   workspace: string,
 ): Promise<Record<string, Record<string, Task>>> {
-  return invoke<Record<string, Record<string, Task>>>("list_tasks", {
+  return invoke<Record<string, Record<string, Task>>>("workspace/list_tasks", {
     workspace,
   });
 }
@@ -148,7 +148,7 @@ export async function addTask(
   task: Task,
   feature: string,
 ): Promise<void> {
-  await invoke("add_task", { workspace, name, task, feature });
+  await invoke("workspace/add_task", { workspace, name, task, feature });
 }
 
 export async function removeTask(
@@ -156,5 +156,5 @@ export async function removeTask(
   name: string,
   feature: string,
 ): Promise<void> {
-  await invoke("remove_task", { workspace, name, feature });
+  await invoke("workspace/remove_task", { workspace, name, feature });
 }

@@ -43,15 +43,15 @@ backend-test = "cargo test --workspace"
 frontend-install-deps = "pnpm install"
 
 [tasks.tauri]
-args = [{ arg = "app", choices = ["pixi-gui"] }]
+args = [{ arg = "app", choices = ["pixi-gui", "pixi-souk"] }]
 cmd = "pnpm tauri dev"
 depends-on = ["frontend-install-deps"]
 env = { TAURI_APP_PATH = "crates/{{ app }}" }
 
 [tasks.web]
-args = [{ arg = "app", choices = ["pixi-gui"] }]
+args = [{ arg = "app", choices = ["pixi-gui", "pixi-souk"] }]
 cmd = """concurrently --kill-others --names backend,frontend \
-  'watchexec --socket 127.0.0.1:5174 --restart --watch crates --exts rs,toml -- cargo run -p {{ app }}-web' \
+  'watchexec --socket 127.0.0.1:{{ {"pixi-gui": 5174, "pixi-souk": 5274}[app] }} --restart --watch crates --exts rs,toml -- cargo run -p {{ app }}-web' \
   'pnpm --filter {{ app }} dev' \
 """
 depends-on = ["frontend-install-deps"]

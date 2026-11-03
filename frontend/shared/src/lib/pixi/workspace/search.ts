@@ -33,7 +33,7 @@ export async function searchWildcard(
   workspace: string,
   packageNameFilter: string,
 ): Promise<RepoDataRecord[] | null> {
-  return await invoke("search_wildcard", {
+  return await invoke("workspace/search_wildcard", {
     workspace,
     packageNameFilter,
   });
@@ -43,7 +43,7 @@ export async function searchExact(
   workspace: string,
   matchSpec: MatchSpec,
 ): Promise<RepoDataRecord[] | null> {
-  return await invoke("search_exact", {
+  return await invoke("workspace/search_exact", {
     workspace,
     matchSpec,
   });

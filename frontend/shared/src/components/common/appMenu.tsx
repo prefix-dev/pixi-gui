@@ -24,9 +24,13 @@ import { getAppName } from "#lib/version";
 
 interface AppMenuProps {
   showChangeWorkspace?: boolean;
+  showNewWindow?: boolean;
 }
 
-export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
+export function AppMenu({
+  showChangeWorkspace = false,
+  showNewWindow = false,
+}: AppMenuProps) {
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
   const [appName, setAppName] = useState<string>("");
 
@@ -62,9 +66,11 @@ export function AppMenu({ showChangeWorkspace = false }: AppMenuProps) {
           </DropdownMenuItem>
         )}
         {showChangeWorkspace && <DropdownMenuSeparator />}
-        <DropdownMenuItem onClick={handleNewWindow}>
-          <AppWindowIcon /> New Window
-        </DropdownMenuItem>
+        {showNewWindow && (
+          <DropdownMenuItem onClick={handleNewWindow}>
+            <AppWindowIcon /> New Window
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={handleDocumentation}>
           <BookOpenTextIcon /> Documentation
         </DropdownMenuItem>

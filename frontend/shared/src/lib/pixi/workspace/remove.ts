@@ -9,7 +9,7 @@ export async function removeCondaDeps(
   specs: Record<string, MatchSpec>,
   depOptions: DependencyOptions,
 ): Promise<void> {
-  await invoke("remove_conda_deps", {
+  await invoke("workspace/remove_conda_deps", {
     workspace,
     specs,
     depOptions,
@@ -21,7 +21,7 @@ export async function removePypiDeps(
   pypiDeps: Record<string, string>,
   depOptions: DependencyOptions,
 ): Promise<void> {
-  await invoke("remove_pypi_deps", {
+  await invoke("workspace/remove_pypi_deps", {
     workspace,
     pypiDeps,
     depOptions,

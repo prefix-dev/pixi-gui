@@ -1,0 +1,18 @@
+[package]
+description = "Graphical web interface for Pixi Global"
+edition.workspace = true
+name = "pixi-souk-web"
+publish = false
+version.workspace = true
+
+[package.metadata]
+display-name = "Pixi Souk Web"
+
+[dependencies]
+memory-serve.workspace = true
+pixi-apps-platform-web.workspace = true
+
+[build-dependencies]
+# Embeds the frontend, see build.rs
+memory-serve.workspace = true
+toml.workspace = true

@@ -199,6 +199,12 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  frontend/pixi-souk:
+    dependencies:
+      shared:
+        specifier: workspace:*
+        version: link:../shared
+
   frontend/shared: {}
 
 packages:

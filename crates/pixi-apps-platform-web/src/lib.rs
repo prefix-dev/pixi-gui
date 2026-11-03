@@ -347,8 +347,8 @@ impl Server {
         if let Some(previous) = previous {
             // The previous connection gets closed, in case it's still open
             let _ = previous.send(WsMessage::Close(None));
-            // Open confirms get answered with "no", as their dialogs were in the previous frontend
-            self.state.session(&session).cancel_confirms();
+            // Open confirms get answered with "no" and watchers stop, as they belonged to the previous frontend
+            self.state.session(&session).drop_frontend_state();
         }
 
         if let Some(login) = login {
