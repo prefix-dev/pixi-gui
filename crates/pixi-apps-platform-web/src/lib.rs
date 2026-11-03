@@ -75,6 +75,8 @@ struct Cli {
 }
 
 pub fn run(config: Config) {
+    pixi_apps_backend::runner::run_and_exit_if_runner();
+
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     let cli: Cli = config.app.parse();
     let port = cli.port.unwrap_or(config.port);
@@ -345,8 +347,8 @@ impl Server {
         if let Some(previous) = previous {
             // The previous connection gets closed, in case it's still open
             let _ = previous.send(WsMessage::Close(None));
-            // Open confirms get answered with "no", as their dialogs were in the previous frontend
-            self.state.session(&session).cancel_confirms();
+            // Open confirms get answered with "no" and watchers stop, as they belonged to the previous frontend
+            self.state.session(&session).drop_frontend_state();
         }
 
         if let Some(login) = login {

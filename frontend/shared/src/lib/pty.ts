@@ -95,6 +95,10 @@ export async function killPty(id: string): Promise<void> {
   });
 }
 
+export async function killAllPtysConfirm(): Promise<boolean> {
+  return await invoke<boolean>("pty_kill_all_confirm");
+}
+
 export async function isPtyRunning(id: string): Promise<boolean> {
   return invoke<boolean>("pty_is_running", {
     id,

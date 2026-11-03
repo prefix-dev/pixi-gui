@@ -1,7 +1,7 @@
 use std::{future::Future, path::PathBuf};
 
 use pixi_api::{
-    PIXI_VERSION, WorkspaceContext,
+    GlobalContext, PIXI_VERSION, WorkspaceContext,
     core::{Workspace, WorkspaceLocator, WorkspaceLocatorError, workspace::DiscoveryStart},
 };
 use strip_ansi_escapes::strip;
@@ -25,10 +25,10 @@ where
         .map_err(|e| E::from(format!("Execution failed: {}", e)))?
 }
 
-pub async fn workspace(workspace: PathBuf) -> Result<Workspace, Error> {
+pub async fn workspace(start: DiscoveryStart) -> Result<Workspace, Error> {
     let workspace_result = WorkspaceLocator::for_cli()
         .with_consider_environment(false)
-        .with_search_start(DiscoveryStart::SearchRoot(workspace))
+        .with_search_start(start)
         .locate()
         .await;
 
@@ -48,9 +48,15 @@ pub async fn workspace_context(
     session: Session,
     path: PathBuf,
 ) -> Result<WorkspaceContext<Session>, Error> {
-    let workspace = workspace(path).await?;
+    let workspace = workspace(DiscoveryStart::SearchRoot(path)).await?;
 
     Ok(WorkspaceContext::new(session, workspace))
+}
+
+pub async fn global_context(session: Session) -> Result<GlobalContext<Session>, Error> {
+    let project = pixi_api::global::Project::discover_or_create().await?;
+
+    Ok(GlobalContext::new(session, project))
 }
 
 /// Removes ANSI escape sequences from a string

@@ -5,13 +5,11 @@ use std::sync::{Arc, Mutex as SyncMutex};
 
 use log::debug;
 use miette::Result;
-use pixi_api::Interface;
-use pixi_apps_backend_macros::command;
+use pixi_api::{Interface, InterfaceError};
 use tokio::sync::{Mutex, mpsc, oneshot};
 
 use crate::app::AppInfo;
 use crate::confirm::ConfirmRequest;
-use crate::error::Error;
 use crate::event::{Event, EventPayload};
 use crate::notification::{Notification, NotificationLevel};
 use crate::pty::{PtyExitEvent, PtyHandle};
@@ -36,12 +34,14 @@ pub struct Session {
     ptys: Arc<Mutex<HashMap<String, Arc<PtyHandle>>>>,
     /// The exit events of the last finished runs, by PTY id
     exited_ptys: Arc<Mutex<HashMap<String, PtyExitEvent>>>,
+
     /// The confirms that wait for the user's answer, by confirm id
     confirms: Arc<SyncMutex<HashMap<u64, oneshot::Sender<bool>>>>,
     next_confirm_id: Arc<AtomicU64>,
 
-    /// Watches the manifest file for changes
-    watcher: Arc<Mutex<Option<ManifestWatcher>>>,
+    /// Watch manifest files for changes, by watcher id
+    watchers: Arc<SyncMutex<HashMap<u64, ManifestWatcher>>>,
+    next_watcher_id: Arc<AtomicU64>,
 
     /// Set once the session has ended, so commands that are still running can't
     /// start new processes or ask questions anymore
@@ -58,7 +58,8 @@ impl Session {
             exited_ptys: Default::default(),
             confirms: Default::default(),
             next_confirm_id: Default::default(),
-            watcher: Default::default(),
+            watchers: Default::default(),
+            next_watcher_id: Default::default(),
             closed: Default::default(),
         }
     }
@@ -151,32 +152,20 @@ impl Session {
         }
     }
 
-    /// Answers all waiting confirms with "no"
-    pub fn cancel_confirms(&self) {
+    /// Drops what belonged to the previous frontend: waiting confirms get
+    /// answered with "no", and its manifest watchers stop
+    pub fn drop_frontend_state(&self) {
         // Dropping the senders resolves the waiting commands with "no"
         self.confirms.lock().unwrap().clear();
+        self.watchers.lock().unwrap().clear();
     }
 
-    pub async fn open_workspace(&self, manifest: PathBuf) -> Result<()> {
-        // Start watching the workspace manifest
-        let mut watcher = self.watcher.lock().await;
-        *watcher = None;
-
-        *watcher = Some(watcher::watch(
-            self.event_sender.clone(),
-            self.id.clone(),
-            manifest,
-        )?);
-
-        Ok(())
-    }
-
-    pub async fn close_workspace(&self) -> bool {
+    pub async fn kill_all_ptys_confirm(&self) -> bool {
         if !self.ptys().await.is_empty() {
             let terminate = self
                 .request_confirm(
-                    "Close Workspace?",
-                    "Do you want to terminate running processes in this workspace?",
+                    "Terminate Processes?",
+                    "Do you want to terminate the running processes?",
                     "Terminate",
                     "Cancel",
                 )
@@ -186,20 +175,12 @@ impl Session {
             }
         }
 
-        self.force_close_workspace().await;
+        self.kill_all_ptys().await;
         true
     }
 
-    /// Cleans up what an open workspace left behind, without asking
-    async fn force_close_workspace(&self) {
-        self.cancel_confirms();
-
-        // Stop watching the manifest
-        if self.watcher.lock().await.take().is_some() {
-            debug!("Stopped watcher for session {}", self.id);
-        }
-
-        // Terminate running processes, and wait until they are gone
+    /// Kills all running PTYs without asking
+    async fn kill_all_ptys(&self) {
         let kills: Vec<_> = self
             .ptys()
             .await
@@ -216,21 +197,31 @@ impl Session {
         // Set before the cleanup, so nothing gets added again afterwards
         self.closed.store(true, Ordering::SeqCst);
 
+        self.drop_frontend_state();
+
         // The frontend is gone, so the user can't be asked anymore.
         // Terminate the processes without a confirm.
-        self.force_close_workspace().await;
+        self.kill_all_ptys().await;
     }
-}
 
-#[command]
-pub async fn open_workspace(session: Session, manifest: PathBuf) -> Result<(), Error> {
-    session.open_workspace(manifest).await?;
-    Ok(())
-}
+    pub fn watch_manifest(&self, manifest: PathBuf) -> Result<u64> {
+        let watcher = watcher::watch(self.event_sender.clone(), self.id.clone(), manifest)?;
+        let id = self.next_watcher_id.fetch_add(1, Ordering::SeqCst);
 
-#[command]
-pub async fn close_workspace(session: Session) -> bool {
-    session.close_workspace().await
+        let mut watchers = self.watchers.lock().unwrap();
+        if self.closed.load(Ordering::SeqCst) {
+            miette::bail!("Session {} has ended", self.id);
+        }
+        watchers.insert(id, watcher);
+
+        Ok(id)
+    }
+
+    pub fn unwatch_manifest(&self, id: u64) {
+        if self.watchers.lock().unwrap().remove(&id).is_some() {
+            debug!("Stopped watcher {id} for session {}", self.id);
+        }
+    }
 }
 
 /// Forwards messages from pixi_api to the session that called the command.
@@ -239,9 +230,18 @@ impl Interface for Session {
         false
     }
 
-    async fn confirm(&self, msg: &str) -> Result<bool> {
+    async fn confirm(&self, msg: &str) -> Result<bool, InterfaceError> {
         let message = utils::strip_ansi_escapes(msg);
         Ok(self.request_confirm("Confirm", &message, "Yes", "No").await)
+    }
+
+    async fn select(
+        &self,
+        _msg: &str,
+        _options: &[String],
+    ) -> Result<Option<usize>, InterfaceError> {
+        // TODO: Implement select dialog in frontend, once needed
+        Ok(None)
     }
 
     async fn info(&self, msg: &str) {

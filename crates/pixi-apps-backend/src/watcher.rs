@@ -4,10 +4,12 @@ use log::{debug, error};
 use miette::IntoDiagnostic;
 use notify::{EventKind, RecursiveMode};
 use notify_debouncer_full::{DebounceEventResult, Debouncer, RecommendedCache, new_debouncer};
+use pixi_apps_backend_macros::command;
 use tokio::sync::mpsc;
 
+use crate::error::Error;
 use crate::event::{Event, EventPayload};
-use crate::session::SessionId;
+use crate::session::{Session, SessionId};
 
 pub type ManifestWatcher = Debouncer<notify::RecommendedWatcher, RecommendedCache>;
 
@@ -60,4 +62,14 @@ pub fn watch(
     debug!("Started watching {:?} for session {}", manifest, session);
 
     Ok(debouncer)
+}
+
+#[command]
+pub async fn watch_manifest(session: Session, manifest: PathBuf) -> Result<u64, Error> {
+    Ok(session.watch_manifest(manifest)?)
+}
+
+#[command]
+pub async fn unwatch_manifest(session: Session, id: u64) {
+    session.unwatch_manifest(id);
 }

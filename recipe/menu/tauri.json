@@ -42,6 +42,7 @@
           ]
         },
         "win": {
+          "activate": false,
           "command": ["{{ PREFIX }}/bin/__PKG_NAME__", "%1"],
           "file_extensions": [".toml"]
         }

@@ -30,6 +30,8 @@ struct Cli {
 }
 
 pub fn run(config: Config, context: tauri::Context) {
+    pixi_apps_backend::runner::run_and_exit_if_runner();
+
     // Disable DMA-BUF renderer for WebKit on Linux to avoid graphics glitches with AMDGPU drivers
     #[cfg(target_os = "linux")]
     unsafe {
@@ -93,15 +95,15 @@ pub fn run(config: Config, context: tauri::Context) {
     .on_page_load(|webview, payload| {
         if payload.event() == PageLoadEvent::Started {
             log::info!(
-                "Frontend of session {} loads, cancelling its open confirms",
+                "Frontend of session {} loads, cancelling its open confirms and watchers",
                 webview.label()
             );
             let session = webview.state::<State>().session(webview.label());
-            session.cancel_confirms();
+            session.drop_frontend_state();
         }
     })
     .on_window_event(|window, event| match event {
-        // Close the workspace first, which asks the user if it still has running processes
+        // Kill the running PTYs first, which asks the user
         WindowEvent::CloseRequested { api, .. } => {
             api.prevent_close();
 
@@ -109,8 +111,8 @@ pub fn run(config: Config, context: tauri::Context) {
             let window = window.clone();
 
             tauri::async_runtime::spawn(async move {
-                // The user wants to keep the workspace open
-                if !session.close_workspace().await {
+                // The user wants to keep the processes running
+                if !session.kill_all_ptys_confirm().await {
                     return;
                 }
 

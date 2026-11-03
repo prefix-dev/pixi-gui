@@ -51,7 +51,7 @@ export function listPackages(
   workspace: string,
   options: ListPackagesOptions = {},
 ): Promise<Package[]> {
-  return invoke<Package[]>("list_packages", {
+  return invoke<Package[]>("workspace/list_packages", {
     workspace,
     regex: options.regex ?? null,
     platform: options.platform ?? null,

@@ -22,5 +22,5 @@ export interface InitOptions {
 }
 
 export async function init(options: InitOptions): Promise<void> {
-  await invoke("init", { options });
+  await invoke("workspace/init", { options });
 }

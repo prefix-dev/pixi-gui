@@ -23,7 +23,7 @@ export async function reinstall(
   },
   lockFileUsage: LockFileUsage = LockFileUsage.Update,
 ): Promise<void> {
-  await invoke("reinstall", {
+  await invoke("workspace/reinstall", {
     workspace,
     options,
     lockFileUsage,
