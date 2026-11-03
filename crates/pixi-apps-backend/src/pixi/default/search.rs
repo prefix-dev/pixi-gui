@@ -47,11 +47,13 @@ pub async fn search_wildcard(
 
     let mut seen_packages = HashSet::new();
 
-    let deduplicated_packages: Vec<RepoDataRecord> = packages
+    let mut deduplicated_packages: Vec<RepoDataRecord> = packages
         .packages
         .into_iter()
+        .rev()
         .filter(|record| seen_packages.insert(record.package_record.name.clone()))
         .collect();
+    deduplicated_packages.reverse();
 
     Ok(Some(deduplicated_packages))
 }
