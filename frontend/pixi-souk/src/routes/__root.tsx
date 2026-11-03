@@ -58,9 +58,11 @@ function RootComponent() {
   }, []);
 
   return (
-    <>
+    <div className="flex h-screen flex-col">
       <ConnectionBanner />
-      <Outlet />
+      <div className="min-h-0 flex-1">
+        <Outlet />
+      </div>
       {import.meta.env.DEV && (
         <TanStackDevtools
           config={{
@@ -74,6 +76,6 @@ function RootComponent() {
           ]}
         />
       )}
-    </>
+    </div>
   );
 }
