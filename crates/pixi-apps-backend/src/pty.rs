@@ -1,5 +1,8 @@
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 use std::time::Duration;
 use std::{collections::VecDeque, ffi::OsString, io::Write};
 
@@ -171,6 +174,8 @@ pub struct PtyHandle {
     termination_kind: std::sync::Mutex<TerminationKind>,
     #[serde(skip)]
     started_at: std::time::Instant,
+    #[serde(skip)]
+    is_killing: AtomicBool,
 }
 
 #[derive(Clone, Serialize)]
@@ -281,6 +286,7 @@ impl PtyHandle {
                 buffer: std::sync::Mutex::default(),
                 termination_kind: std::sync::Mutex::new(TerminationKind::Finished),
                 started_at: std::time::Instant::now(),
+                is_killing: AtomicBool::new(false),
             },
             child,
         ))
@@ -360,6 +366,13 @@ impl PtyHandle {
     }
 
     pub async fn kill(&self) -> Result<()> {
+        // Atomically swap `is_killing` to true. If it was already true, wait on exit_rx.
+        if self.is_killing.swap(true, Ordering::SeqCst) {
+            let mut rx = self.exit_rx.clone();
+            let _ = rx.wait_for(|&exited| exited).await;
+            return Ok(());
+        }
+
         // Mark as stopped (graceful Ctrl+C attempt).
         *self.termination_kind.lock().unwrap() = TerminationKind::Stopped;
 
