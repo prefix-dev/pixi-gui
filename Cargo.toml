@@ -50,7 +50,7 @@ tauri = { version = "~2.12", features = ["devtools"] }
 tauri-build = { version = "2", features = [] }
 tauri-plugin-dialog = "~2.8.0"
 tauri-plugin-log = "~2.10.0"
-tauri-plugin-notification = "~2.6.0"
+tauri-plugin-notification = "~2.7.0"
 tauri-plugin-opener = "~2.7.0"
 tauri-plugin-single-instance = "2"
 tokio = "1.47"
