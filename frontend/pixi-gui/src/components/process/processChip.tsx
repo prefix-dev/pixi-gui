@@ -22,13 +22,12 @@ export function ProcessChip(props: ProcessChipProps) {
       : { workspace, environment: props.environment, command: props.command },
   );
 
-  // Title and subtitle
   const title =
     props.kind === "task"
       ? props.taskName
       : (props.editor?.name ?? props.command);
 
-  const navigateToProcess = (autoStart?: boolean, autoStartArgs?: string[]) => {
+  const navigateToProcess = () => {
     const search =
       props.kind === "task"
         ? {
@@ -45,7 +44,7 @@ export function ProcessChip(props: ProcessChipProps) {
           };
     navigate({
       to: "./process",
-      search: { ...search, autoStart, autoStartArgs },
+      search: { ...search },
     });
   };
 
@@ -76,7 +75,6 @@ export function ProcessChip(props: ProcessChipProps) {
         )
       }
       onClick={() => navigateToProcess()}
-      className="rounded-full [&>button]:text-xs"
     />
   );
 }
