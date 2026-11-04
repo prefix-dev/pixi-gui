@@ -13,6 +13,7 @@ import {
 import { Input } from "shared/components/shadcn/input";
 
 import { Environment } from "@/components/environments/environment";
+import { RunningProcesses } from "@/components/process/runningProcesses";
 
 export function Environments() {
   const { tasks, features } = getRouteApi("/workspace/$path").useLoaderData();
@@ -91,6 +92,7 @@ export function Environments() {
 
   return (
     <>
+      <RunningProcesses />
       <div className="mt-pfx-m">
         <Input
           value={localSearch}
