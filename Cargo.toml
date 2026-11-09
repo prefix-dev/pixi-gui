@@ -12,7 +12,7 @@ pixi-apps-backend-macros = { path = "crates/pixi-apps-backend-macros" }
 pixi-apps-platform-tauri = { path = "crates/pixi-apps-platform-tauri" }
 pixi-apps-platform-web = { path = "crates/pixi-apps-platform-web" }
 
-pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi.git", branch = "main" }
+pixi_api = { package = "pixi_api", git = "https://github.com/prefix-dev/pixi.git" }
 
 axum = { version = "0.8", features = ["ws"] }
 clap = { version = "4.5", features = ["derive"] }

@@ -58,7 +58,7 @@ pub fn run_and_exit_if_runner() {
                         .into_diagnostic()?,
                     ..Default::default()
                 };
-                context.run(options).await
+                context.run(options).await.map_err(miette::Report::new)
             }
             PtyInvocationKind::Command(data) => {
                 let options = RunOptions {
@@ -66,7 +66,7 @@ pub fn run_and_exit_if_runner() {
                     environment: Some(data.environment.parse().into_diagnostic()?),
                     ..Default::default()
                 };
-                context.run(options).await
+                context.run(options).await.map_err(miette::Report::new)
             }
         }
     });
