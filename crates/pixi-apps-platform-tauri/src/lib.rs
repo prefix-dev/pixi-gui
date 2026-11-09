@@ -69,7 +69,8 @@ pub fn run(config: Config, context: tauri::Context) {
         None => window::create_default_window(app),
     };
 
-    let app = tauri::Builder::default();
+    let (state, mut event_receiver) = State::new(config.app);
+    let app = tauri::Builder::default().manage(state);
 
     app.plugin(tauri_plugin_single_instance::init(move |app, args, cwd| {
         // When a second instance is launched, this callback receives its CLI arguments
@@ -131,9 +132,6 @@ pub fn run(config: Config, context: tauri::Context) {
         _ => {}
     })
     .setup(move |app| {
-        let (state, mut event_receiver) = State::new(config.app);
-        app.manage(state);
-
         // Deliver backend events to the window they belong to (session = window label)
         let app_handle = app.handle().clone();
         tauri::async_runtime::spawn(async move {
