@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::sync::{LazyLock, Mutex};
 
 use graphql_client::GraphQLQuery;
 use miette::IntoDiagnostic;
@@ -12,6 +13,10 @@ use super::run;
 use crate::error::Error;
 
 const HOSTS: [&str; 2] = ["prefix.dev", "repo.prefix.dev"];
+
+type Key = Vec<(NamedChannelOrUrl, ChannelUrl)>;
+static CACHE: LazyLock<Mutex<HashMap<Key, HashMap<NamedChannelOrUrl, String>>>> =
+    LazyLock::new(Default::default);
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -33,6 +38,15 @@ pub async fn indexed_channels(
         .map(|named| Ok((named, named.clone().into_channel(channel_config)?)))
         .collect::<Result<_, ParseChannelError>>()
         .into_diagnostic()?;
+
+    let key: Key = channels
+        .iter()
+        .map(|(named, channel)| ((*named).clone(), channel.base_url.clone()))
+        .collect();
+
+    if let Some(indexed) = CACHE.lock().unwrap().get(&key) {
+        return Ok(indexed.clone());
+    }
 
     // Channels hosted on prefix.dev itself (e.g. `https://prefix.dev/my-channel` -> `my-channel`).
     // Whether it really exists is checked below.
@@ -80,7 +94,7 @@ pub async fn indexed_channels(
         .collect();
 
     // Look up each channel: first as a mirror by its URL, then as a hosted channel by its path
-    Ok(channels
+    let indexed: HashMap<NamedChannelOrUrl, String> = channels
         .iter()
         .filter_map(|(named, channel)| {
             let path = mirrors.get(&channel.base_url).or_else(|| {
@@ -90,5 +104,8 @@ pub async fn indexed_channels(
             })?;
             Some(((*named).clone(), path.clone()))
         })
-        .collect())
+        .collect();
+
+    CACHE.lock().unwrap().insert(key, indexed.clone());
+    Ok(indexed)
 }
