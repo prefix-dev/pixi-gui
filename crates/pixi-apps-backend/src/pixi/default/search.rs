@@ -1,13 +1,14 @@
 use std::collections::HashSet;
 
 use indexmap::IndexSet;
+use log::warn;
 use miette::IntoDiagnostic;
 use pixi_api::DefaultContext;
 use pixi_api::rattler_conda_types::{MatchSpec, ParseStrictness, ParseStrictnessWithNameMatcher};
 use pixi_apps_backend_macros::command;
 
 use super::package::PackageMetadata;
-use crate::error::Error;
+use crate::error::{Error, format_error_chain};
 use crate::prefix_dev::{self, SearchHit};
 use crate::session::Session;
 use crate::utils::{self, spawn_local};
@@ -82,7 +83,8 @@ pub async fn search_packages(
                 .into_channel(channel_config)
                 .into_diagnostic()?;
 
-            let mut records = DefaultContext::new(session.clone())
+            // No hits are an error as well, neither should fail the search in the other channels
+            let mut records = match DefaultContext::new(session.clone())
                 .search(
                     config.clone(),
                     match_spec.clone(),
@@ -90,8 +92,14 @@ pub async fn search_packages(
                     utils::installable_platforms(),
                     None,
                 )
-                .await?
-                .packages;
+                .await
+            {
+                Ok(result) => result.packages,
+                Err(err) => {
+                    warn!("Search in '{named}' failed: {}", format_error_chain(&err));
+                    continue;
+                }
+            };
 
             // One hit per name, with its highest version
             records.sort_by(|a, b| b.package_record.version.cmp(&a.package_record.version));
