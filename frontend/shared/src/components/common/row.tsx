@@ -1,10 +1,17 @@
+import type { LucideIcon } from "lucide-react";
 import type { CSSProperties, ReactNode, Ref } from "react";
 
 import { cn } from "#lib/utils";
 
+interface RowMeta {
+  icon: LucideIcon;
+  label: string;
+}
+
 interface RowProps {
   ref?: Ref<HTMLLIElement>;
   title: string;
+  meta?: RowMeta[];
   subtitle?: string;
   prefix?: ReactNode;
   suffix?: ReactNode;
@@ -17,6 +24,7 @@ interface RowProps {
 export function Row({
   ref,
   title,
+  meta,
   subtitle,
   prefix,
   suffix,
@@ -57,7 +65,18 @@ export function Row({
           </div>
         ) : (
           <div className="flex flex-col py-pfx-s flex-1 min-w-0">
-            <span className="truncate">{title}</span>
+            <div className="flex min-w-0 items-center gap-pfx-sm">
+              <span className="truncate">{title}</span>
+              {meta?.map(({ icon: Icon, label }) => (
+                <span
+                  key={label}
+                  className="flex min-w-0 items-center gap-1 text-sm font-semibold text-pfxgsl-400"
+                >
+                  <Icon className="size-4 shrink-0" />
+                  <span className="truncate">{label}</span>
+                </span>
+              ))}
+            </div>
             {subtitle && (
               <span className="text-pfxgsl-400 text-sm truncate">
                 {subtitle}

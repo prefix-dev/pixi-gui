@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CompassIcon, TagIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CircularIcon } from "shared/components/common/circularIcon";
@@ -57,27 +58,27 @@ function SearchComponent() {
     };
   }, [query]);
 
-  const renderPackage = (pkg: PackageMetadata) => {
-    const subtitle = [pkg.latest_version, pkg.summary]
-      .filter(Boolean)
-      .join(" · ");
-
-    return (
-      <Row
-        key={`${pkg.channel}/${pkg.name}`}
-        prefix={<CircularIcon icon="package" />}
-        title={`${pkg.name} (${channelLabel(pkg.channel)})`}
-        subtitle={subtitle}
-        onClick={() =>
-          navigate({
-            to: "/package",
-            search: { name: pkg.name, channel: pkg.channel },
-          })
-        }
-        suffix={<InstallButton pkg={pkg} />}
-      />
-    );
-  };
+  const renderPackage = (pkg: PackageMetadata) => (
+    <Row
+      key={`${pkg.channel}/${pkg.name}`}
+      prefix={<CircularIcon icon="package" />}
+      title={pkg.name}
+      meta={[
+        ...(pkg.latest_version
+          ? [{ icon: TagIcon, label: pkg.latest_version }]
+          : []),
+        { icon: CompassIcon, label: channelLabel(pkg.channel) },
+      ]}
+      subtitle={pkg.summary ?? undefined}
+      onClick={() =>
+        navigate({
+          to: "/package",
+          search: { name: pkg.name, channel: pkg.channel },
+        })
+      }
+      suffix={<InstallButton pkg={pkg} />}
+    />
+  );
 
   const placeholder = !query
     ? "Enter a search term"
