@@ -1,9 +1,8 @@
-import type { RepoDataRecord } from "#lib/pixi/workspace/search";
+import type { PackageMetadata } from "#lib/pixi/default/package";
 import { invoke } from "#lib/platform";
 
-/** Searches the default channels of the pixi config. */
-export async function searchWildcard(
-  packageNameFilter: string,
-): Promise<RepoDataRecord[] | null> {
-  return await invoke("default/search_wildcard", { packageNameFilter });
+export async function searchPackages(
+  query: string,
+): Promise<PackageMetadata[]> {
+  return await invoke("default/search_packages", { query });
 }

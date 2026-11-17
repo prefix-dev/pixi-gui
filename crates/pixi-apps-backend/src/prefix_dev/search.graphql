@@ -1,0 +1,41 @@
+query SearchQuery($search: String!, $channelNames: [String!]) {
+  packages(
+    orderBy: {
+      bySimilarity: { field: NAME, direction: DESC, matches: $search }
+    }
+    limit: 20
+  ) {
+    page {
+      ...Hit
+      channel {
+        channelPath
+        baseUrl
+      }
+    }
+  }
+  channels(filters: { name: { isIn: $channelNames } }, limit: 100) {
+    page {
+      channelPath
+      packages(
+        orderBy: {
+          bySimilarity: { field: NAME, direction: DESC, matches: $search }
+        }
+        limit: 20
+      ) {
+        page {
+          ...Hit
+        }
+      }
+    }
+  }
+}
+
+fragment Hit on Package {
+  name
+  summary
+  latestVersion {
+    version
+  }
+  similarityScore
+  platforms
+}

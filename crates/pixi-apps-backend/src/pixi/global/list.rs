@@ -15,10 +15,15 @@ pub async fn list_environments(
     regex: Option<String>,
 ) -> Result<Vec<GlobalEnvironment>, Error> {
     spawn_local(move || async move {
-        let environments = utils::global_context(session)
+        let mut environments = utils::global_context(session)
             .await?
             .list_environments(regex)
             .await?;
+
+        // Drop `records` field as they can be expensive to de/serialize
+        for environment in &mut environments {
+            environment.records.clear();
+        }
 
         Ok(environments)
     })
