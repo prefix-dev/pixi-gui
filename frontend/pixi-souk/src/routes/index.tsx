@@ -1,4 +1,5 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
+import { TagIcon } from "lucide-react";
 
 import { CircularIcon } from "shared/components/common/circularIcon";
 import { PreferencesGroup } from "shared/components/common/preferencesGroup";
@@ -35,13 +36,19 @@ function AppComponent() {
               prefix={<CircularIcon icon="package" />}
               title={environment.name}
               // One package: its version. Several packages: each name with its version.
+              meta={
+                environment.version
+                  ? [{ icon: TagIcon, label: environment.version }]
+                  : undefined
+              }
               subtitle={
-                environment.version ??
-                environment.dependencies
-                  .map(({ name, version }) =>
-                    version ? `${name} ${version}` : name,
-                  )
-                  .join(", ")
+                environment.version
+                  ? undefined
+                  : environment.dependencies
+                      .map(({ name, version }) =>
+                        version ? `${name} ${version}` : name,
+                      )
+                      .join(", ")
               }
               onClick={packageLink(environment)}
               suffix={<InstallButton environment={environment} />}
