@@ -164,9 +164,9 @@ function PackageComponent() {
           </PreferencesGroup>
         )}
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] -mt-pfx-m items-start gap-x-pfx-m">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] items-start gap-x-pfx-m">
           {information.length > 0 && (
-            <PreferencesGroup title="Information">
+            <PreferencesGroup title="Information" className="-mt-pfx-m">
               {information.map(({ label, icon: Icon, value }) => (
                 <Row
                   key={label}
@@ -180,7 +180,7 @@ function PackageComponent() {
           )}
 
           {pkg && pkg.links.length > 0 && (
-            <PreferencesGroup title="Links">
+            <PreferencesGroup title="Links" className="-mt-pfx-m">
               {pkg.links.map((link) => {
                 const { label, icon: Icon } = LINKS[link.kind];
                 return (
