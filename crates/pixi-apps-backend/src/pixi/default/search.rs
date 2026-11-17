@@ -44,15 +44,25 @@ pub async fn search_packages(
         // doesn't index are missing, those get searched via repodata below.
         let mut api_hits = prefix_dev::search(&client, &channels, channel_config, &query).await?;
 
-        // The repodata search matches all package names containing the query
-        let match_spec = MatchSpec::from_str(
-            &format!("*{query}*"),
-            ParseStrictnessWithNameMatcher {
-                parse_strictness: ParseStrictness::Lenient,
-                exact_names_only: false,
-            },
-        )
-        .into_diagnostic()?;
+        // The repodata search matches all package names containing the query. Characters that
+        // can't be part of a name are dropped, otherwise they'd be parsed as matchspec syntax.
+        let name: String = query
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
+            .collect();
+
+        let match_spec = (!name.is_empty())
+            .then(|| {
+                MatchSpec::from_str(
+                    &format!("*{name}*"),
+                    ParseStrictnessWithNameMatcher {
+                        parse_strictness: ParseStrictness::Lenient,
+                        exact_names_only: false,
+                    },
+                )
+            })
+            .transpose()
+            .into_diagnostic()?;
 
         let mut hits = Vec::new();
         for named in &channels {
@@ -61,6 +71,10 @@ pub async fn search_packages(
                 hits.extend(channel_hits);
                 continue;
             }
+
+            let Some(match_spec) = &match_spec else {
+                continue;
+            };
 
             // prefix.dev doesn't index the channel -> search its repodata
             let channel = named
