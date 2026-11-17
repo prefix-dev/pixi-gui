@@ -10,6 +10,7 @@ pub mod event;
 pub mod fs;
 pub mod notification;
 pub mod pixi;
+pub mod prefix_dev;
 pub mod pty;
 pub mod router;
 pub mod runner;

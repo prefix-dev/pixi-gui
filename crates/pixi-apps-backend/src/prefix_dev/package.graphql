@@ -1,0 +1,30 @@
+query PackageQuery($channel: String!, $name: String!) {
+  package(channelName: $channel, name: $name) {
+    summary
+    description
+    platforms
+    totalCount
+    latestVersion {
+      version
+    }
+    urls {
+      kind
+      url
+    }
+    versions(limit: 100) {
+      page {
+        version
+      }
+    }
+    # Only the newest variant
+    variants(
+      limit: 1
+      orderBy: { byField: { field: CREATED_AT, direction: DESC } }
+    ) {
+      page {
+        license
+        rawAbout
+      }
+    }
+  }
+}

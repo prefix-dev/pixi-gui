@@ -10,13 +10,18 @@ export interface GlobalDependency {
   version: string | null;
 }
 
+export interface GlobalChannel {
+  channel: string;
+  url: string | null;
+}
+
 export interface GlobalEnvironment {
   name: string;
   version: string | null;
   dependencies: GlobalDependency[];
   exposed: GlobalExposedMapping[];
   shortcuts: string[];
-  channels: string[];
+  channels: GlobalChannel[];
   platform: string | null;
 }
 

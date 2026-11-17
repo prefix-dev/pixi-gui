@@ -3,6 +3,9 @@ use std::{future::Future, path::PathBuf};
 use pixi_api::{
     GlobalContext, PIXI_VERSION, WorkspaceContext,
     core::{Workspace, WorkspaceLocator, WorkspaceLocatorError, workspace::DiscoveryStart},
+    rattler_conda_types::{
+        ChannelConfig, ChannelUrl, NamedChannelOrUrl, ParseChannelError, Subdir,
+    },
 };
 use strip_ansi_escapes::strip;
 use tokio::{runtime::Handle, task::spawn_blocking};
@@ -62,4 +65,17 @@ pub async fn global_context(session: Session) -> Result<GlobalContext<Session>, 
 /// Removes ANSI escape sequences from a string
 pub fn strip_ansi_escapes(str: &str) -> String {
     String::from_utf8(strip(str.as_bytes())).unwrap_or_else(|_| str.to_string())
+}
+
+/// The full URL of a channel, e.g. `conda-forge` -> `https://conda.anaconda.org/conda-forge/`.
+pub fn channel_url(
+    channel: &NamedChannelOrUrl,
+    channel_config: &ChannelConfig,
+) -> Result<ChannelUrl, ParseChannelError> {
+    Ok(channel.clone().into_channel(channel_config)?.base_url)
+}
+
+/// The current platform and noarch
+pub fn installable_platforms() -> Vec<Subdir> {
+    vec![Subdir::current().unwrap_or(Subdir::NoArch), Subdir::NoArch]
 }
