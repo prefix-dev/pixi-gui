@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexSet;
 use log::warn;
@@ -43,7 +43,13 @@ pub async fn search_packages(
 
         // Search prefix.dev, the hits are grouped by channel. Configured channels that prefix.dev
         // doesn't index are missing, those get searched via repodata below.
-        let mut api_hits = prefix_dev::search(&client, &channels, channel_config, &query).await?;
+        // If prefix.dev fails, all channels get searched via repodata.
+        let mut api_hits = prefix_dev::search(&client, &channels, channel_config, &query)
+            .await
+            .unwrap_or_else(|err| {
+                warn!("prefix.dev search failed: {}", format_error_chain(&err.0));
+                HashMap::new()
+            });
 
         // The repodata search matches all package names containing the query. Characters that
         // can't be part of a name are dropped, otherwise they'd be parsed as matchspec syntax.
