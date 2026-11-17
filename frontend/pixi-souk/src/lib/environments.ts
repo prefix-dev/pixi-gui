@@ -38,6 +38,11 @@ export function useIsBusyEnvironment(
   return useSyncExternalStore(subscribe, () => busy.has(key));
 }
 
+/** Whether an environment named `environmentName` is being installed or uninstalled, from any channel */
+export function isBusyEnvironmentName(environmentName: string): boolean {
+  return [...busy].some((key) => key.endsWith(`/${environmentName}`));
+}
+
 /** The environment providing the package `packageName` from the channel at `channelUrl` */
 export function findEnvironment(
   environments: GlobalEnvironment[],

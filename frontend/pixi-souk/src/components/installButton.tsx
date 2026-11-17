@@ -13,6 +13,7 @@ import { channelLabel } from "shared/lib/utils";
 
 import {
   findEnvironment,
+  isBusyEnvironmentName,
   setBusyEnvironment,
   useIsBusyEnvironment,
 } from "@/lib/environments";
@@ -49,17 +50,6 @@ export function InstallButton(props: InstallButtonProps) {
   const busy = useIsBusyEnvironment(environmentName, channelUrl);
 
   const install = async (pkg: PackageMetadata) => {
-    // Another environment already has the name, e.g. one with a package of the same name from
-    // another channel. pixi would add the package to that environment, from its channels.
-    if (
-      environments.some((environment) => environment.name === environmentName)
-    ) {
-      toast.error(
-        `Can't install ${pkg.name}: an environment named "${environmentName}" already exists`,
-      );
-      return;
-    }
-
     if (!defaultChannels.includes(pkg.channel)) {
       const confirmed = await showConfirm(
         "Install from a Non-Default Channel?",
@@ -69,6 +59,20 @@ export function InstallButton(props: InstallButtonProps) {
         "Install",
       );
       if (!confirmed) return;
+    }
+
+    // Another environment already has the name, e.g. one with a package of the same name from
+    // another channel. pixi would add the package to that environment, from its channels.
+    if (
+      environments.some(
+        (environment) => environment.name === environmentName,
+      ) ||
+      isBusyEnvironmentName(environmentName)
+    ) {
+      toast.error(
+        `Can't install ${pkg.name}: an environment named "${environmentName}" already exists`,
+      );
+      return;
     }
 
     setBusyEnvironment(environmentName, channelUrl, true);
