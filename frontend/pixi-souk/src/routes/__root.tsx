@@ -39,7 +39,7 @@ export const Route = createRootRoute({
     ]);
     return { environments, defaultChannels: channels };
   },
-  staleTime: 1_000, // 1 second
+  staleTime: Infinity,
   component: RootComponent,
 });
 
