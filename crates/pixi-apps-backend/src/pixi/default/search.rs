@@ -58,10 +58,17 @@ pub async fn search_packages(
             .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
             .collect();
 
+        // Short queries would match almost every name, so they only match name prefixes
+        let pattern = if name.len() < 3 {
+            format!("{name}*")
+        } else {
+            format!("*{name}*")
+        };
+
         let match_spec = (!name.is_empty())
             .then(|| {
                 MatchSpec::from_str(
-                    &format!("*{name}*"),
+                    &pattern,
                     ParseStrictnessWithNameMatcher {
                         parse_strictness: ParseStrictness::Lenient,
                         exact_names_only: false,
