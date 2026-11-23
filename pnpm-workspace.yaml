@@ -3,3 +3,7 @@ packages:
 
 allowBuilds:
   "@tailwindcss/oxide": true
+
+overrides:
+  "micromark-extension-math>katex": "^0.18.2"
+  "@trivago/prettier-plugin-sort-imports>minimatch": "^11.0.1"
