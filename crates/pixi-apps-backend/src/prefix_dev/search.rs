@@ -96,9 +96,12 @@ pub async fn search(
         .map(|channel| (channel.channel_path, channel.packages.page))
         .collect();
 
-    // Assign them to the configured channels
-    let mut hits: HashMap<NamedChannelOrUrl, Vec<SearchHit>> = indexed
+    // Assign them to the configured channels, in priority order: if several aliases resolve to
+    // the same path, the first one gets the hits. The others get none, so they aren't searched
+    // via repodata either.
+    let mut hits: HashMap<NamedChannelOrUrl, Vec<SearchHit>> = channels
         .iter()
+        .filter_map(|named| Some((named, indexed.get(named)?)))
         .map(|(named, path)| {
             let hits = by_path
                 .remove(path)
