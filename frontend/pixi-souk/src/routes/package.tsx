@@ -17,6 +17,8 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Header } from "shared/components/common/header";
 import { PreferencesGroup } from "shared/components/common/preferencesGroup";
@@ -128,14 +130,26 @@ function PackageComponent() {
 
         {pkg?.description && (
           <PreferencesGroup title="Description">
-            {/* Recipes hard-wrap descriptions, so only blank lines separate paragraphs */}
-            {pkg.description
-              .split(/\n\s*\n/)
-              .map((paragraph) => paragraph.trim())
-              .filter(Boolean)
-              .map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+            <div className="space-y-pfx-s [&_a]:underline [&_code]:font-mono [&_code]:text-sm [&_h1]:font-semibold [&_h1]:text-lg [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_ol]:list-decimal [&_ol]:pl-pfx-l [&_pre]:overflow-x-auto [&_ul]:list-disc [&_ul]:pl-pfx-l">
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (href) openExternal(href);
+                      }}
+                    >
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {pkg.description}
+              </Markdown>
+            </div>
           </PreferencesGroup>
         )}
 
