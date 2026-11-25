@@ -1,0 +1,15 @@
+query ChannelsQuery($hostedNames: [String!]) {
+  mirrors: channels(filters: { hasMirror: true }, limit: 50) {
+    page {
+      channelPath
+      mirror {
+        url
+      }
+    }
+  }
+  hosted: channels(filters: { name: { isIn: $hostedNames } }, limit: 100) {
+    page {
+      channelPath
+    }
+  }
+}

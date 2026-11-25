@@ -50,3 +50,8 @@ export const PLATFORMS = [...COMMON_PLATFORMS, ...OTHER_PLATFORMS];
 export function getPlatformName(id: string): string {
   return PLATFORMS.find((p) => p.id === id)?.name ?? id;
 }
+
+// A short label for a channel, e.g. `prefix.dev/my-channel` for `https://prefix.dev/my-channel/`
+export function channelLabel(channel: string): string {
+  return channel.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+}
