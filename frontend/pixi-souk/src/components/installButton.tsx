@@ -77,14 +77,23 @@ export function InstallButton(props: InstallButtonProps) {
 
     setBusyEnvironment(environmentName, channelUrl, true);
     try {
-      await installEnvironment(environmentName, [{ name: pkg.name }], {
-        channels: [pkg.channel],
-        platform: null,
-        expose: [],
-        with: [],
-        force_reinstall: false,
-        no_shortcuts: false,
-      });
+      // Pin the package to its channel, but keep the default channels for its dependencies.
+      // The package's channel stays first, as it identifies the environment's origin.
+      await installEnvironment(
+        environmentName,
+        [{ name: pkg.name, channel: pkg.channel }],
+        {
+          channels: [
+            pkg.channel,
+            ...defaultChannels.filter((channel) => channel !== pkg.channel),
+          ],
+          platform: null,
+          expose: [],
+          with: [],
+          force_reinstall: false,
+          no_shortcuts: false,
+        },
+      );
       await router.invalidate({
         sync: true,
         filter: (match) => match.routeId === "__root__",
