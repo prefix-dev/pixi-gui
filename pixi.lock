@@ -619,7 +619,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-64/openssl-3.6.5-h781a0a9_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/patchelf-0.19.3-hee9eb32_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/python-3.15.2-h6e52b48_100_cp315.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/rattler-build-0.79.0-hf01adef_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/rattler-build-0.80.2-hf01adef_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/tk-8.6.13-noxft_h1df4ec4_4.conda
       - conda: https://prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_7.conda
       - conda: https://prefix.dev/conda-forge/noarch/ca-certificates-2026.10.23-hbd8a1cb_0.conda
@@ -641,7 +641,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/osx-64/ncurses-6.6-hcc0dc9a_1.conda
       - conda: https://prefix.dev/conda-forge/osx-64/openssl-3.6.5-h332eb6d_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/python-3.15.2-h0abcc05_100_cp315.conda
-      - conda: https://prefix.dev/conda-forge/osx-64/rattler-build-0.79.0-h9a0f642_0.conda
+      - conda: https://prefix.dev/conda-forge/osx-64/rattler-build-0.80.2-h9a0f642_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/tk-8.6.13-ha6c374e_4.conda
       - conda: https://prefix.dev/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
       osx-arm64:
@@ -660,7 +660,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/osx-arm64/ncurses-6.6-he64c551_1.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/openssl-3.6.5-h55eecbc_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/python-3.15.2-h2e4dbab_100_cp315.conda
-      - conda: https://prefix.dev/conda-forge/osx-arm64/rattler-build-0.79.0-h2ace698_0.conda
+      - conda: https://prefix.dev/conda-forge/osx-arm64/rattler-build-0.80.2-h2ace698_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/tk-8.6.13-hbeba79b_4.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
       win-64:
@@ -676,7 +676,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/win-64/libzlib-1.3.2-hfd05255_3.conda
       - conda: https://prefix.dev/conda-forge/win-64/openssl-3.6.5-hf411b9b_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/python-3.15.2-h53f6dd8_100_cp315.conda
-      - conda: https://prefix.dev/conda-forge/win-64/rattler-build-0.79.0-he94b42d_0.conda
+      - conda: https://prefix.dev/conda-forge/win-64/rattler-build-0.80.2-he94b42d_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/tk-8.6.13-h967ab96_4.conda
       - conda: https://prefix.dev/conda-forge/win-64/ucrt-10.0.26100.0-h57928b3_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/vc-14.5-hda273ae_43.conda
@@ -3087,9 +3087,9 @@ packages:
   run_exports: {}
   size: 167747
   timestamp: 1790684469641
-- conda: https://prefix.dev/conda-forge/linux-64/rattler-build-0.79.0-hf01adef_0.conda
-  sha256: df2563bc91e61a198841e48a10ad73f524897ec4ae0c1ffb634a657eb93a9385
-  md5: 0c4492f5d862b5c962773b8853489077
+- conda: https://prefix.dev/conda-forge/linux-64/rattler-build-0.80.2-hf01adef_0.conda
+  sha256: 4e10b6da1ddb1d0e93a17b051965afd6964e69dafaf8f84a810389d08bd0217d
+  md5: 25c00e5322de82d8e97495e1a6ba0ba9
   depends:
   - patchelf
   - __glibc >=2.17,<3.0.a0
@@ -3101,8 +3101,8 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   run_exports: {}
-  size: 21723218
-  timestamp: 1793085139208
+  size: 22581078
+  timestamp: 1794866162544
 - conda: https://prefix.dev/conda-forge/linux-64/rav1e-0.8.1-hbab41bb_1.conda
   sha256: 6887a0689c6e563a77218e23b2a2ff4b8a10e9de85e41dace6a384c8d4f1c413
   md5: 5fbdc63a96f82edfa67b8da0fce252ae
@@ -5340,9 +5340,9 @@ packages:
   run_exports: {}
   size: 129679
   timestamp: 1790684636728
-- conda: https://prefix.dev/conda-forge/osx-64/rattler-build-0.79.0-h9a0f642_0.conda
-  sha256: 74ee33b3912a025d063323cb29201bd8628699c93d86441aaf4712bf76fcfa8b
-  md5: a4928eebdcef48d1246277620633ecae
+- conda: https://prefix.dev/conda-forge/osx-64/rattler-build-0.80.2-h9a0f642_0.conda
+  sha256: 5b59c6821a72f2b0b7b8d280e0de25a717269c48cd14ddefe8cf5876433ee5fe
+  md5: c6c38bb8ddc8cef1a852aafe76bee80b
   depends:
   - libcxx >=21
   - __osx >=11.0
@@ -5351,8 +5351,8 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   run_exports: {}
-  size: 21275101
-  timestamp: 1793085226936
+  size: 22143339
+  timestamp: 1794866289477
 - conda: https://prefix.dev/conda-forge/osx-64/ruff-0.17.4-h3047c83_0.conda
   sha256: 02a366b22afba75cdfab2a581898e0a3e15d49ca2e58f8ee6d2b7dbab0083f53
   md5: 2ff48d14a57094420d9792a10cdaa74b
@@ -6538,9 +6538,9 @@ packages:
   run_exports: {}
   size: 126718
   timestamp: 1790684474668
-- conda: https://prefix.dev/conda-forge/osx-arm64/rattler-build-0.79.0-h2ace698_0.conda
-  sha256: ce03c30ad3e419264c39315d988e2cdbdc480c8f6923c4f70eb8ceb889c39074
-  md5: d4eb23e53f8b506aca557ae857fce913
+- conda: https://prefix.dev/conda-forge/osx-arm64/rattler-build-0.80.2-h2ace698_0.conda
+  sha256: b939f86132e3c17cc23a499a1e2378450f2f56d5a3f3f8be1b008db518797003
+  md5: 991c1afe80a5a71f4d9da693f448dc18
   depends:
   - libcxx >=21
   - __osx >=11.0
@@ -6549,8 +6549,8 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   run_exports: {}
-  size: 19564450
-  timestamp: 1793085212034
+  size: 20406618
+  timestamp: 1794866207531
 - conda: https://prefix.dev/conda-forge/osx-arm64/ruff-0.17.4-ha19a7bb_0.conda
   sha256: 715bb6e5ea67042d7f086ae68041a5c2036c28eb39b52870107c92c789e2862d
   md5: 11e72a4a139fd7c27dff0fb4f56ba3e0
@@ -7305,9 +7305,9 @@ packages:
   run_exports: {}
   size: 109003
   timestamp: 1790684465183
-- conda: https://prefix.dev/conda-forge/win-64/rattler-build-0.79.0-he94b42d_0.conda
-  sha256: a76e2de25ec370fa2ec27de10f9de113595f019f1bf5c7fc93532eebdfa7c49d
-  md5: e13785020ce8a8fd26109083516fdc92
+- conda: https://prefix.dev/conda-forge/win-64/rattler-build-0.80.2-he94b42d_0.conda
+  sha256: b0aa6faf90eb870a685dd97c9f3c7550dc1def08f02883ee668713b042c782fb
+  md5: e4f162268401d5418416537dec10399d
   depends:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
@@ -7315,8 +7315,8 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   run_exports: {}
-  size: 22228325
-  timestamp: 1793085147271
+  size: 23409707
+  timestamp: 1794866157700
 - conda: https://prefix.dev/conda-forge/win-64/ruff-0.17.4-h18a1a76_0.conda
   sha256: 2213926da1e42b752208b9a1c3497721429c4217702295526aaf5d015b7a3e40
   md5: 5282dffdb5146d664202f0f57633afac
